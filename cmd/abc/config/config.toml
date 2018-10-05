@@ -1,0 +1,33 @@
+# This is a TOML config file.
+# For more information, see https://github.com/toml-lang/toml
+
+##### main base config options #####
+
+# qmoon directory
+home = "/Users/xutao/.qmoon"
+
+# Output level for logging, including package level options
+log_level = "info"
+
+##### http server configuration options #####
+[http]
+# Database type
+laddr = "http://0.0.0.0:8080"
+
+##### db configuration options #####
+[db]
+
+# Database type
+driver = "postgres"
+
+# Database user
+user = "postgres"
+
+# Database password
+password = ""
+
+# Database addr
+addr = "localhost:5432"
+
+# Database database
+database = "qmoon"

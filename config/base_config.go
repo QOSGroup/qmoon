@@ -2,6 +2,11 @@
 
 package config
 
+import (
+	"os"
+	"path/filepath"
+)
+
 // BaseConfig defines the base configuration for a Tendermint node
 type BaseConfig struct {
 
@@ -15,7 +20,7 @@ type BaseConfig struct {
 // DefaultBaseConfig returns a default base configuration
 func DefaultBaseConfig() BaseConfig {
 	return BaseConfig{
-		RootDir:  "$HOME/.qmoon",
+		RootDir:  os.ExpandEnv(filepath.Join("$HOME", DefaultQMoonDir)),
 		LogLevel: DefaultLogLevel(),
 	}
 }

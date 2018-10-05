@@ -4,18 +4,19 @@ package commands
 
 import (
 	"os"
+	"path/filepath"
 
 	cfg "github.com/QOSGroup/qmoon/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/tendermint/tendermint/libs/cli"
 	tmflags "github.com/tendermint/tendermint/libs/cli/flags"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
 var (
-	config = cfg.DefaultConfig()
-	logger = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+	HomeFlag = "home"
+	config   = cfg.DefaultConfig()
+	logger   = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 )
 
 func init() {
@@ -35,6 +36,7 @@ func ParseConfig() (*cfg.Config, error) {
 
 func registerFlagsRootCmd(cmd *cobra.Command) {
 	cmd.PersistentFlags().String("log_level", config.LogLevel, "Log level")
+	cmd.PersistentFlags().StringP(HomeFlag, "", config.RootDir, "directory for config and data")
 }
 
 func registerFlagsDb(cmd *cobra.Command) {
@@ -57,6 +59,26 @@ var RootCmd = &cobra.Command{
 		if cmd.Name() == VersionCmd.Name() {
 			return nil
 		}
+
+		if err := viper.BindPFlags(cmd.Flags()); err != nil {
+			return err
+		}
+
+		homeDir := viper.GetString(HomeFlag)
+		viper.Set(HomeFlag, homeDir)
+		viper.SetConfigName("config")                         // name of config file (without extension)
+		viper.AddConfigPath(homeDir)                          // search root directory
+		viper.AddConfigPath(filepath.Join(homeDir, "config")) // search root directory /config
+
+		// If a config file is found, read it in.
+		if err := viper.ReadInConfig(); err == nil {
+			// stderr, so if we redirect output to json file, this doesn't appear
+			// fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		} else if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			// ignore not found error, return other errors
+			return err
+		}
+
 		config, err = ParseConfig()
 		if err != nil {
 			return err
@@ -65,10 +87,10 @@ var RootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		if viper.GetBool(cli.TraceFlag) {
-			logger = log.NewTracingLogger(logger)
-		}
 		logger = logger.With("module", "main")
+
+		//logger.Info("rootCmd", "config.BaseConfig", config.BaseConfig,
+		//	"config.HttpServer", config.HttpServer, "config.DB", config.DB)
 
 		return nil
 	},
