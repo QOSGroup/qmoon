@@ -19,7 +19,7 @@ var cnf *Config
 
 // Config moon配置
 type Config struct {
-	BaseConfig
+	BaseConfig `mapstructure:",squash"`
 	HttpServer *HttpServerConfig `mapstructure:"http"`
 	DB         *DBConfig         `mapstructure:"db"`
 }
