@@ -11,13 +11,13 @@ type HttpServerConfig struct {
 // DefaultRPCConfig returns a default configuration for the HttpServer server
 func DefaultRPCConfig() *HttpServerConfig {
 	return &HttpServerConfig{
-		ListenAddress: "http://0.0.0.0:8080",
+		ListenAddress: "0.0.0.0:9527",
 	}
 }
 
 // TestRPCConfig returns a configuration for testing the HttpServer server
 func TestRPCConfig() *HttpServerConfig {
 	cfg := DefaultRPCConfig()
-	cfg.ListenAddress = "http://0.0.0.0:18080"
+	cfg.ListenAddress = "0.0.0.0:19527"
 	return cfg
 }

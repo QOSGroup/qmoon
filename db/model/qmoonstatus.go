@@ -158,7 +158,42 @@ func (qs *QmoonStatus) Delete(db XODB) error {
 	return nil
 }
 
-// QmoonStatusByKey retrieves a row from 'public.qmoon_status' as a QmoonStatus.
+// QmoonStatussQuery returns offset-limit rows from 'public.qmoon_status' filte by filter,
+// ordered by "id" in descending order.
+func QmoonStatusFilter(db XODB, filter string, offset, limit int) ([]*QmoonStatus, error) {
+	sqlstr := `SELECT ` +
+		`id, key, value` +
+		`FROM public.qmoon_status `
+
+	if filter != "" {
+		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	sqlstr = sqlstr + " order by id desc offset $1 limit $2"
+
+	XOLog(sqlstr, offset, limit)
+	q, err := db.Query(sqlstr, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer q.Close()
+
+	// load results
+	var res []*QmoonStatus
+	for q.Next() {
+		qs := QmoonStatus{}
+
+		// scan
+		err = q.Scan(&qs.ID, &qs.Key, &qs.Value)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &qs)
+	}
+
+	return res, nil
+} // QmoonStatusByKey retrieves a row from 'public.qmoon_status' as a QmoonStatus.
 //
 // Generated from index 'qmoon_status_key_key'.
 func QmoonStatusByKey(db XODB, key sql.NullString) (*QmoonStatus, error) {

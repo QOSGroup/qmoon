@@ -3,22 +3,30 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/QOSGroup/qmoon/version"
+	"github.com/gin-gonic/gin"
 )
 
-type VersionRes struct {
+func VersionGinRegister(r *gin.Engine) {
+	r.GET("/version",serverInfoGinHandler())
+}
+
+type versionRes struct {
 	Version string `json:"version"`
 }
 
-func ServerInfoHandler() http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		si := &VersionRes{
-			Version: version.Version,
-		}
-		d, _ := json.Marshal(si)
-		res.Write(d)
+func serverInfo() *versionRes {
+	return &versionRes{
+		Version: version.Version,
+	}
+}
+
+func serverInfoGinHandler() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		si := serverInfo()
+
+		c.JSON(http.StatusOK, WrapperRPCResponse("", si, nil))
 	}
 }

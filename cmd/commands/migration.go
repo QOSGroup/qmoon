@@ -39,6 +39,4 @@ func migration(cmd *cobra.Command, args []string) error {
 	} else {
 		return errors.New("需要参数up或down")
 	}
-
-	return nil
 }
