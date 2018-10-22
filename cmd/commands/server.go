@@ -3,18 +3,16 @@
 package commands
 
 import (
-	"net/http"
-
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/handler"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
 
 // ServerCmd qmoon http server
 var ServerCmd = &cobra.Command{
 	Use:   "server",
-	Short: "server explorer",
+	Short: "restful api server",
 	RunE:  server,
 }
 
@@ -29,10 +27,16 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	r := mux.NewRouter()
-	r.Handle("/version", handler.ServerInfoHandler()).Methods(http.MethodGet)
+	r := gin.Default()
 
-	http.ListenAndServe(config.HttpServer.ListenAddress, r)
+	r.Use(handler.AuthGin())
+
+	handler.VersionGinRegister(r)
+	handler.AccountGinRegister(r)
+
+	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
+		return err
+	}
 
 	return nil
 }

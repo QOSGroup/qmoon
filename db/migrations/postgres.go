@@ -51,17 +51,19 @@ DROP TABLE blocks;
 	},
 },
 	{
-		version: "2018-10-01-0800_test",
+		version: "2018-10-22-1800",
 		up: func(db *sql.DB) error {
 			s := `
-CREATE TABLE IF NOT EXISTS tttt(
+CREATE TABLE IF NOT EXISTS accounts(
 	id bigserial PRIMARY KEY,
-	key varchar(64),
-	value text,
-	unique (key)
+	secret_id varchar(64),
+	secret_key text,
+	description text,
+	created_at timestamp with time zone,
+	unique (secret_id)
 );
 
-update qmoon_status set value = '2018-10-01-0800_test' where key='qmoon_version';
+update qmoon_status set value = '2018-10-22-1800' where key='qmoon_version';
 `
 			_, err := db.Query(s)
 			return err
@@ -69,7 +71,7 @@ update qmoon_status set value = '2018-10-01-0800_test' where key='qmoon_version'
 		},
 		down: func(db *sql.DB) error {
 			s := `
-DROP TABLE tttt;
+DROP TABLE accounts;
 update qmoon_status set value = '2018-10-01-0800_init_schema' where key='qmoon_version';
 `
 			_, err := db.Query(s)
