@@ -1,7 +1,8 @@
 module github.com/QOSGroup/qmoon
 
 require (
-	github.com/QOSGroup/qstars v0.0.0-20181023071936-bbd41608796d // indirect
+	github.com/QOSGroup/qos v0.0.0-20181015092406-97fcfa08ee4c
+	github.com/QOSGroup/qstars v0.0.0-20181023071936-bbd41608796d
 	github.com/btcsuite/btcd v0.0.0-20181013004428-67e573d211ac // indirect
 	github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7 // indirect
 	github.com/gin-gonic/gin v1.3.0
