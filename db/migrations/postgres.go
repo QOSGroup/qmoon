@@ -8,62 +8,58 @@ import "database/sql"
 
 // create database qmoon ENCODING 'UTF8' TEMPLATE template0;
 
-var postgres = []*schema{{
-	version: "2018-10-01-0800_init_schema",
-	up: func(db *sql.DB) error {
-		s := `
+var postgres = []*schema{
+	{
+		version: "init_schema",
+		up: func(db *sql.DB) error {
+			s := `
 CREATE TABLE IF NOT EXISTS qmoon_status(
 	id bigserial PRIMARY KEY,
 	key varchar(64),
-	value text,
-	unique (key)
+	value text
 );
+CREATE unique index qmoon_status_key_idx on qmoon_status(key);
+
+CREATE TABLE IF NOT EXISTS accounts(
+	id bigserial PRIMARY KEY,
+	mail varchar(128),
+	name varchar(64),
+	avatar text,
+	description text,
+	status int,
+	password varchar(128),
+	created_at timestamp with time zone
+);
+CREATE unique index accounts_mail_idx on accounts(mail);
+
+
+CREATE TABLE IF NOT EXISTS apps(
+	id bigserial PRIMARY KEY,
+	name varchar(64),
+	secret_key text,
+	status int,
+    account_id BIGINT REFERENCES accounts (id) ON DELETE CASCADE,
+	created_at timestamp with time zone
+);
+CREATE unique index apps_secret_key_idx on apps(secret_key);
+CREATE index apps_saccount_id_idx on apps(account_id);
 
 CREATE TABLE IF NOT EXISTS block_chain(
 	id bigserial PRIMARY KEY,
 	height bigint,
-	data text,
-	unique (height)
+	data text
 );
+CREATE unique index block_chain_height_idx on block_chain(height);
 
 CREATE TABLE IF NOT EXISTS blocks(
 	id bigserial PRIMARY KEY,
 	height bigint,
-	data text,
-	unique (height)
+	data text
 );
+CREATE unique index blocks_height_idx on blocks(height);
 
-insert into qmoon_status(key, value)values('qmoon_version', '2018-10-01-0800_init_schema');
+insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
 
-`
-		_, err := db.Query(s)
-		return err
-
-	},
-	down: func(db *sql.DB) error {
-		s := `
-DROP TABLE qmoon_status;
-DROP TABLE block_chain;
-DROP TABLE blocks;
-`
-		_, err := db.Query(s)
-		return err
-	},
-},
-	{
-		version: "2018-10-22-1800",
-		up: func(db *sql.DB) error {
-			s := `
-CREATE TABLE IF NOT EXISTS accounts(
-	id bigserial PRIMARY KEY,
-	secret_id varchar(64),
-	secret_key text,
-	description text,
-	created_at timestamp with time zone,
-	unique (secret_id)
-);
-
-update qmoon_status set value = '2018-10-22-1800' where key='qmoon_version';
 `
 			_, err := db.Query(s)
 			return err
@@ -71,8 +67,12 @@ update qmoon_status set value = '2018-10-22-1800' where key='qmoon_version';
 		},
 		down: func(db *sql.DB) error {
 			s := `
+DROP TABLE qmoon_status;
+DROP TABLE apps;
+DROP TABLE block_chain;
+DROP TABLE blocks;
 DROP TABLE accounts;
-update qmoon_status set value = '2018-10-01-0800_init_schema' where key='qmoon_version';
+
 `
 			_, err := db.Query(s)
 			return err

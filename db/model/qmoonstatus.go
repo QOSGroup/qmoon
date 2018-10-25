@@ -160,10 +160,10 @@ func (qs *QmoonStatus) Delete(db XODB) error {
 
 // QmoonStatussQuery returns offset-limit rows from 'public.qmoon_status' filte by filter,
 // ordered by "id" in descending order.
-func QmoonStatusFilter(db XODB, filter string, offset, limit int) ([]*QmoonStatus, error) {
+func QmoonStatusFilter(db XODB, filter string, offset, limit int64) ([]*QmoonStatus, error) {
 	sqlstr := `SELECT ` +
 		`id, key, value` +
-		`FROM public.qmoon_status `
+		` FROM public.qmoon_status `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
@@ -195,7 +195,7 @@ func QmoonStatusFilter(db XODB, filter string, offset, limit int) ([]*QmoonStatu
 	return res, nil
 } // QmoonStatusByKey retrieves a row from 'public.qmoon_status' as a QmoonStatus.
 //
-// Generated from index 'qmoon_status_key_key'.
+// Generated from index 'qmoon_status_key_idx'.
 func QmoonStatusByKey(db XODB, key sql.NullString) (*QmoonStatus, error) {
 	var err error
 

@@ -10,7 +10,7 @@ import (
 )
 
 func VersionGinRegister(r *gin.Engine) {
-	r.GET("/version",serverInfoGinHandler())
+	r.GET("/admin/version", serverInfoGinHandler())
 }
 
 type versionRes struct {

@@ -160,10 +160,10 @@ func (b *Block) Delete(db XODB) error {
 
 // BlocksQuery returns offset-limit rows from 'public.blocks' filte by filter,
 // ordered by "id" in descending order.
-func BlockFilter(db XODB, filter string, offset, limit int) ([]*Block, error) {
+func BlockFilter(db XODB, filter string, offset, limit int64) ([]*Block, error) {
 	sqlstr := `SELECT ` +
 		`id, height, data` +
-		`FROM public.blocks `
+		` FROM public.blocks `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
@@ -195,7 +195,7 @@ func BlockFilter(db XODB, filter string, offset, limit int) ([]*Block, error) {
 	return res, nil
 } // BlockByHeight retrieves a row from 'public.blocks' as a Block.
 //
-// Generated from index 'blocks_height_key'.
+// Generated from index 'blocks_height_idx'.
 func BlockByHeight(db XODB, height sql.NullInt64) (*Block, error) {
 	var err error
 

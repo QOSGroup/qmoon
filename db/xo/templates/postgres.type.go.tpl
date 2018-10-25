@@ -209,10 +209,10 @@ func ({{ $short }} *{{ .Name }}) Delete(db XODB) error {
 
 // {{ .Name }}sQuery returns offset-limit rows from '{{ .Schema }}.{{ .Table.TableName }}' filte by filter,
 // ordered by "id" in descending order.
-func {{ .Name }}Filter(db XODB, filter string, offset, limit int) ([]*{{ .Name }}, error) {
+func {{ .Name }}Filter(db XODB, filter string, offset, limit int64) ([]*{{ .Name }}, error) {
     sqlstr := `SELECT ` +
         `{{ colnames .Fields }}` +
-        `FROM {{ $table }} `
+        ` FROM {{ $table }} `
 
     if filter != ""{
         sqlstr = sqlstr + " WHERE " + filter

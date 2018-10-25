@@ -29,10 +29,10 @@ func server(cmd *cobra.Command, args []string) error {
 
 	r := gin.Default()
 
-	r.Use(handler.AuthGin())
+	//r.Use(handler.AuthGin())
 
 	handler.VersionGinRegister(r)
-	handler.AccountGinRegister(r)
+	handler.AdminAccountGinRegister(r)
 
 	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
 		return err
