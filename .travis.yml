@@ -11,7 +11,6 @@ services:
 
 before_install:
   - go mod download
-  - go run cmd/main.go migration up
 
 script:
   - go test ./... -race -coverprofile=coverage.txt -covermode=atomic
