@@ -1,11 +1,17 @@
 language: go
 sudo: false
 dist: trusty
+env:
+  - GO111MODULE=on
 go:
   - 1.11
 
+services:
+  - postgresql
+
 before_install:
   - go mod download
+  - go run cmd/main.go migration up
 
 script:
   - go test ./... -race -coverprofile=coverage.txt -covermode=atomic

@@ -13,9 +13,12 @@ import (
 // Account represents a row from 'public.accounts'.
 type Account struct {
 	ID          int64          `json:"id"`          // id
-	SecretID    sql.NullString `json:"secret_id"`   // secret_id
-	SecretKey   sql.NullString `json:"secret_key"`  // secret_key
+	Mail        sql.NullString `json:"mail"`        // mail
+	Name        sql.NullString `json:"name"`        // name
+	Avatar      sql.NullString `json:"avatar"`      // avatar
 	Description sql.NullString `json:"description"` // description
+	Status      sql.NullInt64  `json:"status"`      // status
+	Password    sql.NullString `json:"password"`    // password
 	CreatedAt   pq.NullTime    `json:"created_at"`  // created_at
 
 	// xo fields
@@ -43,14 +46,14 @@ func (a *Account) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.accounts (` +
-		`secret_id, secret_key, description, created_at` +
+		`mail, name, avatar, description, status, password, created_at` +
 		`) VALUES (` +
-		`$1, $2, $3, $4` +
+		`$1, $2, $3, $4, $5, $6, $7` +
 		`) RETURNING id`
 
 	// run query
-	XOLog(sqlstr, a.SecretID, a.SecretKey, a.Description, a.CreatedAt)
-	err = db.QueryRow(sqlstr, a.SecretID, a.SecretKey, a.Description, a.CreatedAt).Scan(&a.ID)
+	XOLog(sqlstr, a.Mail, a.Name, a.Avatar, a.Description, a.Status, a.Password, a.CreatedAt)
+	err = db.QueryRow(sqlstr, a.Mail, a.Name, a.Avatar, a.Description, a.Status, a.Password, a.CreatedAt).Scan(&a.ID)
 	if err != nil {
 		return err
 	}
@@ -77,14 +80,14 @@ func (a *Account) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.accounts SET (` +
-		`secret_id, secret_key, description, created_at` +
+		`mail, name, avatar, description, status, password, created_at` +
 		`) = ( ` +
-		`$1, $2, $3, $4` +
-		`) WHERE id = $5`
+		`$1, $2, $3, $4, $5, $6, $7` +
+		`) WHERE id = $8`
 
 	// run query
-	XOLog(sqlstr, a.SecretID, a.SecretKey, a.Description, a.CreatedAt, a.ID)
-	_, err = db.Exec(sqlstr, a.SecretID, a.SecretKey, a.Description, a.CreatedAt, a.ID)
+	XOLog(sqlstr, a.Mail, a.Name, a.Avatar, a.Description, a.Status, a.Password, a.CreatedAt, a.ID)
+	_, err = db.Exec(sqlstr, a.Mail, a.Name, a.Avatar, a.Description, a.Status, a.Password, a.CreatedAt, a.ID)
 	return err
 }
 
@@ -110,18 +113,18 @@ func (a *Account) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.accounts (` +
-		`id, secret_id, secret_key, description, created_at` +
+		`id, mail, name, avatar, description, status, password, created_at` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5` +
+		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, secret_id, secret_key, description, created_at` +
+		`id, mail, name, avatar, description, status, password, created_at` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.secret_id, EXCLUDED.secret_key, EXCLUDED.description, EXCLUDED.created_at` +
+		`EXCLUDED.id, EXCLUDED.mail, EXCLUDED.name, EXCLUDED.avatar, EXCLUDED.description, EXCLUDED.status, EXCLUDED.password, EXCLUDED.created_at` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, a.ID, a.SecretID, a.SecretKey, a.Description, a.CreatedAt)
-	_, err = db.Exec(sqlstr, a.ID, a.SecretID, a.SecretKey, a.Description, a.CreatedAt)
+	XOLog(sqlstr, a.ID, a.Mail, a.Name, a.Avatar, a.Description, a.Status, a.Password, a.CreatedAt)
+	_, err = db.Exec(sqlstr, a.ID, a.Mail, a.Name, a.Avatar, a.Description, a.Status, a.Password, a.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -164,10 +167,10 @@ func (a *Account) Delete(db XODB) error {
 
 // AccountsQuery returns offset-limit rows from 'public.accounts' filte by filter,
 // ordered by "id" in descending order.
-func AccountFilter(db XODB, filter string, offset, limit int) ([]*Account, error) {
+func AccountFilter(db XODB, filter string, offset, limit int64) ([]*Account, error) {
 	sqlstr := `SELECT ` +
-		`id, secret_id, secret_key, description, created_at` +
-		`FROM public.accounts `
+		`id, mail, name, avatar, description, status, password, created_at` +
+		` FROM public.accounts `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
@@ -188,7 +191,7 @@ func AccountFilter(db XODB, filter string, offset, limit int) ([]*Account, error
 		a := Account{}
 
 		// scan
-		err = q.Scan(&a.ID, &a.SecretID, &a.SecretKey, &a.Description, &a.CreatedAt)
+		err = q.Scan(&a.ID, &a.Mail, &a.Name, &a.Avatar, &a.Description, &a.Status, &a.Password, &a.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -197,7 +200,33 @@ func AccountFilter(db XODB, filter string, offset, limit int) ([]*Account, error
 	}
 
 	return res, nil
-} // AccountByID retrieves a row from 'public.accounts' as a Account.
+} // AccountByMail retrieves a row from 'public.accounts' as a Account.
+//
+// Generated from index 'accounts_mail_idx'.
+func AccountByMail(db XODB, mail sql.NullString) (*Account, error) {
+	var err error
+
+	// sql query
+	const sqlstr = `SELECT ` +
+		`id, mail, name, avatar, description, status, password, created_at ` +
+		`FROM public.accounts ` +
+		`WHERE mail = $1`
+
+	// run query
+	XOLog(sqlstr, mail)
+	a := Account{
+		_exists: true,
+	}
+
+	err = db.QueryRow(sqlstr, mail).Scan(&a.ID, &a.Mail, &a.Name, &a.Avatar, &a.Description, &a.Status, &a.Password, &a.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &a, nil
+}
+
+// AccountByID retrieves a row from 'public.accounts' as a Account.
 //
 // Generated from index 'accounts_pkey'.
 func AccountByID(db XODB, id int64) (*Account, error) {
@@ -205,7 +234,7 @@ func AccountByID(db XODB, id int64) (*Account, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, secret_id, secret_key, description, created_at ` +
+		`id, mail, name, avatar, description, status, password, created_at ` +
 		`FROM public.accounts ` +
 		`WHERE id = $1`
 
@@ -215,33 +244,7 @@ func AccountByID(db XODB, id int64) (*Account, error) {
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, id).Scan(&a.ID, &a.SecretID, &a.SecretKey, &a.Description, &a.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	return &a, nil
-}
-
-// AccountBySecretID retrieves a row from 'public.accounts' as a Account.
-//
-// Generated from index 'accounts_secret_id_key'.
-func AccountBySecretID(db XODB, secretID sql.NullString) (*Account, error) {
-	var err error
-
-	// sql query
-	const sqlstr = `SELECT ` +
-		`id, secret_id, secret_key, description, created_at ` +
-		`FROM public.accounts ` +
-		`WHERE secret_id = $1`
-
-	// run query
-	XOLog(sqlstr, secretID)
-	a := Account{
-		_exists: true,
-	}
-
-	err = db.QueryRow(sqlstr, secretID).Scan(&a.ID, &a.SecretID, &a.SecretKey, &a.Description, &a.CreatedAt)
+	err = db.QueryRow(sqlstr, id).Scan(&a.ID, &a.Mail, &a.Name, &a.Avatar, &a.Description, &a.Status, &a.Password, &a.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

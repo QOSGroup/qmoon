@@ -3,20 +3,19 @@
 package commands
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 
 	cfg "github.com/QOSGroup/qmoon/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	tmflags "github.com/tendermint/tendermint/libs/cli/flags"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 var (
 	HomeFlag = "home"
 	config   = cfg.DefaultConfig()
-	logger   = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+	logger   = log.New(os.Stderr, "", log.LstdFlags)
 )
 
 func init() {
@@ -83,11 +82,6 @@ var RootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		logger, err = tmflags.ParseLogLevel(config.LogLevel, logger, cfg.DefaultLogLevel())
-		if err != nil {
-			return err
-		}
-		logger = logger.With("module", "main")
 
 		//logger.Info("rootCmd", "config.BaseConfig", config.BaseConfig,
 		//	"config.HttpServer", config.HttpServer, "config.DB", config.DB)

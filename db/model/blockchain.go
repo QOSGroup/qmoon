@@ -160,10 +160,10 @@ func (bc *BlockChain) Delete(db XODB) error {
 
 // BlockChainsQuery returns offset-limit rows from 'public.block_chain' filte by filter,
 // ordered by "id" in descending order.
-func BlockChainFilter(db XODB, filter string, offset, limit int) ([]*BlockChain, error) {
+func BlockChainFilter(db XODB, filter string, offset, limit int64) ([]*BlockChain, error) {
 	sqlstr := `SELECT ` +
 		`id, height, data` +
-		`FROM public.block_chain `
+		` FROM public.block_chain `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
@@ -195,7 +195,7 @@ func BlockChainFilter(db XODB, filter string, offset, limit int) ([]*BlockChain,
 	return res, nil
 } // BlockChainByHeight retrieves a row from 'public.block_chain' as a BlockChain.
 //
-// Generated from index 'block_chain_height_key'.
+// Generated from index 'block_chain_height_idx'.
 func BlockChainByHeight(db XODB, height sql.NullInt64) (*BlockChain, error) {
 	var err error
 

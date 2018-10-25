@@ -10,7 +10,8 @@ github.com/QOSGroup/qstars v0.0.0-20181023071936-bbd41608796d h1:/8udRFm/JA8/2Ql
 github.com/QOSGroup/qstars v0.0.0-20181023071936-bbd41608796d/go.mod h1:DrxZZUsng2B6s6K4p5NDFmByKDXUhekcViV3WCkks7M=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412/go.mod h1:WPjqKcmVOxf0XSf3YxCJs6N6AOSrOx3obionmG7T0y0=
-github.com/bartekn/go-bip39 v0.0.0-20171116152956-a05967ea095d h1:1aAija9gr0Hyv4KfQcRcwlmFIrhkDmIj2dz5bkg/s/8=
+github.com/apache/thrift v0.0.0-20181019115558-cd829a0b9a5c h1:K25zTz2WqpXJ3YwU2yze07Z0Bw78Z0Do3zcp5E4jX/U=
+github.com/apache/thrift v0.0.0-20181019115558-cd829a0b9a5c/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
 github.com/bartekn/go-bip39 v0.0.0-20171116152956-a05967ea095d/go.mod h1:icNx/6QdFblhsEjZehARqbNumymUT/ydwlLojFdv7Sk=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 h1:xJ4a3vCFaGF/jqvzLMYoU8P317H5OQ+Via4RmuPwCS0=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
