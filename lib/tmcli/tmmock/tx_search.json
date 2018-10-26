@@ -1,0 +1,9 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "error": {
+    "code": -32603,
+    "message": "Internal error",
+    "data": "\nparse error near Unknown (line 1 symbol 1 - line 1 symbol 1):\n\"\"\n"
+  }
+}

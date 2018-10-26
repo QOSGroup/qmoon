@@ -1,0 +1,11 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "result": {
+    "response": {
+      "data": "GaiaApp",
+      "last_block_height": "870165",
+      "last_block_app_hash": "5Brz2uO+MNE2EQg1DjqXJXnPNxw="
+    }
+  }
+}

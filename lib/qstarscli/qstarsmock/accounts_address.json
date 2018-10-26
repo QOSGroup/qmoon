@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "error": {
+    "code": 0,
+    "message": "decoding bech32 failed: invalid bech32 string length 7"
+  }
+}

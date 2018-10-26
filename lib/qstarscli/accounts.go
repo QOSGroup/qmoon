@@ -1,4 +1,4 @@
-package tmcli
+package qstarscli
 
 import (
 	"context"

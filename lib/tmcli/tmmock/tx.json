@@ -1,0 +1,9 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "error": {
+    "code": -32603,
+    "message": "Internal error",
+    "data": "Transaction hash cannot be empty"
+  }
+}

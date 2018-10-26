@@ -1,4 +1,4 @@
-package tmcli
+package qstarscli
 
 import (
 	"context"
@@ -9,12 +9,12 @@ import (
 func init() {
 }
 
-const nodeVersionURI = "node_version"
+const versionURI = "version"
 
-type NodeVersionService service
+type VersionService service
 
-func (s *NodeVersionService) Retrieve(ctx context.Context) (*lcd.ResultNodeVersion, error) {
-	u := nodeVersionURI
+func (s *VersionService) Retrieve(ctx context.Context) (*lcd.ResultCLIVersion, error) {
+	u := versionURI
 
 	u, err := addOptions(u, nil)
 	if err != nil {
@@ -26,7 +26,7 @@ func (s *NodeVersionService) Retrieve(ctx context.Context) (*lcd.ResultNodeVersi
 		return nil, err
 	}
 
-	var res lcd.ResultNodeVersion
+	var res lcd.ResultCLIVersion
 	_, err = s.client.Do(ctx, req, &res)
 	if err != nil {
 		return nil, err

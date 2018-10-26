@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "error": {
+    "code": 0,
+    "message": "UnmarshalJSON cannot decode empty bytes"
+  }
+}

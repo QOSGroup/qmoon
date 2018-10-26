@@ -1,0 +1,10 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "result": {
+    "code": 65538,
+    "data": "",
+    "log": "=== ABCI Log ===\nCodespace: 1\nCode:      2\nABCICode:  65538\nError:     --= Error =--\nData: common.FmtError{format:\"txBytes are empty\", args:[]interface {}(nil)}\nMsg Traces:\n--= /Error =--\n\n=== /ABCI Log ===\n",
+    "hash": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4"
+  }
+}

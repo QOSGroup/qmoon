@@ -1,0 +1,37 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "result": {
+    "node_info": {
+      "id": "55acd26ae3304d676a14cc6e819fec18fa49a2e6",
+      "listen_addr": "172.31.10.143:26656",
+      "network": "gaia-8001",
+      "version": "0.23.1",
+      "channels": "4020212223303800",
+      "moniker": "q-validator",
+      "other": [
+        "amino_version=0.12.0",
+        "p2p_version=0.5.0",
+        "consensus_version=v1/0.2.2",
+        "rpc_version=0.7.0/3",
+        "tx_index=on",
+        "rpc_addr=tcp://0.0.0.0:26657"
+      ]
+    },
+    "sync_info": {
+      "latest_block_hash": "5AE4E524C5291B555B1D07748BB53831B0E5152B",
+      "latest_app_hash": "9979166E98DE9BA1A401E7EF4CDCF0F6A6D030B9",
+      "latest_block_height": "870167",
+      "latest_block_time": "2018-10-26T03:52:43.640425408Z",
+      "catching_up": false
+    },
+    "validator_info": {
+      "address": "E56E00A6B6AC1BE546CE9A9F34C7C1BB7585A8C1",
+      "pub_key": {
+        "type": "tendermint/PubKeyEd25519",
+        "value": "TBsp7W9VwXn2YhLL5Dn9Ihpgy4dr+5bgT3uy5g+fjtQ="
+      },
+      "voting_power": "74"
+    }
+  }
+}
