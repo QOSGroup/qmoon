@@ -1,0 +1,11 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "result": {
+    "pubKey": "cosmosaccpub1zcjduepqvsxn3hhahlqqlz4l76ecftaqjrad5ayra5vxzjdnc4w5kqn0tnsq6c5x5k",
+    "privKey": "PWMRFuCeJdXIzLb89BlcaxK1Wn6v0YxLLZDjDeFs8kJkDTje/b/AD4q/9rOEr6CQ+tp0g+0YYUmzxV1LAm9c4A==",
+    "addr": "address1knzpxm6fp2s07enzu2zdfnm05wledt5nkt8zhn",
+    "mnemonic": "holiday runway crush boring include stuff axis setup meadow gown feel annual climb hybrid enrich addict bread among expect pond engine enemy later vicious",
+    "type": "local"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "error": {
+    "code": 0,
+    "message": "ABCIQuery: Error unmarshalling rpc response: invalid character 'p' after top-level value"
+  }
+}

@@ -9,7 +9,7 @@ import (
 )
 
 func TestTx(t *testing.T) {
-	opt, err := NewOption()
+	opt, err := NewOption(SetOptionHost(tmMockServer))
 	assert.Nil(t, err)
 
 	_, err = NewClient(opt).Tx.Retrieve(nil, []byte("a"), true)

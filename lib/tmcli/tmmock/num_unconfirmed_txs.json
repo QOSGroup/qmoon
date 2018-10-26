@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "result": {
+    "n_txs": "0",
+    "txs": null
+  }
+}

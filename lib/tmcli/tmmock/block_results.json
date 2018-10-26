@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "result": {
+    "height": "870168",
+    "results": {
+      "DeliverTx": null,
+      "EndBlock": {
+        "validator_updates": null
+      }
+    }
+  }
+}

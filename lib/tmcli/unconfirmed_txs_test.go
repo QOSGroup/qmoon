@@ -9,7 +9,7 @@ import (
 )
 
 func TestUnconfirmedTxs(t *testing.T) {
-	opt, err := NewOption()
+	opt, err := NewOption(SetOptionHost(tmMockServer))
 	assert.Nil(t, err)
 
 	res, err := NewClient(opt).UnconfirmedTxs.Retrieve(nil, &UnconfirmedTxsOption{Limit: 0})

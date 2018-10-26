@@ -1,0 +1,10 @@
+{
+  "jsonrpc": "2.0",
+  "id": "",
+  "result": {
+    "response": {
+      "code": 65542,
+      "log": "=== ABCI Log ===\nCodespace: 1\nCode:      6\nABCICode:  65542\nError:     --= Error =--\nData: common.FmtError{format:\"no query path provided\", args:[]interface {}(nil)}\nMsg Traces:\n--= /Error =--\n\n=== /ABCI Log ===\n"
+    }
+  }
+}

@@ -9,7 +9,7 @@ import (
 )
 
 func TestBroadcastTxAsync(t *testing.T) {
-	opt, err := NewOption()
+	opt, err := NewOption(SetOptionHost(tmMockServer))
 	assert.Nil(t, err)
 
 	res, err := NewClient(opt).BroadcastTxAsync.Retrieve(nil, &BroadcastTxAsyncOption{Tx: ""})
