@@ -59,7 +59,6 @@ func checkDatabase(dbName string, db *sql.DB) (bool, error) {
 	s := fmt.Sprintf("select count(*) from pg_catalog.pg_database where datname='%s';", dbName)
 	var count int
 	err := db.QueryRow(s).Scan(&count)
-	fmt.Printf("-------checkDatabase sql:[%s], name:%s, count:%d\n", s, dbName, count)
 
 	if err != nil {
 		return false, err
@@ -71,8 +70,8 @@ func checkDatabase(dbName string, db *sql.DB) (bool, error) {
 // createDatabase 创建数据库
 func createDatabase(dbName string, db *sql.DB) error {
 	s := fmt.Sprintf("create database %s ENCODING 'UTF8' TEMPLATE template0;", dbName)
+
 	_, err := db.Query(s)
-	fmt.Printf("-------createDatabase name:%s\n", dbName)
 
 	return err
 }
@@ -94,48 +93,53 @@ func dropDatabase(dbName string, db *sql.DB) error {
 	return err
 }
 
-func MakeTestMain() func(m *testing.M) {
-	return func(m *testing.M) {
-		dbCfg := config.TestDBConfig()
-		dbCfg.Database = ""
+type testDb struct {
+	db          *sql.DB
+	tmpDatabase string
+}
 
-		var curDb *sql.DB
-		err := InitDb(dbCfg, log.New(os.Stderr, "", log.LstdFlags))
-		if err != nil {
-			panic(err)
-		}
-		curDb = Db
-		defer curDb.Close()
+func (dt *testDb) Close() {
+	defer dt.db.Close()
+	dropDatabase(dt.tmpDatabase, dt.db)
+}
 
-		dbCfg.Database = fmt.Sprintf("qmoon_test_%d", time.Now().Nanosecond())
-		ok, err := checkDatabase(dbCfg.Database, Db)
-		if err != nil {
-			panic(err)
-		}
-		if !ok {
-			err := createDatabase(dbCfg.Database, curDb)
-			if err != nil {
-				panic(err)
-			}
+func NewTestDb(m *testing.M) *testDb {
+	res := &testDb{}
 
-			err = InitDb(dbCfg, log.New(os.Stderr, "", log.LstdFlags))
-			if err != nil {
-				panic(err)
-			}
-		}
+	dbCfg := config.TestDBConfig()
+	dbCfg.Database = ""
 
-		defer func() {
-			Db.Close()
-			err = dropDatabase(dbCfg.Database, curDb)
-		}()
-
-		err = migrations.Up(dbCfg.DriverName, Db)
-		if err != nil {
-			panic(err)
-		}
-
-		model.XOLog = utils.SQLLog(os.Stdout)
-
-		m.Run()
+	err := InitDb(dbCfg, log.New(os.Stderr, "", log.LstdFlags))
+	if err != nil {
+		panic(err)
 	}
+	res.db = Db
+
+	dbCfg.Database = fmt.Sprintf("qmoon_test_%d", time.Now().Nanosecond())
+	ok, err := checkDatabase(dbCfg.Database, Db)
+	if err != nil {
+		panic(err)
+	}
+	if !ok {
+		err := createDatabase(dbCfg.Database, res.db)
+		if err != nil {
+			panic(err)
+		}
+
+		err = InitDb(dbCfg, log.New(os.Stderr, "", log.LstdFlags))
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	err = migrations.Up(dbCfg.DriverName, Db)
+	if err != nil {
+		panic(err)
+	}
+
+	model.XOLog = utils.SQLLog(os.Stdout)
+
+	res.tmpDatabase = dbCfg.Database
+
+	return res
 }

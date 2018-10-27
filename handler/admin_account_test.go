@@ -16,5 +16,4 @@ func TestAdminAccountCRUD(t *testing.T) {
 	s := httptest.NewServer(r)
 	defer s.Close()
 	t.Logf("url:%s", s.URL)
-
 }

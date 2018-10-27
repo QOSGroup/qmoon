@@ -7,8 +7,10 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"net/http/httptest"
 	"reflect"
 
+	"github.com/QOSGroup/qmoon/lib/tmcli/tmmock"
 	"github.com/google/go-querystring/query"
 	amino "github.com/tendermint/go-amino"
 	tmltypes "github.com/tendermint/tendermint/rpc/lib/types"
@@ -17,7 +19,7 @@ import (
 	"net/url"
 )
 
-const tmDefaultServer = "http://18.188.103.180:26657"
+var tmDefaultServer = "http://18.188.103.180:26657"
 
 var cdc = amino.NewCodec()
 
@@ -318,4 +320,24 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 	}
 
 	return resp, err
+}
+
+type testTmServer struct {
+	s *httptest.Server
+}
+
+func (tts *testTmServer) Close() {
+	tts.s.Close()
+}
+
+func NewTestTmServer() *testTmServer {
+	tts := &testTmServer{}
+
+	tm := tmmock.NewTendermintMock()
+	s := httptest.NewServer(tm)
+	tmDefaultServer = s.URL
+
+	tts.s = s
+
+	return tts
 }

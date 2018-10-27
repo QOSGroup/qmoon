@@ -6,8 +6,24 @@ import (
 	"testing"
 	"time"
 
+	"github.com/QOSGroup/qmoon/db"
+	"github.com/QOSGroup/qmoon/lib/qstarscli"
+	"github.com/QOSGroup/qmoon/lib/tmcli"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestMain(m *testing.M) {
+	dbTest := db.NewTestDb(m)
+	defer dbTest.Close()
+
+	tq := qstarscli.NewTestQstarsServer()
+	defer tq.Close()
+
+	tts := tmcli.NewTestTmServer()
+	defer tts.Close()
+
+	m.Run()
+}
 
 func TestCheck(t *testing.T) {
 	secretKey := []byte("afdcd")

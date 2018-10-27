@@ -5,7 +5,6 @@ package commands
 import (
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/handler"
-	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
 
@@ -27,12 +26,7 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	r := gin.Default()
-
-	//r.Use(handler.AuthGin())
-
-	handler.VersionGinRegister(r)
-	handler.AdminAccountGinRegister(r)
+	r := handler.NewGinRouter()
 
 	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
 		return err

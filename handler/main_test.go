@@ -1,15 +1,24 @@
 // Copyright 2018 The QOS Authors
 
-// Package pkg comments for pkg handler
-// handler ...
 package handler
 
 import (
 	"testing"
 
 	"github.com/QOSGroup/qmoon/db"
+	"github.com/QOSGroup/qmoon/lib/qstarscli"
+	"github.com/QOSGroup/qmoon/lib/tmcli"
 )
 
 func TestMain(m *testing.M) {
-	db.MakeTestMain()(m)
+	dbTest := db.NewTestDb(m)
+	defer dbTest.Close()
+
+	tq := qstarscli.NewTestQstarsServer()
+	defer tq.Close()
+
+	tts := tmcli.NewTestTmServer()
+	defer tts.Close()
+
+	m.Run()
 }

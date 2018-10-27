@@ -1,6 +1,8 @@
 // Copyright 2018 The QOS Authors
 
-package admin
+// Package pkg comments for pkg service
+// service 业务逻辑
+package service
 
 import (
 	"testing"

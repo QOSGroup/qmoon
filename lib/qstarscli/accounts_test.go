@@ -9,7 +9,7 @@ import (
 )
 
 func TestCreateAccount(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(qstarsMockServer))
+	opt, err := NewOption(SetOptionHost(tmDefaultServer))
 	assert.Nil(t, err)
 
 	_, err = NewClient(opt).Accounts.Create(nil)
@@ -17,7 +17,7 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestRetrieveAccount(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(qstarsMockServer))
+	opt, err := NewOption(SetOptionHost(tmDefaultServer))
 	assert.Nil(t, err)
 
 	_, err = NewClient(opt).Accounts.Retrieve(nil, "address")

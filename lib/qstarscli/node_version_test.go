@@ -9,7 +9,7 @@ import (
 )
 
 func TestNodeVersion(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(qstarsMockServer))
+	opt, err := NewOption(SetOptionHost(tmDefaultServer))
 	assert.Nil(t, err)
 
 	_, err = NewClient(opt).NodeVersion.Retrieve(nil)
