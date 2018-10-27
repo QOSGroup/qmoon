@@ -1,6 +1,6 @@
 // Copyright 2018 The QOS Authors
 
-package admin
+package block
 
 import (
 	"testing"

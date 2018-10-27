@@ -9,7 +9,7 @@ import (
 )
 
 func TestStatus(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(tmMockServer))
+	opt, err := NewOption(SetOptionHost(tmDefaultServer))
 	assert.Nil(t, err)
 
 	res, err := NewClient(opt).Status.Retrieve(nil)

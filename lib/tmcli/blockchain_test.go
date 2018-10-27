@@ -9,7 +9,7 @@ import (
 )
 
 func TestBlockchain(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(tmMockServer))
+	opt, err := NewOption(SetOptionHost(tmDefaultServer))
 	assert.Nil(t, err)
 
 	res, err := NewClient(opt).Blockchain.List(nil, &BlockchainOption{MinHeight: 1, MaxHeight: 1})

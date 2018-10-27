@@ -9,7 +9,7 @@ import (
 )
 
 func TestSubscribe(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(tmMockServer))
+	opt, err := NewOption(SetOptionHost(tmDefaultServer))
 	assert.Nil(t, err)
 
 	_, err = NewClient(opt).Subscribe.Retrieve(nil, "a")

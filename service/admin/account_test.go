@@ -47,6 +47,11 @@ func TestRetrieveAccount(t *testing.T) {
 	as, err = Accounts(0, 100)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(as))
+
+	a, err := RetrieveAccountByID(as[0].ID)
+	assert.Nil(t, err)
+	assert.Equal(t, as[0], a)
+
 }
 
 func TestCreateApp(t *testing.T) {
@@ -78,6 +83,15 @@ func TestRetrieveApp(t *testing.T) {
 	app1, err := a1.AppByID(apps[0].ID)
 	assert.Nil(t, err)
 	assert.Equal(t, appName1, app1.Name)
+
+	tmpapp, err := AppBySecretKey(app1.SecretKey)
+	assert.Nil(t, err)
+	assert.Equal(t, app1, tmpapp)
+
+	acc, err := tmpapp.Account()
+	assert.Nil(t, err)
+	assert.Equal(t, a1, acc)
+
 }
 
 func TestDeleteApp(t *testing.T) {

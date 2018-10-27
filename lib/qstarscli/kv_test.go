@@ -9,7 +9,7 @@ import (
 )
 
 func TestCreatekV(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(qstarsMockServer))
+	opt, err := NewOption(SetOptionHost(tmDefaultServer))
 	assert.Nil(t, err)
 
 	_, err = NewClient(opt).KV.Create(nil, "key", "value", "", "")
@@ -17,7 +17,7 @@ func TestCreatekV(t *testing.T) {
 }
 
 func TestRetrievekV(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(qstarsMockServer))
+	opt, err := NewOption(SetOptionHost(tmDefaultServer))
 	assert.Nil(t, err)
 
 	_, err = NewClient(opt).KV.Retrieve(nil, "key")

@@ -7,8 +7,10 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"net/http/httptest"
 	"reflect"
 
+	"github.com/QOSGroup/qmoon/lib/qstarscli/qstarsmock"
 	"github.com/google/go-querystring/query"
 	amino "github.com/tendermint/go-amino"
 	tmltypes "github.com/tendermint/tendermint/rpc/lib/types"
@@ -17,7 +19,7 @@ import (
 	"net/url"
 )
 
-const tmDefaultServer = "http://localhost:1317"
+var tmDefaultServer = "http://localhost:1317"
 
 var cdc = amino.NewCodec()
 
@@ -284,4 +286,24 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 	}
 
 	return resp, err
+}
+
+type testQstarsServer struct {
+	s *httptest.Server
+}
+
+func (tq *testQstarsServer) Close() {
+	tq.s.Close()
+}
+
+func NewTestQstarsServer() *testQstarsServer {
+	tq := &testQstarsServer{}
+	tm := qstarsmock.NewQstarsMock()
+	s := httptest.NewServer(tm)
+
+	tmDefaultServer = s.URL
+
+	tq.s = s
+
+	return tq
 }

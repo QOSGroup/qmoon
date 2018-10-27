@@ -12,3 +12,11 @@ func WrapperRPCResponse(id string, result interface{}, err *types.RPCError) type
 		Error:   err,
 	}
 }
+
+func NewRPCError(code int, message, data string) *types.RPCError {
+	return &types.RPCError{
+		Code:    code,
+		Message: message,
+		Data:    data,
+	}
+}
