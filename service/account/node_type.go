@@ -1,6 +1,6 @@
 // Copyright 2018 The QOS Authors
 
-package admin
+package account
 
 import "github.com/QOSGroup/qmoon/types"
 

@@ -2,7 +2,10 @@
 
 package types
 
-const AuthUserKey = "user"
+const (
+	AuthUserKey = "user"
+	AuthAppKey  = "app"
+)
 
 type AdminAccountStatus int
 

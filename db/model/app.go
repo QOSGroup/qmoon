@@ -10,7 +10,7 @@ import (
 	"github.com/lib/pq"
 )
 
-// app represents a row from 'public.apps'.
+// App represents a row from 'public.apps'.
 type App struct {
 	ID        int64          `json:"id"`         // id
 	Name      sql.NullString `json:"name"`       // name
@@ -23,17 +23,17 @@ type App struct {
 	_exists, _deleted bool
 }
 
-// Exists determines if the app exists in the database.
+// Exists determines if the App exists in the database.
 func (a *App) Exists() bool {
 	return a._exists
 }
 
-// Deleted provides information if the app has been deleted from the database.
+// Deleted provides information if the App has been deleted from the database.
 func (a *App) Deleted() bool {
 	return a._deleted
 }
 
-// Insert inserts the app to the database.
+// Insert inserts the App to the database.
 func (a *App) Insert(db XODB) error {
 	var err error
 
@@ -62,7 +62,7 @@ func (a *App) Insert(db XODB) error {
 	return nil
 }
 
-// Update updates the app in the database.
+// Update updates the App in the database.
 func (a *App) Update(db XODB) error {
 	var err error
 
@@ -89,7 +89,7 @@ func (a *App) Update(db XODB) error {
 	return err
 }
 
-// Save saves the app to the database.
+// Save saves the App to the database.
 func (a *App) Save(db XODB) error {
 	if a.Exists() {
 		return a.Update(db)
@@ -98,7 +98,7 @@ func (a *App) Save(db XODB) error {
 	return a.Insert(db)
 }
 
-// Upsert performs an upsert for app.
+// Upsert performs an upsert for App.
 //
 // NOTE: PostgreSQL 9.5+ only
 func (a *App) Upsert(db XODB) error {
@@ -133,7 +133,7 @@ func (a *App) Upsert(db XODB) error {
 	return nil
 }
 
-// Delete deletes the app from the database.
+// Delete deletes the App from the database.
 func (a *App) Delete(db XODB) error {
 	var err error
 
@@ -198,42 +198,16 @@ func AppFilter(db XODB, filter string, offset, limit int64) ([]*App, error) {
 	}
 
 	return res, nil
-} // Account returns the Account associated with the app's AccountID (account_id).
+} // Account returns the Account associated with the App's AccountID (account_id).
 //
 // Generated from foreign key 'apps_account_id_fkey'.
 func (a *App) Account(db XODB) (*Account, error) {
 	return AccountByID(db, a.AccountID.Int64)
 }
 
-// AppByID retrieves a row from 'public.apps' as a app.
+// AppsByAccountID retrieves a row from 'public.apps' as a App.
 //
-// Generated from index 'apps_pkey'.
-func AppByID(db XODB, id int64) (*App, error) {
-	var err error
-
-	// sql query
-	const sqlstr = `SELECT ` +
-		`id, name, secret_key, status, account_id, created_at ` +
-		`FROM public.apps ` +
-		`WHERE id = $1`
-
-	// run query
-	XOLog(sqlstr, id)
-	a := App{
-		_exists: true,
-	}
-
-	err = db.QueryRow(sqlstr, id).Scan(&a.ID, &a.Name, &a.SecretKey, &a.Status, &a.AccountID, &a.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	return &a, nil
-}
-
-// AppsByAccountID retrieves a row from 'public.apps' as a app.
-//
-// Generated from index 'apps_saccount_id_idx'.
+// Generated from index 'apps_account_id_idx'.
 func AppsByAccountID(db XODB, accountID sql.NullInt64) ([]*App, error) {
 	var err error
 
@@ -270,7 +244,33 @@ func AppsByAccountID(db XODB, accountID sql.NullInt64) ([]*App, error) {
 	return res, nil
 }
 
-// AppBySecretKey retrieves a row from 'public.apps' as a app.
+// RetrieveAppByID retrieves a row from 'public.apps' as a App.
+//
+// Generated from index 'apps_pkey'.
+func AppByID(db XODB, id int64) (*App, error) {
+	var err error
+
+	// sql query
+	const sqlstr = `SELECT ` +
+		`id, name, secret_key, status, account_id, created_at ` +
+		`FROM public.apps ` +
+		`WHERE id = $1`
+
+	// run query
+	XOLog(sqlstr, id)
+	a := App{
+		_exists: true,
+	}
+
+	err = db.QueryRow(sqlstr, id).Scan(&a.ID, &a.Name, &a.SecretKey, &a.Status, &a.AccountID, &a.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &a, nil
+}
+
+// AppBySecretKey retrieves a row from 'public.apps' as a App.
 //
 // Generated from index 'apps_secret_key_idx'.
 func AppBySecretKey(db XODB, secretKey sql.NullString) (*App, error) {

@@ -1,11 +1,12 @@
 // Copyright 2018 The QOS Authors
 
-// Package pkg comments for pkg admin
-// admin 管理后台相关功能
-package admin
+// Package pkg comments for pkg account
+// account 管理后台相关功能
+package account
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/QOSGroup/qmoon/db"
@@ -59,7 +60,7 @@ func covertToApp(app *model.App) *App {
 	}
 }
 
-func Accounts(offset, limit int64) ([]*Account, error) {
+func List(offset, limit int64) ([]*Account, error) {
 	mas, err := model.AccountFilter(db.Db, "", offset, limit)
 	if err != nil {
 		return nil, err
@@ -128,7 +129,7 @@ func (a Account) Apps() ([]*App, error) {
 	return apps, nil
 }
 
-func (a *Account) AppByID(id int64) (*App, error) {
+func (a *Account) RetrieveAppByID(id int64) (*App, error) {
 	if a.mapps == nil {
 		apps, err := model.AppsByAccountID(db.Db, utils.NullInt64(a.ma.ID))
 		if err != nil {
@@ -146,7 +147,7 @@ func (a *Account) AppByID(id int64) (*App, error) {
 	return nil, errors.New("not found")
 }
 
-func (a *Account) DeleteByID(id int64) error {
+func (a *Account) DeleteAppByID(id int64) error {
 	if a.mapps == nil {
 		apps, err := model.AppsByAccountID(db.Db, utils.NullInt64(a.ma.ID))
 		if err != nil {
@@ -186,6 +187,39 @@ func (a *Account) CreateApp(name string) (*App, error) {
 	return covertToApp(mapp), nil
 }
 
+func (a *Account) CreateSession(loginType int64, expire time.Duration) (string, error) {
+	now := time.Now()
+	token := string(utils.MD5([]byte(fmt.Sprintf("%s:%d", now.Format("2006.01.02"), a.ID))))
+	loginSta, err := model.LoginStatusByAccountID(db.Db, utils.NullInt64(a.ID))
+	if err != nil {
+		loginSta = &model.LoginStatus{}
+		loginSta.AccountID = utils.NullInt64(a.ID)
+		loginSta.LoginType = utils.NullInt64(loginType)
+		loginSta.ExpiredAt = utils.NullTime(now.Add(expire))
+		loginSta.Token = utils.NullString(token)
+		if err := loginSta.Insert(db.Db); err != nil {
+			return "", err
+		}
+	} else {
+		loginSta.ExpiredAt = utils.NullTime(now.Add(expire))
+		loginSta.Token = utils.NullString(token)
+		if err := loginSta.Update(db.Db); err != nil {
+			return "", err
+		}
+	}
+
+	return token, nil
+}
+
+func (a *Account) DeleteSession() error {
+	loginSta, err := model.LoginStatusByAccountID(db.Db, utils.NullInt64(a.ID))
+	if err != nil {
+		return nil
+	} else {
+		return loginSta.Delete(db.Db)
+	}
+}
+
 func AppBySecretKey(secretKey string) (*App, error) {
 	app, err := model.AppBySecretKey(db.Db, utils.NullString(secretKey))
 	if err != nil {
@@ -197,6 +231,47 @@ func AppBySecretKey(secretKey string) (*App, error) {
 
 func (app App) Account() (*Account, error) {
 	a, err := app.mapp.Account(db.Db)
+	if err != nil {
+		return nil, err
+	}
+
+	return covertToAccount(a), nil
+}
+
+type Token struct {
+	ls        *model.LoginStatus
+	AccountID int64     `json:"accountId"`
+	LoginType int64     `json:"loginType"`
+	Token     string    `json:"token"`
+	ExpiredAt time.Time `json:"expiredAt"`
+}
+
+func covertToToken(ls *model.LoginStatus) *Token {
+	return &Token{
+		ls:        ls,
+		AccountID: ls.AccountID.Int64,
+		LoginType: ls.LoginType.Int64,
+		Token:     ls.Token.String,
+		ExpiredAt: ls.ExpiredAt.Time,
+	}
+}
+
+func RetrieveToken(token string) (*Token, error) {
+	ls, err := model.LoginStatusByToken(db.Db, utils.NullString(token))
+	if err != nil {
+		return nil, err
+	}
+
+	if ls.ExpiredAt.Time.Before(time.Now()) {
+		ls.Delete(db.Db)
+		return nil, errors.New("登陆过期,请重新登陆")
+	}
+
+	return covertToToken(ls), nil
+}
+
+func (t Token) Account() (*Account, error) {
+	a, err := t.ls.Account(db.Db)
 	if err != nil {
 		return nil, err
 	}
