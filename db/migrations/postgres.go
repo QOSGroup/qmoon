@@ -32,6 +32,15 @@ CREATE TABLE IF NOT EXISTS accounts(
 );
 CREATE unique index accounts_mail_idx on accounts(mail);
 
+create table login_status(
+   id bigserial primary key,
+   account_id BIGINT REFERENCES accounts (id) ON DELETE CASCADE,
+   login_type int2 DEFAULT 0, -- 登录类型:0:webx
+   token varchar(64),
+   expired_at timestamp with time zone
+);
+CREATE unique index login_status_account_id_idx on login_status(account_id);
+CREATE unique index login_status_token_idx on login_status(token);
 
 CREATE TABLE IF NOT EXISTS apps(
 	id bigserial PRIMARY KEY,
@@ -42,7 +51,7 @@ CREATE TABLE IF NOT EXISTS apps(
 	created_at timestamp with time zone
 );
 CREATE unique index apps_secret_key_idx on apps(secret_key);
-CREATE index apps_saccount_id_idx on apps(account_id);
+CREATE index apps_account_id_idx on apps(account_id);
 
 CREATE TABLE IF NOT EXISTS block_chain(
 	id bigserial PRIMARY KEY,
@@ -69,7 +78,8 @@ insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
 			s := `
 DROP TABLE qmoon_status;
 DROP TABLE apps;
-DROP TABLE block_chain;
+DROP TABLE login_status;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              DROP TABLE block_chain;
 DROP TABLE blocks;
 DROP TABLE accounts;
 

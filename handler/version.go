@@ -3,14 +3,12 @@
 package handler
 
 import (
-	"net/http"
-
 	"github.com/QOSGroup/qmoon/version"
 	"github.com/gin-gonic/gin"
 )
 
 func VersionGinRegister(r *gin.Engine) {
-	r.GET("/admin/version", serverInfoGinHandler())
+	r.GET("/account/version", serverInfoGinHandler())
 }
 
 type versionRes struct {
@@ -25,8 +23,8 @@ func serverInfo() *versionRes {
 
 func serverInfoGinHandler() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		si := serverInfo()
+		//si := serverInfo()
 
-		c.JSON(http.StatusOK, WrapperRPCResponse("", si, nil))
+		//c.JSON(http.StatusOK, types.NewRPCSuccessResponse("", si, nil))
 	}
 }

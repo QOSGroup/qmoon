@@ -1,13 +1,16 @@
 // Copyright 2018 The QOS Authors
 
-package handler
+package hadmin
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/QOSGroup/qmoon/handler/middleware"
+	"github.com/gin-gonic/gin"
+)
 
 // AdminNodeTypesGinRegister 注册account相关的api
 func AdminNodeTypesGinRegister(r *gin.Engine) {
-	r.POST("/admin/node_types", createAdminNodeTypeGin())
-	r.GET("/admin/node_types", queryAdminNodeTypesGin())
+	r.POST("/account/node_types", middleware.AccountSessionGin(), createAdminNodeTypeGin())
+	r.GET("/account/node_types", queryAdminNodeTypesGin())
 }
 
 func createAdminNodeTypeGin() gin.HandlerFunc {

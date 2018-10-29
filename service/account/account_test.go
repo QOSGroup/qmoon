@@ -1,6 +1,6 @@
 // Copyright 2018 The QOS Authors
 
-package admin
+package account
 
 import (
 	"testing"
@@ -40,11 +40,11 @@ func TestRetrieveAccount(t *testing.T) {
 	assert.Nil(t, err)
 	a1.CheckPassword(pwd1)
 
-	as, err := Accounts(0, 1)
+	as, err := List(0, 1)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(as))
 
-	as, err = Accounts(0, 100)
+	as, err = List(0, 100)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(as))
 
@@ -80,7 +80,7 @@ func TestRetrieveApp(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 3, len(apps))
 
-	app1, err := a1.AppByID(apps[0].ID)
+	app1, err := a1.RetrieveAppByID(apps[0].ID)
 	assert.Nil(t, err)
 	assert.Equal(t, appName1, app1.Name)
 
@@ -106,7 +106,7 @@ func TestDeleteApp(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, appName2, app2.Name)
 
-	err = a1.DeleteByID(app2.ID)
+	err = a1.DeleteAppByID(app2.ID)
 	assert.Nil(t, err)
 
 	apps, err = a1.Apps()

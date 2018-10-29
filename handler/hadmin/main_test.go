@@ -1,6 +1,6 @@
 // Copyright 2018 The QOS Authors
 
-package admin
+package hadmin
 
 import (
 	"testing"
@@ -21,4 +21,8 @@ func TestMain(m *testing.M) {
 	defer tts.Close()
 
 	m.Run()
+}
+
+func getSession() (string, error) {
+	return "", nil
 }

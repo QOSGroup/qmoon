@@ -2,6 +2,13 @@
 
 package types
 
+import (
+	"encoding/json"
+
+	"github.com/pkg/errors"
+	amino "github.com/tendermint/go-amino"
+)
+
 type RPCResponse struct {
 	JSONRPC string      `json:"jsonrpc"`
 	ID      string      `json:"id"`
@@ -13,4 +20,51 @@ type RPCError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    string `json:"data,omitempty"`
+}
+
+func NewRPCErrorResponse(id string, code int, msg string, data string) RPCResponse {
+	return RPCResponse{
+		JSONRPC: "2.0",
+		ID:      id,
+		Error:   &RPCError{Code: code, Message: msg, Data: data},
+	}
+}
+
+func NewRPCSuccessResponse(cdc *amino.Codec, id string, res interface{}) RPCResponse {
+	var rawMsg json.RawMessage
+
+	if res != nil {
+		var js []byte
+		js, err := cdc.MarshalJSON(res)
+		if err != nil {
+			return RPCInternalError(id, errors.Wrap(err, "Error marshalling response"))
+		}
+		rawMsg = json.RawMessage(js)
+	}
+
+	return RPCResponse{JSONRPC: "2.0", ID: id, Result: rawMsg}
+}
+
+func RPCParseError(id string, err error) RPCResponse {
+	return NewRPCErrorResponse(id, -32700, "Parse error. Invalid JSON", err.Error())
+}
+
+func RPCInvalidRequestError(id string, err error) RPCResponse {
+	return NewRPCErrorResponse(id, -32600, "Invalid Request", err.Error())
+}
+
+func RPCMethodNotFoundError(id string) RPCResponse {
+	return NewRPCErrorResponse(id, -32601, "Method not found", "")
+}
+
+func RPCInvalidParamsError(id string, err error) RPCResponse {
+	return NewRPCErrorResponse(id, -32602, "Invalid params", err.Error())
+}
+
+func RPCInternalError(id string, err error) RPCResponse {
+	return NewRPCErrorResponse(id, -32603, "Internal error", err.Error())
+}
+
+func RPCServerError(id string, err error) RPCResponse {
+	return NewRPCErrorResponse(id, -32000, "Server error", err.Error())
 }
