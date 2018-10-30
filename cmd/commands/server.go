@@ -31,11 +31,12 @@ func server(cmd *cobra.Command, args []string) error {
 	r := gin.Default()
 
 	handler.VersionGinRegister(r)
-	hadmin.AccountRegisterGinRegister(r)
+	hadmin.RegisterGinRegister(r)
 	hadmin.LoginGinRegister(r)
 	hadmin.LogoutGinRegister(r)
 	hadmin.AccountGinRegister(r)
 	hadmin.AppGinRegister(r)
+	hadmin.UpdatePasswordGinRegister(r)
 
 	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
 		return err

@@ -23,3 +23,19 @@ func NewPostJsonRequest(url string, body interface{}) (*http.Request, error) {
 
 	return req, nil
 }
+
+func NewPutJsonRequest(url string, body interface{}) (*http.Request, error) {
+	d, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, url, strings.NewReader(string(d)))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", "application/json;charset=utf-8")
+
+	return req, nil
+}

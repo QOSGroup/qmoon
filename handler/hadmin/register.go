@@ -13,19 +13,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const accountRegisterUrl = "/admin/register"
+const registerUrl = "/admin/register"
 
-// AccountRegisterGinRegister 注册account
-func AccountRegisterGinRegister(r *gin.Engine) {
-	r.POST(accountRegisterUrl, accountRegisterGin())
+// RegisterGinRegister 注册account
+func RegisterGinRegister(r *gin.Engine) {
+	r.POST(registerUrl, registerGin())
 }
 
-type accountRegisterQuery struct {
+type registerQuery struct {
 	Mail     string `json:"mail"`
 	Password string `json:"password"`
 }
 
-func (q accountRegisterQuery) Validator() error {
+func (q registerQuery) Validator() error {
 	if q.Mail == "" {
 		return errors.New("mail不能为空")
 	}
@@ -37,9 +37,9 @@ func (q accountRegisterQuery) Validator() error {
 	return nil
 }
 
-func accountRegisterGin() gin.HandlerFunc {
+func registerGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var reqObj accountRegisterQuery
+		var reqObj registerQuery
 		if err := c.ShouldBind(&reqObj); err != nil {
 			c.JSON(http.StatusOK, types.RPCParseError("", err))
 			return

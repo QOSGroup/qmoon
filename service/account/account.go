@@ -5,6 +5,7 @@
 package account
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -109,6 +110,80 @@ func RetrieveAccountByMail(mail string) (*Account, error) {
 func (a Account) CheckPassword(pwd string) bool {
 
 	return utils.EncryptPwd([]byte(pwd)) == a.ma.Password.String
+}
+
+func (a *Account) UpdatePassword(pwd string) error {
+	newPwd := utils.EncryptPwd([]byte(pwd))
+	if newPwd == a.ma.Password.String {
+		return errors.New("新旧密码不能一样")
+	}
+
+	a.ma.Password = utils.NullString(newPwd)
+
+	return a.ma.Update(db.Db)
+}
+
+type option struct {
+	name        sql.NullString
+	avatar      sql.NullString
+	description sql.NullString
+}
+type SetOption func(option *option) error
+
+func NewOption(fs ...SetOption) (*option, error) {
+	opt := &option{}
+	if fs != nil {
+		for _, f := range fs {
+			if err := f(opt); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return opt, nil
+}
+func SetName(name string) SetOption {
+	return func(option *option) error {
+		option.name = utils.NullString(name)
+		return nil
+	}
+}
+
+func SetAvatar(avatar string) SetOption {
+	return func(option *option) error {
+		option.avatar = utils.NullString(avatar)
+		return nil
+	}
+}
+
+func SetDescription(description string) SetOption {
+	return func(option *option) error {
+		option.description = utils.NullString(description)
+		return nil
+	}
+}
+
+func (a *Account) UpdateProfile(opt *option) error {
+	if opt.name.Valid {
+		a.ma.Name = opt.name
+	}
+	if opt.description.Valid {
+		a.ma.Description = opt.description
+	}
+	if opt.avatar.Valid {
+		a.ma.Avatar = opt.avatar
+	}
+
+	err := a.ma.Update(db.Db)
+	if err != nil {
+		return err
+	}
+
+	a.Name = a.ma.Name.String
+	a.Description = a.ma.Description.String
+	a.Avatar = a.ma.Avatar.String
+
+	return nil
 }
 
 func (a Account) Apps() ([]*App, error) {
