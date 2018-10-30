@@ -20,6 +20,23 @@ CREATE TABLE IF NOT EXISTS qmoon_status(
 );
 CREATE unique index qmoon_status_key_idx on qmoon_status(key);
 
+CREATE TABLE IF NOT EXISTS node_types(
+	id bigserial PRIMARY KEY,
+	name varchar(128),
+	base_url text,
+	secret_key text,
+	created_at timestamp with time zone
+);
+CREATE unique index node_types_name_idx on node_types(name);
+
+create table node_type_route(
+   id bigserial primary key,
+   node_type_id BIGINT REFERENCES node_types (id) ON DELETE CASCADE,
+   route varchar(64),
+   hidden boolean default false
+);
+CREATE index node_type_route_node_type_id_idx on node_type_route(node_type_id);
+
 CREATE TABLE IF NOT EXISTS accounts(
 	id bigserial PRIMARY KEY,
 	mail varchar(128),
@@ -77,6 +94,8 @@ insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
 		down: func(db *sql.DB) error {
 			s := `
 DROP TABLE qmoon_status;
+DROP TABLE node_types;
+DROP TABLE node_type_route;
 DROP TABLE apps;
 DROP TABLE login_status;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               DROP TABLE block_chain;

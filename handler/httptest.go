@@ -60,6 +60,12 @@ func (ht *HttpTest) WithSession() *HttpTest {
 	return ht
 }
 
+func (ht *HttpTest) WithLocalIP() *HttpTest {
+	ht.req.Header.Set("X-Forwarded-For", "127.0.0.1")
+
+	return ht
+}
+
 func (ht *HttpTest) WithAuth() *HttpTest {
 	acc, err := account.RetrieveAccountByMail(TestInternalUser)
 	if err != nil {
