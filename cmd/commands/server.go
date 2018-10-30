@@ -37,6 +37,7 @@ func server(cmd *cobra.Command, args []string) error {
 	hadmin.AccountGinRegister(r)
 	hadmin.AppGinRegister(r)
 	hadmin.UpdatePasswordGinRegister(r)
+	hadmin.NodeTypesGinRegister(r)
 
 	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
 		return err

@@ -244,7 +244,7 @@ func AppsByAccountID(db XODB, accountID sql.NullInt64) ([]*App, error) {
 	return res, nil
 }
 
-// RetrieveAppByID retrieves a row from 'public.apps' as a App.
+// AppByID retrieves a row from 'public.apps' as a App.
 //
 // Generated from index 'apps_pkey'.
 func AppByID(db XODB, id int64) (*App, error) {
