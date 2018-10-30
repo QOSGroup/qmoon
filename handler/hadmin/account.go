@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AccountGinRegister 注册account相关的api
+// AccountGinRegister 账户相关API
 func AccountGinRegister(r *gin.Engine) {
 	r.GET("/admin/accounts", middleware.AccountSessionGin(), listAccountsGin())
 	r.GET("/admin/accounts/:id", middleware.AccountSessionGin(), retrieveAccountGin())
