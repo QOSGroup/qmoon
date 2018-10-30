@@ -12,14 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	TokenKey = "QToken"
-	AuthKey  = "Authorization"
-)
-
 func AccountSessionGin() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		t := c.GetHeader(TokenKey)
+		t := c.GetHeader(types.TokenKey)
 		if t == "" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
@@ -37,7 +32,7 @@ func AccountSessionGin() func(c *gin.Context) {
 
 func ApiAuthGin() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		a := c.GetHeader(AuthKey)
+		a := c.GetHeader(types.AuthKey)
 		if a == "" {
 			c.AbortWithStatus(http.StatusForbidden)
 			return

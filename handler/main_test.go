@@ -14,6 +14,11 @@ func TestMain(m *testing.M) {
 	dbTest := db.NewTestDb(m)
 	defer dbTest.Close()
 
+	err := CreateTestUser()
+	if err != nil {
+		panic(err)
+	}
+
 	tq := qstarscli.NewTestQstarsServer()
 	defer tq.Close()
 
