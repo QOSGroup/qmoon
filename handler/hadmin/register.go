@@ -37,6 +37,10 @@ func (q registerQuery) Validator() error {
 	return nil
 }
 
+func (q *registerQuery) ServerHTTP(w http.ResponseWriter, req *http.Request) {
+	w.Write([]byte("aaaa"))
+}
+
 func registerGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var reqObj registerQuery
