@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS accounts(
 	created_at timestamp with time zone
 );
 CREATE unique index accounts_mail_idx on accounts(mail);
+insert into accounts(mail, name, status, password)values('admin@test.local', 'admin', 1, MD5('123456'));
 
 create table login_status(
    id bigserial primary key,
@@ -69,6 +70,7 @@ CREATE TABLE IF NOT EXISTS apps(
 );
 CREATE unique index apps_secret_key_idx on apps(secret_key);
 CREATE index apps_account_id_idx on apps(account_id);
+insert into apps(name, secret_key,status,account_id)values('t1', '123456',1,1); 
 
 CREATE TABLE IF NOT EXISTS block_chain(
 	id bigserial PRIMARY KEY,

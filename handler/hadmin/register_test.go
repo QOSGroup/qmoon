@@ -13,6 +13,7 @@ import (
 )
 
 func TestRegisterGinEmptyMail(t *testing.T) {
+
 	body := registerQuery{
 		Mail:     "",
 		Password: "1234556",

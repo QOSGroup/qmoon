@@ -92,3 +92,12 @@ func CreateNodeType(name, baseURL, secretKey string, routes []NodeTypeRoute) err
 
 	return nil
 }
+
+func GetNodeTypeByName(name string) (*NodeType, error) {
+	mnt, err := model.NodeTypeByName(db.Db, utils.NullString(name))
+	if err != nil {
+		return nil, err
+	}
+
+	return covertToNodeType(mnt), nil
+}

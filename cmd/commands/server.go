@@ -6,6 +6,7 @@ import (
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/handler"
 	"github.com/QOSGroup/qmoon/handler/hadmin"
+	"github.com/QOSGroup/qmoon/handler/hdata"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
@@ -38,6 +39,7 @@ func server(cmd *cobra.Command, args []string) error {
 	hadmin.AppGinRegister(r)
 	hadmin.UpdatePasswordGinRegister(r)
 	hadmin.NodeTypesGinRegister(r)
+	hdata.ProxyGinRegister(r)
 
 	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
 		return err
