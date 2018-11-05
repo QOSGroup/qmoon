@@ -29,7 +29,7 @@ func TestRetrieveAccountGin(t *testing.T) {
 	assert.Nil(t, err)
 
 	var accs []*account.Account
-	_, err = handler.NewHttpTest(t, req).WithSession().Do(AccountGinRegister, &accs)
+	_, err = handler.NewHttpTest(t, req).WithSession().WithLocalIP().Do(AccountGinRegister, &accs)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, accs)
 
@@ -48,7 +48,7 @@ func TestUpdateAccountGin(t *testing.T) {
 	req, err := http.NewRequest(http.MethodGet, accountsUrl, nil)
 	assert.Nil(t, err)
 	var accs []*account.Account
-	_, err = handler.NewHttpTest(t, req).WithSession().Do(AccountGinRegister, &accs)
+	_, err = handler.NewHttpTest(t, req).WithSession().WithLocalIP().Do(AccountGinRegister, &accs)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, accs)
 
