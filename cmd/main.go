@@ -9,6 +9,7 @@ func main() {
 	rootCmd.AddCommand(
 		commands.InitFilesCmd,
 		commands.MigrationCmd,
+		commands.NodeCmd,
 		commands.ServerCmd,
 		commands.VersionCmd)
 
