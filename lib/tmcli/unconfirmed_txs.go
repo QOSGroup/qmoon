@@ -8,13 +8,13 @@ import (
 
 const unconfirmedUnconfirmedTxssURI = "unconfirmed_txs"
 
-type UnconfirmedTxsService service
+type unconfirmedTxsService service
 
 type UnconfirmedTxsOption struct {
 	Limit int `url:"limit,omitempty"`
 }
 
-func (s *UnconfirmedTxsService) Retrieve(cunconfirmedUnconfirmedTxss context.Context, opt *UnconfirmedTxsOption) (*tmctypes.ResultUnconfirmedTxs, error) {
+func (s *unconfirmedTxsService) Retrieve(cunconfirmedUnconfirmedTxss context.Context, opt *UnconfirmedTxsOption) (*tmctypes.ResultUnconfirmedTxs, error) {
 	u := unconfirmedUnconfirmedTxssURI
 
 	u, err := addOptions(u, opt)

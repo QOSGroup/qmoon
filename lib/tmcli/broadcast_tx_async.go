@@ -8,13 +8,13 @@ import (
 
 const broadcastTxAsyncURI = "broadcast_tx_async"
 
-type BroadcastTxAsyncService service
+type broadcastTxAsyncService service
 
 type BroadcastTxAsyncOption struct {
 	Tx string `url:"tx,omitempty"`
 }
 
-func (s *BroadcastTxAsyncService) Retrieve(ctx context.Context, opt *BroadcastTxAsyncOption) (*tmctypes.ResultBroadcastTx, error) {
+func (s *broadcastTxAsyncService) Retrieve(ctx context.Context, opt *BroadcastTxAsyncOption) (*tmctypes.ResultBroadcastTx, error) {
 	u := broadcastTxAsyncURI
 	if opt == nil {
 		opt = &BroadcastTxAsyncOption{}

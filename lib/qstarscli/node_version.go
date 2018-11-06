@@ -11,9 +11,9 @@ func init() {
 
 const nodeVersionURI = "node_version"
 
-type NodeVersionService service
+type nodeVersionService service
 
-func (s *NodeVersionService) Retrieve(ctx context.Context) (*lcd.ResultNodeVersion, error) {
+func (s *nodeVersionService) Retrieve(ctx context.Context) (*lcd.ResultNodeVersion, error) {
 	u := nodeVersionURI
 
 	u, err := addOptions(u, nil)

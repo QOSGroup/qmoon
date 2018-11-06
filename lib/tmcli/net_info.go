@@ -14,9 +14,9 @@ func init() {
 
 const netInfoURI = "net_info"
 
-type NetInfoService service
+type netInfoService service
 
-func (s *NetInfoService) Retrieve(ctx context.Context) (*tmctypes.ResultNetInfo, error) {
+func (s *netInfoService) Retrieve(ctx context.Context) (*tmctypes.ResultNetInfo, error) {
 	u := netInfoURI
 
 	u, err := addOptions(u, nil)

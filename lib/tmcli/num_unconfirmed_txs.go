@@ -14,9 +14,9 @@ func init() {
 
 const numUnconfirmedTxsURI = "num_unconfirmed_txs"
 
-type NumUnconfirmedTxsService service
+type numUnconfirmedTxsService service
 
-func (s *NumUnconfirmedTxsService) Retrieve(ctx context.Context) (*tmctypes.ResultUnconfirmedTxs, error) {
+func (s *numUnconfirmedTxsService) Retrieve(ctx context.Context) (*tmctypes.ResultUnconfirmedTxs, error) {
 	u := numUnconfirmedTxsURI
 
 	u, err := addOptions(u, nil)

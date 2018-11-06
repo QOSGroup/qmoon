@@ -25,9 +25,9 @@ func init() {
 
 const statusURI = "status"
 
-type StatusService service
+type statusService service
 
-func (s *StatusService) Retrieve(ctx context.Context) (*tmctypes.ResultStatus, error) {
+func (s *statusService) Retrieve(ctx context.Context) (*tmctypes.ResultStatus, error) {
 	u := statusURI
 
 	u, err := addOptions(u, nil)

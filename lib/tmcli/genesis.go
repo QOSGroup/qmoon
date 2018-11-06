@@ -14,9 +14,9 @@ func init() {
 
 const genesisURI = "genesis"
 
-type GenesisService service
+type genesisService service
 
-func (s *GenesisService) Retrieve(ctx context.Context) (*tmctypes.ResultGenesis, error) {
+func (s *genesisService) Retrieve(ctx context.Context) (*tmctypes.ResultGenesis, error) {
 	u := genesisURI
 
 	u, err := addOptions(u, nil)

@@ -8,13 +8,13 @@ import (
 
 const validatorsURI = "validators"
 
-type ValidatorsService service
+type validatorsService service
 
 type ValidatorsOption struct {
 	Height int `url:"height,omitempty"`
 }
 
-func (s *ValidatorsService) Retrieve(ctx context.Context, opt *ValidatorsOption) (*tmctypes.ResultValidators, error) {
+func (s *validatorsService) Retrieve(ctx context.Context, opt *ValidatorsOption) (*tmctypes.ResultValidators, error) {
 	u := validatorsURI
 	if opt == nil {
 		opt = &ValidatorsOption{}

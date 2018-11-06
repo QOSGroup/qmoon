@@ -33,3 +33,7 @@ do
     curl -s ${tmHost}${i} -o ${i}.json
 done
 
+
+
+touch tmdata.go;echo 'package tmmock' > tmdata.go; echo 'var mockdata = map[string]string{' >> tmdata.go; for f in `ls *.json`; do  echo '"'$f'":`' >> tmdata.go ;cat $f >> tmdata.go;echo '`,'>>tmdata.go ; done; echo '}'>>tmdata.go
+gofmt -w tmdata.go

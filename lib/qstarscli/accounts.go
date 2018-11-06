@@ -8,9 +8,9 @@ import (
 
 const accountsURI = "accounts"
 
-type AccountsService service
+type accountsService service
 
-func (s *AccountsService) Create(ctx context.Context) (*qosacc.QOSAccount, error) {
+func (s *accountsService) Create(ctx context.Context) (*qosacc.QOSAccount, error) {
 	u := accountsURI
 	u, err := addOptions(u, nil)
 	if err != nil {
@@ -31,7 +31,7 @@ func (s *AccountsService) Create(ctx context.Context) (*qosacc.QOSAccount, error
 	return &res, nil
 }
 
-func (s *AccountsService) Retrieve(ctx context.Context, addr string) (*qosacc.QOSAccount, error) {
+func (s *accountsService) Retrieve(ctx context.Context, addr string) (*qosacc.QOSAccount, error) {
 	u := accountsURI + "/" + addr
 	u, err := addOptions(u, nil)
 	if err != nil {

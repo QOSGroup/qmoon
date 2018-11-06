@@ -14,9 +14,9 @@ func init() {
 
 const dumpDumpConsensusStateURI = "dump_consensus_state"
 
-type DumpConsensusStateService service
+type dumpConsensusStateService service
 
-func (s *DumpConsensusStateService) Retrieve(ctx context.Context) (*tmctypes.ResultDumpConsensusState, error) {
+func (s *dumpConsensusStateService) Retrieve(ctx context.Context) (*tmctypes.ResultDumpConsensusState, error) {
 	u := dumpDumpConsensusStateURI
 
 	u, err := addOptions(u, nil)

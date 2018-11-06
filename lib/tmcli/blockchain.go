@@ -8,14 +8,14 @@ import (
 
 const blockchainURI = "blockchain"
 
-type BlockchainService service
+type blockchainService service
 
 type BlockchainOption struct {
 	MinHeight int64 `url:"minHeight,omitempty"`
 	MaxHeight int64 `url:"maxHeight,omitempty"`
 }
 
-func (s *BlockchainService) List(ctx context.Context, opt *BlockchainOption) (*tmctypes.ResultBlockchainInfo, error) {
+func (s *blockchainService) List(ctx context.Context, opt *BlockchainOption) (*tmctypes.ResultBlockchainInfo, error) {
 	u := blockchainURI
 	if opt == nil {
 		opt = &BlockchainOption{}

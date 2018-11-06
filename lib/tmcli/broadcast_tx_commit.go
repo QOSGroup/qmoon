@@ -8,13 +8,13 @@ import (
 
 const broadcastTxCommitURI = "broadcast_tx_commit"
 
-type BroadcastTxCommitService service
+type broadcastTxCommitService service
 
 type BroadcastTxCommitOption struct {
 	Tx string `url:"tx,omitempty"`
 }
 
-func (s *BroadcastTxCommitService) Retrieve(ctx context.Context, opt *BroadcastTxCommitOption) (*tmctypes.ResultBroadcastTx, error) {
+func (s *broadcastTxCommitService) Retrieve(ctx context.Context, opt *BroadcastTxCommitOption) (*tmctypes.ResultBroadcastTx, error) {
 	u := broadcastTxCommitURI
 	if opt == nil {
 		opt = &BroadcastTxCommitOption{}

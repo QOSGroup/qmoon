@@ -8,13 +8,13 @@ import (
 
 const unsubscribeURI = "unsubscribe"
 
-type UnsubscribeService service
+type unsubscribeService service
 
 type UnsubscribeOption struct {
 	Query string `url:"query,omitempty"`
 }
 
-func (s *UnsubscribeService) Retrieve(ctx context.Context, query string) (*tmctypes.ResultUnsubscribe, error) {
+func (s *unsubscribeService) Retrieve(ctx context.Context, query string) (*tmctypes.ResultUnsubscribe, error) {
 	u := unsubscribeURI
 	opt := &UnsubscribeOption{Query: query}
 	u, err := addOptions(u, opt)

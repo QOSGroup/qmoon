@@ -10,9 +10,12 @@ apis=("${apis[*]}" "version")
 apis=("${apis[*]}" "kv/key")
 apis=("${apis[*]}" "accounts/address")
 
+
+
 for i in ${apis[@]}
 do
     curl -s ${tmHost}${i} -o ${i//\//_}.json
+    data=`cat ${i//\//_}.json`
 done
 
 
@@ -27,3 +30,17 @@ do
 done
 
 
+echo 'package qstarsmock' > qstarsmock.go
+
+touch qstarsdata.go
+echo 'package qstarsmock' > qstarsdata.go
+for f in `ls *.json`
+do
+    echo var $f'=`' >> qstarsdata.go
+    cat $f >> qstarsdata.go
+    echo '`'>>qstarsdata.go
+done
+
+
+touch qstarsdata.go;echo 'package qstarsmock' > qstarsdata.go; echo 'var mockdata = map[string]string{' >> qstarsdata.go; for f in `ls *.json`; do  echo '"'$f'":`' >> qstarsdata.go ;cat $f >> qstarsdata.go;echo '`,'>>qstarsdata.go ; done; echo '}'>>qstarsdata.go
+gofmt -w qstarsdata.go

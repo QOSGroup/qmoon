@@ -2,6 +2,7 @@ package qstarscli
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/QOSGroup/qstars/client/lcd"
 )
@@ -11,9 +12,9 @@ func init() {
 
 const versionURI = "version"
 
-type VersionService service
+type versionService service
 
-func (s *VersionService) Retrieve(ctx context.Context) (*lcd.ResultCLIVersion, error) {
+func (s *versionService) Retrieve(ctx context.Context) (*lcd.ResultCLIVersion, error) {
 	u := versionURI
 
 	u, err := addOptions(u, nil)
@@ -27,7 +28,8 @@ func (s *VersionService) Retrieve(ctx context.Context) (*lcd.ResultCLIVersion, e
 	}
 
 	var res lcd.ResultCLIVersion
-	_, err = s.client.Do(ctx, req, &res)
+	resp, err := s.client.Do(ctx, req, &res)
+	fmt.Printf("--resp:%+v,err:%+v\n", resp, err)
 	if err != nil {
 		return nil, err
 	}

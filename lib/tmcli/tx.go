@@ -8,14 +8,14 @@ import (
 
 const txURI = "tx"
 
-type TxService service
+type txService service
 
 type TxOption struct {
 	Hash  []byte `url:"hash,omitempty"`
 	Prove bool   `url:"prove,omitempty"`
 }
 
-func (s *TxService) Retrieve(ctx context.Context, hash []byte, prove bool) (*tmctypes.ResultTx, error) {
+func (s *txService) Retrieve(ctx context.Context, hash []byte, prove bool) (*tmctypes.ResultTx, error) {
 	u := txURI
 	opt := &TxOption{
 		Hash:  hash,

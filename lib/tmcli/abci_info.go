@@ -12,9 +12,9 @@ func init() {
 
 const abciInfoURI = "abci_info"
 
-type AbciInfoService service
+type abciInfoService service
 
-func (s *AbciInfoService) Retrieve(ctx context.Context) (*tmctypes.ResultABCIInfo, error) {
+func (s *abciInfoService) Retrieve(ctx context.Context) (*tmctypes.ResultABCIInfo, error) {
 	u := abciInfoURI
 
 	u, err := addOptions(u, nil)

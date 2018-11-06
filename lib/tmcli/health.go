@@ -14,9 +14,9 @@ func init() {
 
 const healthURI = "health"
 
-type HealthService service
+type healthService service
 
-func (s *HealthService) Retrieve(ctx context.Context) (*tmctypes.ResultHealth, error) {
+func (s *healthService) Retrieve(ctx context.Context) (*tmctypes.ResultHealth, error) {
 	u := healthURI
 
 	u, err := addOptions(u, nil)
