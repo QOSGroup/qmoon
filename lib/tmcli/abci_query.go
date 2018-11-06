@@ -8,7 +8,7 @@ import (
 
 const abciQueryURI = "abci_query"
 
-type AbciQueryService service
+type abciQueryService service
 
 type AbciQueryOption struct {
 	Path    string `url:"path,omitempty"`
@@ -17,7 +17,7 @@ type AbciQueryOption struct {
 	Trusted bool   `url:"trusted,omitempty"`
 }
 
-func (s *AbciQueryService) Retrieve(ctx context.Context, path string, data []byte, height int64, trusted bool) (*tmctypes.ResultABCIQuery, error) {
+func (s *abciQueryService) Retrieve(ctx context.Context, path string, data []byte, height int64, trusted bool) (*tmctypes.ResultABCIQuery, error) {
 	u := abciQueryURI
 	opt := &AbciQueryOption{
 		Path:    path,

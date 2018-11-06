@@ -94,27 +94,27 @@ type Client struct {
 	Test int
 	aaa  int
 
-	Status             *StatusService
-	AbciInfo           *AbciInfoService
-	ConsensusState     *ConsensusStateService
-	DumpConsensusState *DumpConsensusStateService
-	Genesis            *GenesisService
-	Health             *HealthService
-	NetInfo            *NetInfoService
-	NumUnconfirmedTxs  *NumUnconfirmedTxsService
-	AbciQuery          *AbciQueryService
-	Block              *BlockService
-	BlockResults       *BlockResultsService
-	Blockchain         *BlockchainService
-	BroadcastTxAsync   *BroadcastTxAsyncService
-	BroadcastTxCommit  *BroadcastTxCommitService
-	BroadcastTxSync    *BroadcastTxSyncService
-	Subscribe          *SubscribeService
-	Tx                 *TxService
-	TxSearch           *TxSearchService
-	UnconfirmedTxs     *UnconfirmedTxsService
-	Unsubscribe        *UnsubscribeService
-	Validators         *ValidatorsService
+	Status             *statusService
+	AbciInfo           *abciInfoService
+	ConsensusState     *consensusStateService
+	DumpConsensusState *dumpConsensusStateService
+	Genesis            *genesisService
+	Health             *healthService
+	NetInfo            *netInfoService
+	NumUnconfirmedTxs  *numUnconfirmedTxsService
+	AbciQuery          *abciQueryService
+	Block              *blockService
+	BlockResults       *blockResultsService
+	Blockchain         *blockchainService
+	BroadcastTxAsync   *broadcastTxAsyncService
+	BroadcastTxCommit  *broadcastTxCommitService
+	BroadcastTxSync    *broadcastTxSyncService
+	Subscribe          *subscribeService
+	Tx                 *txService
+	TxSearch           *txSearchService
+	UnconfirmedTxs     *unconfirmedTxsService
+	Unsubscribe        *unsubscribeService
+	Validators         *validatorsService
 }
 
 type service struct {
@@ -123,6 +123,10 @@ type service struct {
 
 // NewClient 创建tendermint Client
 func NewClient(opt *option) *Client {
+	if opt == nil {
+		opt, _ = NewOption()
+	}
+
 	c := &Client{
 		host:    opt.host,
 		baseURL: opt.baseURL,
@@ -132,27 +136,27 @@ func NewClient(opt *option) *Client {
 
 	c.common.client = c
 
-	c.Status = (*StatusService)(&c.common)
-	c.AbciInfo = (*AbciInfoService)(&c.common)
-	c.ConsensusState = (*ConsensusStateService)(&c.common)
-	c.DumpConsensusState = (*DumpConsensusStateService)(&c.common)
-	c.Genesis = (*GenesisService)(&c.common)
-	c.Health = (*HealthService)(&c.common)
-	c.NetInfo = (*NetInfoService)(&c.common)
-	c.NumUnconfirmedTxs = (*NumUnconfirmedTxsService)(&c.common)
-	c.AbciQuery = (*AbciQueryService)(&c.common)
-	c.Block = (*BlockService)(&c.common)
-	c.BlockResults = (*BlockResultsService)(&c.common)
-	c.Blockchain = (*BlockchainService)(&c.common)
-	c.BroadcastTxAsync = (*BroadcastTxAsyncService)(&c.common)
-	c.BroadcastTxCommit = (*BroadcastTxCommitService)(&c.common)
-	c.BroadcastTxSync = (*BroadcastTxSyncService)(&c.common)
-	c.Subscribe = (*SubscribeService)(&c.common)
-	c.Tx = (*TxService)(&c.common)
-	c.TxSearch = (*TxSearchService)(&c.common)
-	c.UnconfirmedTxs = (*UnconfirmedTxsService)(&c.common)
-	c.Unsubscribe = (*UnsubscribeService)(&c.common)
-	c.Validators = (*ValidatorsService)(&c.common)
+	c.Status = (*statusService)(&c.common)
+	c.AbciInfo = (*abciInfoService)(&c.common)
+	c.ConsensusState = (*consensusStateService)(&c.common)
+	c.DumpConsensusState = (*dumpConsensusStateService)(&c.common)
+	c.Genesis = (*genesisService)(&c.common)
+	c.Health = (*healthService)(&c.common)
+	c.NetInfo = (*netInfoService)(&c.common)
+	c.NumUnconfirmedTxs = (*numUnconfirmedTxsService)(&c.common)
+	c.AbciQuery = (*abciQueryService)(&c.common)
+	c.Block = (*blockService)(&c.common)
+	c.BlockResults = (*blockResultsService)(&c.common)
+	c.Blockchain = (*blockchainService)(&c.common)
+	c.BroadcastTxAsync = (*broadcastTxAsyncService)(&c.common)
+	c.BroadcastTxCommit = (*broadcastTxCommitService)(&c.common)
+	c.BroadcastTxSync = (*broadcastTxSyncService)(&c.common)
+	c.Subscribe = (*subscribeService)(&c.common)
+	c.Tx = (*txService)(&c.common)
+	c.TxSearch = (*txSearchService)(&c.common)
+	c.UnconfirmedTxs = (*unconfirmedTxsService)(&c.common)
+	c.Unsubscribe = (*unsubscribeService)(&c.common)
+	c.Validators = (*validatorsService)(&c.common)
 
 	return c
 }
@@ -179,7 +183,7 @@ func addOptions(s string, opt interface{}) (string, error) {
 	return u.String(), nil
 }
 
-// NewRequest creates an API request. A relative URL can be provided in urlStr,
+// newRequest creates an API request. A relative URL can be provided in urlStr,
 // in which case it is resolved relative to the BaseURL of the Client.
 // Relative URLs should always be specified without a preceding slash. If
 // specified, the value pointed to by body is JSON encoded and included as the
@@ -245,12 +249,12 @@ func CheckResponse(r *http.Response) error {
 	return nil
 }
 
-// Do sends an API request and returns the API response. The API response is
+// do sends an API request and returns the API response. The API response is
 // JSON decoded and stored in the value pointed to by v, or returned as an
 // error if an API error has occurred. If v implements the io.Writer
 // interface, the raw response body will be written to v, without attempting to
 // first decode it. If rate limit is exceeded and reset time is in the future,
-// Do returns *RateLimitError immediately without making a network API call.
+// do returns *RateLimitError immediately without making a network API call.
 //
 // The provided ctx must be non-nil. If it is canceled or times out,
 // ctx.Err() will be returned.

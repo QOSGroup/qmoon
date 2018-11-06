@@ -8,7 +8,7 @@ import (
 
 const kvURI = "kv"
 
-type KVService service
+type kvService service
 
 type CreateKVQuery struct {
 	Key        string `json:"key"`
@@ -17,7 +17,7 @@ type CreateKVQuery struct {
 	ChainID    string `json:"chainid"`
 }
 
-func (s *KVService) Create(ctx context.Context, key string, value string, privatekey string, chainid string) (
+func (s *kvService) Create(ctx context.Context, key string, value string, privatekey string, chainid string) (
 	*kvstore.ResultSendKV, error) {
 	u := kvURI
 	u, err := addOptions(u, nil)
@@ -44,7 +44,7 @@ func (s *KVService) Create(ctx context.Context, key string, value string, privat
 	return &res, nil
 }
 
-func (s *KVService) Retrieve(ctx context.Context, key string) (*kvstore.ResultGetKV, error) {
+func (s *kvService) Retrieve(ctx context.Context, key string) (*kvstore.ResultGetKV, error) {
 	u := kvURI + "/" + key
 	u, err := addOptions(u, nil)
 	if err != nil {

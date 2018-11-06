@@ -8,13 +8,13 @@ import (
 
 const blockResultsURI = "block_results"
 
-type BlockResultsService service
+type blockResultsService service
 
 type BlockResultsOption struct {
 	Height int `url:"height,omitempty"`
 }
 
-func (s *BlockResultsService) Retrieve(ctx context.Context, opt *BlockResultsOption) (*tmctypes.ResultBlockResults, error) {
+func (s *blockResultsService) Retrieve(ctx context.Context, opt *BlockResultsOption) (*tmctypes.ResultBlockResults, error) {
 	u := blockResultsURI
 	if opt == nil {
 		opt = &BlockResultsOption{}

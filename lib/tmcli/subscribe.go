@@ -8,13 +8,13 @@ import (
 
 const subscribeURI = "subscribe"
 
-type SubscribeService service
+type subscribeService service
 
 type SubscribeOption struct {
 	Query string `url:"query,omitempty"`
 }
 
-func (s *SubscribeService) Retrieve(ctx context.Context, query string) (*tmctypes.ResultSubscribe, error) {
+func (s *subscribeService) Retrieve(ctx context.Context, query string) (*tmctypes.ResultSubscribe, error) {
 	u := subscribeURI
 	opt := &SubscribeOption{Query: query}
 	u, err := addOptions(u, opt)

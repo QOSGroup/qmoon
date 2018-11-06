@@ -3,9 +3,8 @@
 package tmmock
 
 import (
-	"io/ioutil"
 	"net/http"
-	"os"
+	"strings"
 )
 
 type TendermintMock struct {
@@ -42,14 +41,14 @@ func NewTendermintMock() TendermintMock {
 	for _, v := range apis {
 		vv := v
 		mux.HandleFunc("/"+v, func(w http.ResponseWriter, r *http.Request) {
-			f, err := os.Open("./tmmock/" + vv + ".json")
-			if err != nil {
+			vvv := strings.Replace(vv, "/", "_", -1)
+			d, ok := mockdata[vvv+".json"]
+			if !ok {
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
-			defer f.Close()
-			d, _ := ioutil.ReadAll(f)
-			w.Write(d)
+
+			w.Write([]byte(d))
 		})
 	}
 

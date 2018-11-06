@@ -8,7 +8,7 @@ import (
 
 const txSearchURI = "tx_search"
 
-type TxSearchService service
+type txSearchService service
 
 type TxSearchOption struct {
 	Prove   bool `url:"prove,omitempty"`
@@ -23,7 +23,7 @@ type txSearchQuery struct {
 	PerPage int    `url:"perPage,omitempty"`
 }
 
-func (s *TxSearchService) Retrieve(ctx context.Context, query string, opt *TxSearchOption) (*tmctypes.ResultTxSearch, error) {
+func (s *txSearchService) Retrieve(ctx context.Context, query string, opt *TxSearchOption) (*tmctypes.ResultTxSearch, error) {
 	u := txSearchURI
 	q := &txSearchQuery{
 		Query: query,

@@ -91,13 +91,10 @@ type Client struct {
 
 	common service // Reuse a single struct instead of allocating one for each service on the heap.
 
-	Test int
-	aaa  int
-
-	NodeVersion *NodeVersionService
-	Version     *VersionService
-	Accounts    *AccountsService
-	KV          *KVService
+	NodeVersion *nodeVersionService
+	Version     *versionService
+	Accounts    *accountsService
+	KV          *kvService
 }
 
 type service struct {
@@ -106,6 +103,9 @@ type service struct {
 
 // NewClient 创建tendermint Client
 func NewClient(opt *option) *Client {
+	if opt == nil {
+		opt, _ = NewOption()
+	}
 	c := &Client{
 		host:    opt.host,
 		baseURL: opt.baseURL,
@@ -115,10 +115,10 @@ func NewClient(opt *option) *Client {
 
 	c.common.client = c
 
-	c.NodeVersion = (*NodeVersionService)(&c.common)
-	c.Version = (*VersionService)(&c.common)
-	c.Accounts = (*AccountsService)(&c.common)
-	c.KV = (*KVService)(&c.common)
+	c.NodeVersion = (*nodeVersionService)(&c.common)
+	c.Version = (*versionService)(&c.common)
+	c.Accounts = (*accountsService)(&c.common)
+	c.KV = (*kvService)(&c.common)
 
 	return c
 }
@@ -189,7 +189,7 @@ func sanitizeURL(uri *url.URL) *url.URL {
 	return uri
 }
 
-// CheckResponse checks the API response for errors, and returns them if
+// checkResponse checks the API response for errors, and returns them if
 // present. A response is considered an error if it has a status code outside
 // the 200 range or equal to 202 Accepted.
 // API error responses are expected to have either no response
@@ -199,7 +199,7 @@ func sanitizeURL(uri *url.URL) *url.URL {
 // The error type will be *RateLimitError for rate limit exceeded errors,
 // *AcceptedError for 202 Accepted status codes,
 // and *TwoFactorAuthError for two-factor authentication errors.
-func CheckResponse(r *http.Response) error {
+func checkResponse(r *http.Response) error {
 	if c := r.StatusCode; 200 <= c && c <= 299 {
 		return nil
 	}
@@ -253,7 +253,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 		resp.Body.Close()
 	}()
 
-	err = CheckResponse(resp)
+	err = checkResponse(resp)
 	if err != nil {
 		// even though there was an error, we still return the response
 		// in case the caller wants to inspect it further
