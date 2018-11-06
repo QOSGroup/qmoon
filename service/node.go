@@ -110,3 +110,14 @@ func GetNodeTypeByName(name string) (*NodeType, error) {
 
 	return covertToNodeType(mnt), nil
 }
+
+func DeleteNodeTypeByName(name string) error {
+	mnt, err := model.NodeTypeByName(db.Db, utils.NullString(name))
+	if err != nil {
+		return err
+	}
+
+	err = mnt.Delete(db.Db)
+
+	return nil
+}
