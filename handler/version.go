@@ -8,7 +8,7 @@ import (
 )
 
 func VersionGinRegister(r *gin.Engine) {
-	r.GET("/account/version", serverInfoGinHandler())
+	r.GET("/version", serverInfoGinHandler())
 }
 
 type versionRes struct {

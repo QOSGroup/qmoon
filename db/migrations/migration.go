@@ -73,10 +73,10 @@ func NeedMigration(driveName string, db *sql.DB) (bool, error) {
 	}
 
 	if s.version != version {
-		return false, nil
+		return true, nil
 	}
 
-	return true, nil
+	return false, nil
 }
 
 // Init 数据库结构初始化

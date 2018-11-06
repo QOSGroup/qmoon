@@ -16,3 +16,4 @@
 go.sum
 
 cmd/cmd
+cmd/qmoon

@@ -24,6 +24,11 @@ func (tc tmClinet) ServerHttp(w http.ResponseWriter, req *http.Request) {
 
 }
 
+type ginHandler struct {
+	Method  string
+	Handler gin.HandlerFunc
+}
+
 const (
 	tmAbciInfoUrl           = "/abci_info"
 	tmConsensusStateUrl     = "/consensus_state"
@@ -50,7 +55,7 @@ const (
 	tmValidatorsUrl         = "/validators"
 )
 
-var tmRouter = map[string]gin.HandlerFunc{
+var tmRouter = map[string]*ginHandler{
 	"/abci_info":            nil,
 	"/consensus_state":      nil,
 	"/dump_consensus_state": nil,
@@ -74,6 +79,15 @@ var tmRouter = map[string]gin.HandlerFunc{
 	"/unsubscribe":          nil,
 	"/unsubscribe_all":      nil,
 	"/validators":           nil,
+
+	"/version":      nil,
+	"/node_version": nil,
+	"/accounts":     &ginHandler{Method: http.MethodPost, Handler: nil},
+	//"/accounts/:address/send": &ginHandler{Method: http.MethodPost, Handler: nil},
+	//"/accounts/:address":      &ginHandler{Method: http.MethodGet, Handler: nil},
+	//"/accounts/txSend":        &ginHandler{Method: http.MethodPost, Handler: nil},
+	"/kv/:key": &ginHandler{Method: http.MethodGet, Handler: nil},
+	"/kv":      &ginHandler{Method: http.MethodPost, Handler: nil},
 }
 
 // ProxyGinRegister 代理handler
@@ -81,9 +95,13 @@ func ProxyGinRegister(r *gin.Engine) {
 	for k, v := range tmRouter {
 		u := nodeProxy + k
 		if v == nil {
-			r.GET(u, middleware.ApiAuthGin(), proxyGin(u))
+			r.GET(u, middleware.ApiAuthGin(), proxyGin())
 		} else {
-			r.GET(u, middleware.ApiAuthGin(), v)
+			if v.Handler == nil {
+				r.Handle(v.Method, u, middleware.ApiAuthGin(), proxyGin())
+			} else {
+				r.Handle(v.Method, u, middleware.ApiAuthGin(), v.Handler)
+			}
 		}
 	}
 }
@@ -101,7 +119,7 @@ func copyHeaders(dst, src http.Header, keepDestHeaders bool) {
 	}
 }
 
-func proxyGin(u string) gin.HandlerFunc {
+func proxyGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		nodeName := c.Param("nodeName")
 		if nodeName == "" {
