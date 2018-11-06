@@ -15,12 +15,38 @@ QOS公链,QSC联盟链数据查询服务
 
 ## 安装
 
+* 下载和安装
+```
+go get -u github.com/QOSGroup/qmoon
+cd $GOPATH/github.com/QOSGroup/qmoon/cmd
+go build -o qmoon
+```
+
+* 启动服务
+需要安装postgresql
+```
+create database qmoon ENCODING 'UTF8' TEMPLATE template0;
+
+# 初始化必要的配置文件
+./qmoon init
+
+# 初始化数据库表
+./qmoon migration up
+
+# 启动服务
+./qmoon server
+```
+
+
+
 ## TODO
 
 > - [x] 项目初始化，init和migration命令
-> - [ ] tendermint默认提供的API
+> - [x] tendermint默认提供的API
+> - [x] 账户及app相关
+> - [x] API访问控制
 > - [ ] 数据被动同步
 > - [ ] 数据主动同步
-> - [ ] qos数据查询API
-> - [ ] qsc数据查询API
+> - [x] qos数据查询API
+> - [x] qsc数据查询API
 > - [ ] 动态更新配置
