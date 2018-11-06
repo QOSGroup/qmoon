@@ -4,6 +4,7 @@ package hadmin
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
@@ -14,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const nodeTypeUrl = "/nodeTypes"
+const nodeTypeUrl = "/nodes"
 
 // NodeTypesGinRegister 注册node type相关的api
 func NodeTypesGinRegister(r *gin.Engine) {
@@ -63,13 +64,26 @@ func createNodeTypeGin() gin.HandlerFunc {
 	}
 }
 
+type listNodeTypesResp struct {
+	Nodes []*service.NodeType `json:"nodes"`
+}
+
 func listNodeTypesGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		res, err := service.AllNodeTypes()
+		nts, err := service.AllNodeTypes()
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
+		fmt.Printf("---req:%+v\n", c.Request)
+		for _, v := range nts {
+			(*v).BaseURL = "http://" + c.Request.Host + "/node/" + v.Name
+		}
+
+		res := listNodeTypesResp{
+			Nodes: nts,
+		}
+
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", res))
 	}
 }

@@ -14,9 +14,9 @@ type NodeType struct {
 	mnt   *model.NodeType
 	mntrs []*model.NodeTypeRoute
 
-	Name      string           `json:"name"`     // name
-	BaseURL   string           `json:"base_url"` // base_url
-	SecretKey string           `json:"-"`        // secret_key
+	Name      string           `json:"name"`    // name
+	BaseURL   string           `json:"baseUrl"` // base_url
+	SecretKey string           `json:"-"`       // secret_key
 	Routers   []*NodeTypeRoute `json:"routers"`
 }
 
@@ -53,14 +53,23 @@ func covertToNodeTypeRoute(mntr *model.NodeTypeRoute) *NodeTypeRoute {
 
 func AllNodeTypes() ([]*NodeType, error) {
 	var res []*NodeType
+	var offset, limit int64 = 0, 50
 	for {
-		nts, err := model.NodeTypeFilter(db.Db, "", 0, 1000)
+
+		nts, err := model.NodeTypeFilter(db.Db, "", offset, limit)
 		if err != nil {
 			break
 		}
+
+		if len(nts) == 0 {
+			break
+		}
+
 		for _, v := range nts {
 			res = append(res, covertToNodeType(v))
 		}
+		offset += limit
+
 	}
 
 	return res, nil
