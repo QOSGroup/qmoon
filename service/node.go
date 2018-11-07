@@ -7,6 +7,7 @@ import (
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/model"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 )
 
@@ -75,6 +76,29 @@ func AllNodeTypes() ([]*NodeType, error) {
 	return res, nil
 }
 
+func DefaultRoute(nodeID int64) []NodeTypeRoute {
+	var rs []NodeTypeRoute
+	rs = append(rs, *covertToNodeTypeRoute(&model.NodeTypeRoute{
+		NodeTypeID: utils.NullInt64(nodeID),
+		Route:      utils.NullString(types.ExplorerRouteBlock.String()),
+		Hidden:     utils.NullBool(false),
+	}))
+
+	rs = append(rs, *covertToNodeTypeRoute(&model.NodeTypeRoute{
+		NodeTypeID: utils.NullInt64(nodeID),
+		Route:      utils.NullString(types.ExplorerRouteValidtor.String()),
+		Hidden:     utils.NullBool(false),
+	}))
+
+	rs = append(rs, *covertToNodeTypeRoute(&model.NodeTypeRoute{
+		NodeTypeID: utils.NullInt64(nodeID),
+		Route:      utils.NullString(types.ExplorerRouteNode.String()),
+		Hidden:     utils.NullBool(false),
+	}))
+
+	return rs
+}
+
 func CreateNodeType(name, baseURL, secretKey string, routes []NodeTypeRoute) error {
 	mnt := &model.NodeType{}
 	mnt.Name = utils.NullString(name)
@@ -84,6 +108,10 @@ func CreateNodeType(name, baseURL, secretKey string, routes []NodeTypeRoute) err
 	err := mnt.Insert(db.Db)
 	if err != nil {
 		return err
+	}
+
+	if routes == nil && len(routes) == 0 {
+		routes = DefaultRoute(mnt.ID)
 	}
 
 	for _, v := range routes {
