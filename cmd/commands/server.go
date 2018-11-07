@@ -23,7 +23,8 @@ var ServerCmd = &cobra.Command{
 }
 
 var (
-	explorer string
+	explorer      string
+	explorerLaddr string
 )
 
 func init() {
@@ -31,6 +32,7 @@ func init() {
 	registerFlagsDb(ServerCmd)
 
 	ServerCmd.PersistentFlags().StringVar(&explorer, "with-explorer", "", "the dir of explorer")
+	ServerCmd.PersistentFlags().StringVarP(&explorerLaddr, "explorerLaddr", "", "0.0.0.0:9528", "address of explorer listening")
 }
 
 func server(cmd *cobra.Command, args []string) error {
@@ -80,7 +82,7 @@ func server(cmd *cobra.Command, args []string) error {
 		s := gin.Default()
 		s.Static("/", explorer)
 
-		go s.Run("0.0.0.0:80")
+		go s.Run(explorerLaddr)
 	}
 
 	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
