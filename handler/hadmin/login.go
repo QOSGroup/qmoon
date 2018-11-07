@@ -21,13 +21,13 @@ func LoginGinRegister(r *gin.Engine) {
 }
 
 type loginQuery struct {
-	Mail     string `json:"mail"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 func (q loginQuery) Validator() error {
-	if q.Mail == "" {
-		return errors.New("mail不能为空")
+	if q.Email == "" {
+		return errors.New("email不能为空")
 	}
 
 	if q.Password == "" {
@@ -51,7 +51,7 @@ func loginGin() gin.HandlerFunc {
 			return
 		}
 
-		res, err := service.Login(reqObj.Mail, reqObj.Password)
+		res, err := service.Login(reqObj.Email, reqObj.Password)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

@@ -13,6 +13,9 @@ import (
 type session struct {
 	Token    string    `json:"token"`
 	ExpireAt time.Time `json:"expireAt"`
+	Status   int64     `json:"status"` // 用户状态 0:未认证邮箱 1:已认证
+	Name     string    `json:"name"`   // name
+	Avatar   string    `json:"avatar"` // avatar
 }
 
 func Login(mail, password string) (*session, error) {
@@ -34,6 +37,9 @@ func Login(mail, password string) (*session, error) {
 	s := &session{
 		Token:    t,
 		ExpireAt: time.Now().Add(expire),
+		Status:   acc.Status,
+		Name:     acc.Name,
+		Avatar:   acc.Avatar,
 	}
 
 	return s, nil
