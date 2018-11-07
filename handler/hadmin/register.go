@@ -21,13 +21,13 @@ func RegisterGinRegister(r *gin.Engine) {
 }
 
 type registerQuery struct {
-	Mail     string `json:"mail"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 func (q registerQuery) Validator() error {
-	if q.Mail == "" {
-		return errors.New("mail不能为空")
+	if q.Email == "" {
+		return errors.New("email不能为空")
 	}
 
 	if q.Password == "" {
@@ -55,7 +55,7 @@ func registerGin() gin.HandlerFunc {
 			return
 		}
 
-		res, err := account.CreateAccount(reqObj.Mail, reqObj.Password)
+		res, err := account.CreateAccount(reqObj.Email, reqObj.Password)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

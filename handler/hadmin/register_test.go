@@ -15,7 +15,7 @@ import (
 func TestRegisterGinEmptyMail(t *testing.T) {
 
 	body := registerQuery{
-		Mail:     "",
+		Email:    "",
 		Password: "1234556",
 	}
 	req, err := utils.NewPostJsonRequest(registerUrl, body)
@@ -28,7 +28,7 @@ func TestRegisterGinEmptyMail(t *testing.T) {
 
 func TestRegisterGinEmptyPassword(t *testing.T) {
 	body := registerQuery{
-		Mail:     "test@123.com",
+		Email:    "test@123.com",
 		Password: "",
 	}
 	req, err := utils.NewPostJsonRequest(registerUrl, body)
@@ -42,7 +42,7 @@ func TestRegisterGinEmptyPassword(t *testing.T) {
 func TestRegisterGinSuccess(t *testing.T) {
 
 	body := registerQuery{
-		Mail:     "test@123.com",
+		Email:    "test@123.com",
 		Password: "1234556",
 	}
 	req, err := utils.NewPostJsonRequest(registerUrl, body)
