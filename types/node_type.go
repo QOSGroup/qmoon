@@ -16,3 +16,15 @@ type AdminNodeType struct {
 type ResultNodeTypes struct {
 	Nodes []AdminNodeType `json:"nodes"`
 }
+
+type ExplorerRoute string
+
+const (
+	ExplorerRouteBlock    ExplorerRoute = "Block"
+	ExplorerRouteValidtor ExplorerRoute = "Validtor"
+	ExplorerRouteNode     ExplorerRoute = "Node"
+)
+
+func (er ExplorerRoute) String() string {
+	return string(er)
+}
