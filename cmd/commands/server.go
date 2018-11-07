@@ -22,9 +22,15 @@ var ServerCmd = &cobra.Command{
 	RunE:  server,
 }
 
+var (
+	explorer string
+)
+
 func init() {
 	registerFlagsHttpServer(ServerCmd)
 	registerFlagsDb(ServerCmd)
+
+	ServerCmd.PersistentFlags().StringVar(&explorer, "with-explorer", "", "the dir of explorer")
 }
 
 func server(cmd *cobra.Command, args []string) error {
@@ -69,6 +75,13 @@ func server(cmd *cobra.Command, args []string) error {
 	hadmin.UpdatePasswordGinRegister(r)
 	hadmin.NodeTypesGinRegister(r)
 	hdata.ProxyGinRegister(r)
+
+	if explorer != "" {
+		s := gin.Default()
+		s.Static("/", explorer)
+
+		go s.Run("0.0.0.0:80")
+	}
 
 	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
 		return err
