@@ -140,7 +140,7 @@ func proxyGin() gin.HandlerFunc {
 		}
 		defer resp.Body.Close()
 
-		copyHeaders(c.Writer.Header(), resp.Header, true)
+		//copyHeaders(c.Writer.Header(), resp.Header, true)
 		c.Writer.WriteHeader(resp.StatusCode)
 		io.Copy(c.Writer, resp.Body)
 	}
