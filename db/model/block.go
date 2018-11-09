@@ -6,13 +6,22 @@ package model
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+
+	"github.com/lib/pq"
 )
 
 // Block represents a row from 'public.blocks'.
 type Block struct {
-	ID     int64          `json:"id"`     // id
-	Height sql.NullInt64  `json:"height"` // height
-	Data   sql.NullString `json:"data"`   // data
+	ID             int64          `json:"id"`              // id
+	ChainID        sql.NullString `json:"chain_id"`        // chain_id
+	Height         sql.NullInt64  `json:"height"`          // height
+	NumTxs         sql.NullInt64  `json:"num_txs"`         // num_txs
+	TotalTxs       sql.NullInt64  `json:"total_txs"`       // total_txs
+	DataHash       sql.NullString `json:"data_hash"`       // data_hash
+	ValidatorsHash sql.NullString `json:"validators_hash"` // validators_hash
+	Time           pq.NullTime    `json:"time"`            // time
+	CreatedAt      pq.NullTime    `json:"created_at"`      // created_at
 
 	// xo fields
 	_exists, _deleted bool
@@ -39,14 +48,14 @@ func (b *Block) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.blocks (` +
-		`height, data` +
+		`chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at` +
 		`) VALUES (` +
-		`$1, $2` +
+		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`) RETURNING id`
 
 	// run query
-	XOLog(sqlstr, b.Height, b.Data)
-	err = db.QueryRow(sqlstr, b.Height, b.Data).Scan(&b.ID)
+	XOLog(sqlstr, b.ChainID, b.Height, b.NumTxs, b.TotalTxs, b.DataHash, b.ValidatorsHash, b.Time, b.CreatedAt)
+	err = db.QueryRow(sqlstr, b.ChainID, b.Height, b.NumTxs, b.TotalTxs, b.DataHash, b.ValidatorsHash, b.Time, b.CreatedAt).Scan(&b.ID)
 	if err != nil {
 		return err
 	}
@@ -73,14 +82,14 @@ func (b *Block) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.blocks SET (` +
-		`height, data` +
+		`chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at` +
 		`) = ( ` +
-		`$1, $2` +
-		`) WHERE id = $3`
+		`$1, $2, $3, $4, $5, $6, $7, $8` +
+		`) WHERE id = $9`
 
 	// run query
-	XOLog(sqlstr, b.Height, b.Data, b.ID)
-	_, err = db.Exec(sqlstr, b.Height, b.Data, b.ID)
+	XOLog(sqlstr, b.ChainID, b.Height, b.NumTxs, b.TotalTxs, b.DataHash, b.ValidatorsHash, b.Time, b.CreatedAt, b.ID)
+	_, err = db.Exec(sqlstr, b.ChainID, b.Height, b.NumTxs, b.TotalTxs, b.DataHash, b.ValidatorsHash, b.Time, b.CreatedAt, b.ID)
 	return err
 }
 
@@ -106,18 +115,18 @@ func (b *Block) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.blocks (` +
-		`id, height, data` +
+		`id, chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at` +
 		`) VALUES (` +
-		`$1, $2, $3` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, height, data` +
+		`id, chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.height, EXCLUDED.data` +
+		`EXCLUDED.id, EXCLUDED.chain_id, EXCLUDED.height, EXCLUDED.num_txs, EXCLUDED.total_txs, EXCLUDED.data_hash, EXCLUDED.validators_hash, EXCLUDED.time, EXCLUDED.created_at` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, b.ID, b.Height, b.Data)
-	_, err = db.Exec(sqlstr, b.ID, b.Height, b.Data)
+	XOLog(sqlstr, b.ID, b.ChainID, b.Height, b.NumTxs, b.TotalTxs, b.DataHash, b.ValidatorsHash, b.Time, b.CreatedAt)
+	_, err = db.Exec(sqlstr, b.ID, b.ChainID, b.Height, b.NumTxs, b.TotalTxs, b.DataHash, b.ValidatorsHash, b.Time, b.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -162,17 +171,19 @@ func (b *Block) Delete(db XODB) error {
 // ordered by "id" in descending order.
 func BlockFilter(db XODB, filter string, offset, limit int64) ([]*Block, error) {
 	sqlstr := `SELECT ` +
-		`id, height, data` +
+		`id, chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at` +
 		` FROM public.blocks `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
 	}
 
-	sqlstr = sqlstr + " order by id desc offset $1 limit $2"
+	if limit > 0 {
+		sqlstr = sqlstr + fmt.Sprintf(" offset %d limit %d", offset, limit)
+	}
 
-	XOLog(sqlstr, offset, limit)
-	q, err := db.Query(sqlstr, offset, limit)
+	XOLog(sqlstr)
+	q, err := db.Query(sqlstr)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +195,7 @@ func BlockFilter(db XODB, filter string, offset, limit int64) ([]*Block, error) 
 		b := Block{}
 
 		// scan
-		err = q.Scan(&b.ID, &b.Height, &b.Data)
+		err = q.Scan(&b.ID, &b.ChainID, &b.Height, &b.NumTxs, &b.TotalTxs, &b.DataHash, &b.ValidatorsHash, &b.Time, &b.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -193,30 +204,71 @@ func BlockFilter(db XODB, filter string, offset, limit int64) ([]*Block, error) 
 	}
 
 	return res, nil
-} // BlockByHeight retrieves a row from 'public.blocks' as a Block.
+}
+
+// BlockByChainIDHeight retrieves a row from 'public.blocks' as a Block.
 //
-// Generated from index 'blocks_height_idx'.
-func BlockByHeight(db XODB, height sql.NullInt64) (*Block, error) {
+// Generated from index 'blocks_chain_id_height_idx'.
+func BlockByChainIDHeight(db XODB, chainID sql.NullString, height sql.NullInt64) (*Block, error) {
 	var err error
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, height, data ` +
+		`id, chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at ` +
 		`FROM public.blocks ` +
-		`WHERE height = $1`
+		`WHERE chain_id = $1 AND height = $2`
 
 	// run query
-	XOLog(sqlstr, height)
+	XOLog(sqlstr, chainID, height)
 	b := Block{
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, height).Scan(&b.ID, &b.Height, &b.Data)
+	err = db.QueryRow(sqlstr, chainID, height).Scan(&b.ID, &b.ChainID, &b.Height, &b.NumTxs, &b.TotalTxs, &b.DataHash, &b.ValidatorsHash, &b.Time, &b.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
 
 	return &b, nil
+}
+
+// BlocksByChainID retrieves a row from 'public.blocks' as a Block.
+//
+// Generated from index 'blocks_chain_id_idx'.
+func BlocksByChainID(db XODB, chainID sql.NullString) ([]*Block, error) {
+	var err error
+
+	// sql query
+	const sqlstr = `SELECT ` +
+		`id, chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at ` +
+		`FROM public.blocks ` +
+		`WHERE chain_id = $1`
+
+	// run query
+	XOLog(sqlstr, chainID)
+	q, err := db.Query(sqlstr, chainID)
+	if err != nil {
+		return nil, err
+	}
+	defer q.Close()
+
+	// load results
+	res := []*Block{}
+	for q.Next() {
+		b := Block{
+			_exists: true,
+		}
+
+		// scan
+		err = q.Scan(&b.ID, &b.ChainID, &b.Height, &b.NumTxs, &b.TotalTxs, &b.DataHash, &b.ValidatorsHash, &b.Time, &b.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &b)
+	}
+
+	return res, nil
 }
 
 // BlockByID retrieves a row from 'public.blocks' as a Block.
@@ -227,7 +279,7 @@ func BlockByID(db XODB, id int64) (*Block, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, height, data ` +
+		`id, chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at ` +
 		`FROM public.blocks ` +
 		`WHERE id = $1`
 
@@ -237,7 +289,7 @@ func BlockByID(db XODB, id int64) (*Block, error) {
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, id).Scan(&b.ID, &b.Height, &b.Data)
+	err = db.QueryRow(sqlstr, id).Scan(&b.ID, &b.ChainID, &b.Height, &b.NumTxs, &b.TotalTxs, &b.DataHash, &b.ValidatorsHash, &b.Time, &b.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

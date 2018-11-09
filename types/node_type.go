@@ -20,7 +20,7 @@ type ResultNodeTypes struct {
 type ExplorerRoute string
 
 const (
-	ExplorerRouteBlock    ExplorerRoute = "Block"
+	ExplorerRouteBlock    ExplorerRoute = "ResultBlockBase"
 	ExplorerRouteValidtor ExplorerRoute = "Validtor"
 	ExplorerRouteNode     ExplorerRoute = "Node"
 )

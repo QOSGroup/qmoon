@@ -20,23 +20,6 @@ CREATE TABLE IF NOT EXISTS qmoon_status(
 );
 CREATE unique index qmoon_status_key_idx on qmoon_status(key);
 
-CREATE TABLE IF NOT EXISTS node_types(
-	id bigserial PRIMARY KEY,
-	name varchar(128),
-	base_url text,
-	secret_key text,
-	created_at timestamp with time zone
-);
-CREATE unique index node_types_name_idx on node_types(name);
-
-create table node_type_route(
-   id bigserial primary key,
-   node_type_id BIGINT REFERENCES node_types (id) ON DELETE CASCADE,
-   route varchar(64),
-   hidden boolean default false
-);
-CREATE index node_type_route_node_type_id_idx on node_type_route(node_type_id);
-
 CREATE TABLE IF NOT EXISTS accounts(
 	id bigserial PRIMARY KEY,
 	mail varchar(128),
@@ -72,19 +55,87 @@ CREATE unique index apps_secret_key_idx on apps(secret_key);
 CREATE index apps_account_id_idx on apps(account_id);
 insert into apps(name, secret_key,status,account_id)values('t1', '123456',1,1); 
 
-CREATE TABLE IF NOT EXISTS block_chain(
+--- 
+CREATE TABLE IF NOT EXISTS genesis(
 	id bigserial PRIMARY KEY,
-	height bigint,
-	data text
+	chain_id text,
+	genesis_time timestamp with time zone,
+	data text,
+	created_at timestamp with time zone
 );
-CREATE unique index block_chain_height_idx on block_chain(height);
+CREATE unique index genesis_chain_id_idx on genesis(chain_id);
+
+CREATE TABLE IF NOT EXISTS nodes(
+	id bigserial PRIMARY KEY,
+	name varchar(128),
+	base_url text,
+	secret_key text,
+	chain_id text,
+	genesis_id BIGINT REFERENCES genesis(id),
+	created_at timestamp with time zone
+);
+CREATE unique index nodes_name_idx on nodes(name);
+CREATE index nodes_genesis_id_idx on nodes(genesis_id);
+
+create table node_route(
+   id bigserial primary key,
+   node_id BIGINT REFERENCES nodes (id) ON DELETE CASCADE,
+   route varchar(64),
+   hidden boolean default false
+);
+CREATE index node_route_node_id_idx on node_route(node_id);
+
+CREATE TABLE IF NOT EXISTS tm_block_chain(
+	id bigserial PRIMARY KEY,
+	chain_id varchar(64),
+	height bigint,
+    num_txs bigint,
+	data text,
+	time timestamp with time zone,
+	created_at timestamp with time zone
+);
+CREATE index tm_block_chain_chain_id_idx on tm_block_chain(chain_id);
+CREATE unique index tm_block_chain_chain_id_height_idx on tm_block_chain(chain_id, height);
+
+CREATE TABLE IF NOT EXISTS tm_blocks(
+	id bigserial PRIMARY KEY,
+	chain_id text,
+	height bigint,
+	data text,
+	created_at timestamp with time zone
+);
+CREATE unique index tm_blocks_chain_id_height_idx on tm_blocks(chain_id, height);
+CREATE index tm_blocks_chain_id_idx on tm_blocks(chain_id);
 
 CREATE TABLE IF NOT EXISTS blocks(
 	id bigserial PRIMARY KEY,
+	chain_id text,
 	height bigint,
-	data text
+    num_txs bigint,
+	total_txs bigint,
+	data_hash varchar(40),
+	validators_hash varchar(40),
+	time timestamp with time zone,
+	created_at timestamp with time zone
 );
-CREATE unique index blocks_height_idx on blocks(height);
+CREATE unique index blocks_chain_id_height_idx on blocks(chain_id, height);
+CREATE index blocks_chain_id_idx on blocks(chain_id);
+
+CREATE TABLE IF NOT EXISTS peers(
+	id bigserial PRIMARY KEY,
+	chain_id text,
+	moniker text,
+	peer_id varchar(40),
+	listen_addr text,
+	network text,
+	version text,
+	channels text,
+	send_start timestamp with time zone,
+	recv_start timestamp with time zone,
+	created_at timestamp with time zone
+);
+CREATE index peers_chain_id_idx on peers(chain_id);
+CREATE unique index peers_peer_id_idx on peers(peer_id);
 
 insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
 
@@ -96,13 +147,15 @@ insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
 		down: func(db *sql.DB) error {
 			s := `
 DROP TABLE qmoon_status;
-DROP TABLE node_types;
-DROP TABLE node_type_route;
+DROP TABLE nodes;
+DROP TABLE node_route;
 DROP TABLE apps;
 DROP TABLE login_status;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               DROP TABLE block_chain;
 DROP TABLE blocks;
 DROP TABLE accounts;
+DROP TABLE peers;
+
 
 `
 			_, err := db.Query(s)

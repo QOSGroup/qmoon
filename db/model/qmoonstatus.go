@@ -6,6 +6,7 @@ package model
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 // QmoonStatus represents a row from 'public.qmoon_status'.
@@ -169,10 +170,12 @@ func QmoonStatusFilter(db XODB, filter string, offset, limit int64) ([]*QmoonSta
 		sqlstr = sqlstr + " WHERE " + filter
 	}
 
-	sqlstr = sqlstr + " order by id desc offset $1 limit $2"
+	if limit > 0 {
+		sqlstr = sqlstr + fmt.Sprintf(" offset %d limit %d", offset, limit)
+	}
 
-	XOLog(sqlstr, offset, limit)
-	q, err := db.Query(sqlstr, offset, limit)
+	XOLog(sqlstr)
+	q, err := db.Query(sqlstr)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +196,9 @@ func QmoonStatusFilter(db XODB, filter string, offset, limit int64) ([]*QmoonSta
 	}
 
 	return res, nil
-} // QmoonStatusByKey retrieves a row from 'public.qmoon_status' as a QmoonStatus.
+}
+
+// QmoonStatusByKey retrieves a row from 'public.qmoon_status' as a QmoonStatus.
 //
 // Generated from index 'qmoon_status_key_idx'.
 func QmoonStatusByKey(db XODB, key sql.NullString) (*QmoonStatus, error) {

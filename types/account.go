@@ -5,6 +5,7 @@ package types
 const (
 	AuthUserKey = "user"
 	AuthAppKey  = "app"
+	AuthNode    = "node"
 )
 
 type AdminAccountStatus int
