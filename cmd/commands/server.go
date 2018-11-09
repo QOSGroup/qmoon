@@ -3,14 +3,19 @@
 package commands
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"sync"
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/migrations"
 	"github.com/QOSGroup/qmoon/handler"
 	"github.com/QOSGroup/qmoon/handler/hadmin"
 	"github.com/QOSGroup/qmoon/handler/hdata"
+	"github.com/QOSGroup/qmoon/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
@@ -35,25 +40,21 @@ func init() {
 	ServerCmd.PersistentFlags().StringVarP(&explorerLaddr, "explorerLaddr", "", "0.0.0.0:9528", "address of explorer listening")
 }
 
-func server(cmd *cobra.Command, args []string) error {
-	err := db.InitDb(config.DB, logger)
-	if err != nil {
-		return err
-	}
-
-	needUp, err := migrations.NeedMigration(config.DB.DriverName, db.Db)
+func checkDb(db *sql.DB) bool {
+	needUp, err := migrations.NeedMigration(config.DB.DriverName, db)
 	if err != nil {
 		panic(err)
 	}
-
 	if needUp {
 		fmt.Println("数据库需要升级")
 		fmt.Println("可以执行 qmoon migration up")
-		return nil
+		return true
 	}
 
-	r := gin.Default()
+	return false
+}
 
+func initRouter(r *gin.Engine) {
 	r.Use(func(c *gin.Context) {
 
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -75,19 +76,48 @@ func server(cmd *cobra.Command, args []string) error {
 	hadmin.AccountGinRegister(r)
 	hadmin.AppGinRegister(r)
 	hadmin.UpdatePasswordGinRegister(r)
-	hadmin.NodeTypesGinRegister(r)
-	hdata.ProxyGinRegister(r)
+	hadmin.NodesGinRegister(r)
 
-	if explorer != "" {
-		s := gin.Default()
-		s.Static("/", explorer)
+	hdata.GinRegister(r)
+}
 
-		go s.Run(explorerLaddr)
+func runStaticServer(laddr, dir string) {
+	s := gin.Default()
+	s.Static("/", dir)
+
+	s.Run(laddr)
+}
+
+func server(cmd *cobra.Command, args []string) error {
+	wg := sync.WaitGroup{}
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, os.Kill)
+
+	err := db.InitDb(config.DB, logger)
+	if err != nil {
+		return err
 	}
 
+	if ok := checkDb(db.Db); ok {
+		return nil
+	}
+
+	worker.Start()
+	if explorer != "" {
+		go func() {
+			wg.Add(1)
+			defer wg.Done()
+			runStaticServer(explorerLaddr, explorer)
+		}()
+	}
+
+	r := gin.Default()
+	initRouter(r)
 	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
 		return err
 	}
+
+	wg.Wait()
 
 	return nil
 }

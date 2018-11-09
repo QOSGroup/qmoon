@@ -77,7 +77,7 @@ func createNode(cmd *cobra.Command, args []string) error {
 		return errors.New("nodeUrl 不能为空")
 	}
 
-	err = service.CreateNodeType(nodeName, nodeUrl, "", nil)
+	err = service.CreateNode(nodeName, nodeUrl, "", nil)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func queryNode(cmd *cobra.Command, args []string) error {
 	}
 
 	if nodeName != "" {
-		res, err := service.GetNodeTypeByName(nodeName)
+		res, err := service.GetNodeByName(nodeName)
 		if err != nil {
 			return err
 		}
@@ -104,7 +104,7 @@ func queryNode(cmd *cobra.Command, args []string) error {
 
 		cmd.Println(string(d))
 	} else {
-		res, err := service.AllNodeTypes()
+		res, err := service.AllNodes()
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func deleteNode(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = service.DeleteNodeTypeByName(name)
+	err = service.DeleteNodeByName(name)
 
 	return err
 }

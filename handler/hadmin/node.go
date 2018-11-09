@@ -17,20 +17,20 @@ import (
 
 const nodeTypeUrl = "/nodes"
 
-// NodeTypesGinRegister 注册node type相关的api
-func NodeTypesGinRegister(r *gin.Engine) {
-	r.POST(nodeTypeUrl, middleware.IPWhitelist(utils.NewLocalIPNet()), createNodeTypeGin())
-	r.GET(nodeTypeUrl, listNodeTypesGin())
+// NodesGinRegister 注册node type相关的api
+func NodesGinRegister(r *gin.Engine) {
+	r.POST(nodeTypeUrl, middleware.IPWhitelist(utils.NewLocalIPNet()), createNodeGin())
+	r.GET(nodeTypeUrl, listNodesGin())
 }
 
-type createNodeTypeQuery struct {
-	Name      string                  `json:"name"`
-	BaseURL   string                  `json:"baseUrl"`
-	SecretKey string                  `json:"secretKey"`
-	Routers   []service.NodeTypeRoute `json:"routers"`
+type createNodeQuery struct {
+	Name      string              `json:"name"`
+	BaseURL   string              `json:"baseUrl"`
+	SecretKey string              `json:"secretKey"`
+	Routers   []service.NodeRoute `json:"routers"`
 }
 
-func (q createNodeTypeQuery) Validator() error {
+func (q createNodeQuery) Validator() error {
 	if q.Name == "" {
 		return errors.New("名字不能为空")
 	}
@@ -42,9 +42,9 @@ func (q createNodeTypeQuery) Validator() error {
 	return nil
 }
 
-func createNodeTypeGin() gin.HandlerFunc {
+func createNodeGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var reqObj createNodeTypeQuery
+		var reqObj createNodeQuery
 		if err := c.ShouldBind(&reqObj); err != nil {
 			c.JSON(http.StatusOK, types.RPCParseError("", err))
 			return
@@ -55,7 +55,7 @@ func createNodeTypeGin() gin.HandlerFunc {
 			return
 		}
 
-		err := service.CreateNodeType(reqObj.Name, reqObj.BaseURL, reqObj.SecretKey, reqObj.Routers)
+		err := service.CreateNode(reqObj.Name, reqObj.BaseURL, reqObj.SecretKey, reqObj.Routers)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
@@ -64,13 +64,13 @@ func createNodeTypeGin() gin.HandlerFunc {
 	}
 }
 
-type listNodeTypesResp struct {
-	Nodes []*service.NodeType `json:"nodes"`
+type listNodesResp struct {
+	Nodes []*service.Node `json:"nodes"`
 }
 
-func listNodeTypesGin() gin.HandlerFunc {
+func listNodesGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		nts, err := service.AllNodeTypes()
+		nts, err := service.AllNodes()
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
@@ -80,7 +80,7 @@ func listNodeTypesGin() gin.HandlerFunc {
 			(*v).BaseURL = "http://" + c.Request.Host + "/node/" + v.Name
 		}
 
-		res := listNodeTypesResp{
+		res := listNodesResp{
 			Nodes: nts,
 		}
 

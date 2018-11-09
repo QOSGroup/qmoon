@@ -16,13 +16,13 @@ func AccountSessionGin() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		t := c.GetHeader(types.TokenKey)
 		if t == "" {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusOK, types.RPCUnauthorizedError("", errors.New("no QToken")))
 			return
 		}
 
 		acc, err := service.CheckSession(t)
 		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusOK, types.RPCUnauthorizedError("", errors.New("QToken Invalid")))
 			return
 		}
 
@@ -37,20 +37,20 @@ func ApiAuthGin() func(c *gin.Context) {
 		}
 		a := c.GetHeader(types.AuthKey)
 		if a == "" {
-			c.AbortWithStatus(http.StatusForbidden)
+			c.AbortWithStatusJSON(http.StatusOK, types.RPCForbiddenError("", errors.New("no Authorization")))
 			return
 		}
 
 		app, err := account.AppBySecretKey(a)
 		if err != nil {
-			c.AbortWithStatus(http.StatusForbidden)
+			c.AbortWithStatusJSON(http.StatusOK, types.RPCForbiddenError("", errors.New("invalid Authorization")))
 			return
 		}
 		c.Set(types.AuthAppKey, app)
 
 		acc, err := app.Account()
 		if err != nil {
-			c.AbortWithStatus(http.StatusForbidden)
+			c.AbortWithStatusJSON(http.StatusOK, types.RPCForbiddenError("", errors.New("invalid Authorization")))
 			return
 		}
 

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	cfg "github.com/QOSGroup/qmoon/config"
+	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -81,6 +82,10 @@ var RootCmd = &cobra.Command{
 		config, err = ParseConfig()
 		if err != nil {
 			return err
+		}
+
+		if config.LogLevel == "debug" {
+			model.XOLog = log.Printf
 		}
 
 		//logger.Info("rootCmd", "config.BaseConfig", config.BaseConfig,

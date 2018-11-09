@@ -6,6 +6,7 @@ package model
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/lib/pq"
 )
@@ -173,10 +174,12 @@ func LoginStatusFilter(db XODB, filter string, offset, limit int64) ([]*LoginSta
 		sqlstr = sqlstr + " WHERE " + filter
 	}
 
-	sqlstr = sqlstr + " order by id desc offset $1 limit $2"
+	if limit > 0 {
+		sqlstr = sqlstr + fmt.Sprintf(" offset %d limit %d", offset, limit)
+	}
 
-	XOLog(sqlstr, offset, limit)
-	q, err := db.Query(sqlstr, offset, limit)
+	XOLog(sqlstr)
+	q, err := db.Query(sqlstr)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +200,9 @@ func LoginStatusFilter(db XODB, filter string, offset, limit int64) ([]*LoginSta
 	}
 
 	return res, nil
-} // Account returns the Account associated with the LoginStatus's AccountID (account_id).
+}
+
+// Account returns the Account associated with the LoginStatus's AccountID (account_id).
 //
 // Generated from foreign key 'login_status_account_id_fkey'.
 func (ls *LoginStatus) Account(db XODB) (*Account, error) {

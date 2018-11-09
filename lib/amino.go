@@ -2,6 +2,14 @@
 
 package lib
 
-import amino "github.com/tendermint/go-amino"
+import (
+	"github.com/QOSGroup/qstars/star"
+	amino "github.com/tendermint/go-amino"
+)
 
-var Cdc = amino.NewCodec()
+var Cdc = MakeCodec()
+
+func MakeCodec() *amino.Codec {
+	cdc := star.MakeCodec()
+	return cdc
+}

@@ -218,10 +218,12 @@ func {{ .Name }}Filter(db XODB, filter string, offset, limit int64) ([]*{{ .Name
         sqlstr = sqlstr + " WHERE " + filter
     }
 
-    sqlstr = sqlstr + " order by id desc offset $1 limit $2"
+    if limit > 0 {
+        sqlstr = sqlstr + fmt.Sprintf(" offset %d limit %d", offset, limit)
+    }
 
-    XOLog(sqlstr, offset, limit)
-    q, err := db.Query(sqlstr, offset, limit)
+    XOLog(sqlstr)
+    q, err := db.Query(sqlstr)
     if err != nil {
         return nil, err
     }

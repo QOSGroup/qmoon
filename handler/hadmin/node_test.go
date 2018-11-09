@@ -12,12 +12,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateNodeTypeGin(t *testing.T) {
-	body := createNodeTypeQuery{
+func TestCreateNodeGin(t *testing.T) {
+	body := createNodeQuery{
 		Name:      "QOS",
 		BaseURL:   "http://127.0.0.1:26657",
 		SecretKey: "",
-		Routers: []service.NodeTypeRoute{
+		Routers: []service.NodeRoute{
 			{
 				Route:  "Block",
 				Hidden: false,
@@ -35,16 +35,16 @@ func TestCreateNodeTypeGin(t *testing.T) {
 	req, err := utils.NewPostJsonRequest(nodeTypeUrl, body)
 	assert.Nil(t, err)
 
-	_, err = handler.NewHttpTest(t, req).WithLocalIP().Do(NodeTypesGinRegister, nil)
+	_, err = handler.NewHttpTest(t, req).WithLocalIP().Do(NodesGinRegister, nil)
 	assert.NotNil(t, err)
 }
 
-func TestListNodeTypesGin(t *testing.T) {
-	body := createNodeTypeQuery{
+func TestListNodesGin(t *testing.T) {
+	body := createNodeQuery{
 		Name:      "QOS",
 		BaseURL:   "http://127.0.0.1:26657",
 		SecretKey: "",
-		Routers: []service.NodeTypeRoute{
+		Routers: []service.NodeRoute{
 			{
 				Route:  "Block",
 				Hidden: false,
@@ -62,12 +62,12 @@ func TestListNodeTypesGin(t *testing.T) {
 	req, err := utils.NewPostJsonRequest(nodeTypeUrl, body)
 	assert.Nil(t, err)
 
-	_, err = handler.NewHttpTest(t, req).Do(NodeTypesGinRegister, nil)
+	_, err = handler.NewHttpTest(t, req).Do(NodesGinRegister, nil)
 	assert.NotNil(t, err)
 	req, err = http.NewRequest(http.MethodGet, accountsUrl, nil)
 	assert.Nil(t, err)
-	var nts []*service.NodeType
-	_, err = handler.NewHttpTest(t, req).Do(NodeTypesGinRegister, &nts)
+	var nts []*service.Node
+	_, err = handler.NewHttpTest(t, req).Do(NodesGinRegister, &nts)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, nts)
 }

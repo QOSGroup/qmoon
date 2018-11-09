@@ -6,6 +6,7 @@ package model
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/lib/pq"
 )
@@ -176,10 +177,12 @@ func AccountFilter(db XODB, filter string, offset, limit int64) ([]*Account, err
 		sqlstr = sqlstr + " WHERE " + filter
 	}
 
-	sqlstr = sqlstr + " order by id desc offset $1 limit $2"
+	if limit > 0 {
+		sqlstr = sqlstr + fmt.Sprintf(" offset %d limit %d", offset, limit)
+	}
 
-	XOLog(sqlstr, offset, limit)
-	q, err := db.Query(sqlstr, offset, limit)
+	XOLog(sqlstr)
+	q, err := db.Query(sqlstr)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +203,9 @@ func AccountFilter(db XODB, filter string, offset, limit int64) ([]*Account, err
 	}
 
 	return res, nil
-} // AccountByMail retrieves a row from 'public.accounts' as a Account.
+}
+
+// AccountByMail retrieves a row from 'public.accounts' as a Account.
 //
 // Generated from index 'accounts_mail_idx'.
 func AccountByMail(db XODB, mail sql.NullString) (*Account, error) {

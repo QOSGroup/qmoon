@@ -4,6 +4,7 @@ package types
 
 import (
 	"encoding/json"
+	"net/http"
 
 	"github.com/pkg/errors"
 	amino "github.com/tendermint/go-amino"
@@ -59,6 +60,14 @@ func RPCMethodNotFoundError(id string) RPCResponse {
 
 func RPCInvalidParamsError(id string, err error) RPCResponse {
 	return NewRPCErrorResponse(id, -32602, "Invalid params", err.Error())
+}
+
+func RPCUnauthorizedError(id string, err error) RPCResponse {
+	return NewRPCErrorResponse(id, http.StatusUnauthorized, "Unauthorized", err.Error())
+}
+
+func RPCForbiddenError(id string, err error) RPCResponse {
+	return NewRPCErrorResponse(id, http.StatusForbidden, "Forbidden", err.Error())
 }
 
 func RPCInternalError(id string, err error) RPCResponse {
