@@ -121,6 +121,27 @@ CREATE TABLE IF NOT EXISTS blocks(
 CREATE unique index blocks_chain_id_height_idx on blocks(chain_id, height);
 CREATE index blocks_chain_id_idx on blocks(chain_id);
 
+
+CREATE TABLE IF NOT EXISTS txs(
+	id bigserial PRIMARY KEY,
+	chain_id text,
+	height bigint,
+	tx_type text,
+	index bigint,
+	maxgas bigint,
+	qcp_from text,
+	qcp_to text,
+	qcp_sequence bigint,
+	qcp_txindex bigint,
+	qcp_isresult boolean,
+	data text,
+	time timestamp with time zone,
+	created_at timestamp with time zone
+);
+CREATE unique index txs_chain_id_height_index_idx on txs(chain_id, height, index);
+CREATE index txs_chain_id_height_idx on txs(chain_id, height);
+CREATE index txs_chain_id_idx on txs(chain_id);
+
 CREATE TABLE IF NOT EXISTS peers(
 	id bigserial PRIMARY KEY,
 	chain_id text,
@@ -138,6 +159,7 @@ CREATE index peers_chain_id_idx on peers(chain_id);
 CREATE unique index peers_peer_id_idx on peers(peer_id);
 
 insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
+insert into qmoon_status(key, value)values('sync_peer_running', '0');
 
 `
 			_, err := db.Query(s)
