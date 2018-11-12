@@ -12,14 +12,14 @@ import (
 
 	"github.com/QOSGroup/qmoon/lib/tmcli/tmmock"
 	"github.com/google/go-querystring/query"
-	amino "github.com/tendermint/go-amino"
+	"github.com/tendermint/go-amino"
 	tmltypes "github.com/tendermint/tendermint/rpc/lib/types"
 
 	"net/http"
 	"net/url"
 )
 
-var tmDefaultServer = "http://18.188.103.180:26657"
+var TmDefaultServer = "http://18.188.103.180:26657"
 
 var cdc = amino.NewCodec()
 
@@ -39,7 +39,7 @@ type SetOption func(options *option) error
 // NewOption 创建可选参数
 func NewOption(fs ...SetOption) (*option, error) {
 	opt := &option{
-		host: tmDefaultServer,
+		host: TmDefaultServer,
 	}
 	baseURL, err := url.Parse(opt.host)
 	if err != nil {
@@ -339,7 +339,7 @@ func NewTestTmServer() *testTmServer {
 
 	tm := tmmock.NewTendermintMock()
 	s := httptest.NewServer(tm)
-	tmDefaultServer = s.URL
+	TmDefaultServer = s.URL
 
 	tts.s = s
 

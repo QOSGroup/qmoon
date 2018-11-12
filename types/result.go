@@ -2,7 +2,9 @@
 
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type PriKey struct {
 	Type  string `json:"type"`
@@ -19,26 +21,33 @@ type ResultValidator struct {
 }
 
 type ResultTx struct {
-	ChainID string    `json:"chain_id"`
-	From    string    `json:"from"`
-	To      string    `json:"to"`
-	Data    string    `json:"data"`
-	Time    time.Time `json:"time"`
+	ChainID     string    `json:"chain_id"`
+	Height      int64     `json:"height"`
+	Index       int64     `json:"index"`        // index
+	TxType      string    `json:"tx_type"`      // tx_type
+	Maxgas      int64     `json:"maxgas"`       // maxgas
+	QcpFrom     string    `json:"qcp_from"`     // qcp_from
+	QcpTo       string    `json:"qcp_to"`       // qcp_to
+	QcpSequence int64     `json:"qcp_sequence"` // qcp_sequence
+	QcpTxindex  int64     `json:"qcp_txindex"`  // qcp_txindex
+	QcpIsresult bool      `json:"qcp_isresult"` // qcp_isresult
+	Data        string    `json:"data"`         // data
+	Time        time.Time `json:"time"`         // time
+	CreatedAt   time.Time `json:"created_at"`   // created_at
 }
 
 // ResultBlockBase 块信息
 type ResultBlockBase struct {
-	ID             int64       `json:"-"`
-	BlockID        string      `json:"block_id"`
-	ChainID        string      `json:"chain_id"`
-	Height         int64       `json:"height"`
-	NumTxs         int64       `json:"num_txs"`
-	Data           string      `json:"data"`
-	Time           time.Time   `json:"time"`
-	DataHash       string      `json:"data_hash"`
-	ValidatorsHash string      `json:"validators_hash"`
-	Txs            []*ResultTx `json:"txs"`
-	CreatedAt      time.Time   `json:"-"`
+	ID             int64     `json:"-"`
+	BlockID        string    `json:"block_id"`
+	ChainID        string    `json:"chain_id"`
+	Height         int64     `json:"height"`
+	NumTxs         int64     `json:"num_txs"`
+	Data           string    `json:"data"`
+	Time           time.Time `json:"time"`
+	DataHash       string    `json:"data_hash"`
+	ValidatorsHash string    `json:"validators_hash"`
+	CreatedAt      time.Time `json:"-"`
 }
 
 type ResultBlock struct {
@@ -74,4 +83,8 @@ type ResultPeer struct {
 type ResultPeers struct {
 	NPeers int64         `json:"n_peers"`
 	Peers  []*ResultPeer `json:"peers"`
+}
+
+type ResultTxs struct {
+	Txs []*ResultTx `json:"txs"`
 }

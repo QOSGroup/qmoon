@@ -9,9 +9,9 @@ import (
 )
 
 func TestAbciInfo(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(tmDefaultServer))
+	opt, err := NewOption(SetOptionHost(TmDefaultServer))
 	assert.Nil(t, err)
-	t.Logf("--- host:%s", tmDefaultServer)
+	t.Logf("--- host:%s", TmDefaultServer)
 	res, err := NewClient(opt).AbciInfo.Retrieve(nil)
 	assert.Nil(t, err)
 	assert.NotNil(t, res)

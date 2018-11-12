@@ -9,7 +9,7 @@ import (
 )
 
 func TestBlock(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(tmDefaultServer))
+	opt, err := NewOption(SetOptionHost(TmDefaultServer))
 	assert.Nil(t, err)
 
 	res, err := NewClient(opt).Block.Retrieve(nil, &BlockOption{Height: 1})
