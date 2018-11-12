@@ -111,14 +111,14 @@ func HasTx(chainID string, minHeight, maxHeight int64) ([]*types.ResultBlockBase
 }
 
 func Save(b *tmtypes.ResultBlock) error {
-	d, err := json.Marshal(b)
-	if err != nil {
-		return err
-	}
 	mtb, err := model.TmBlockByChainIDHeight(db.Db, utils.NullString(b.BlockMeta.Header.ChainID),
 		utils.NullInt64(b.BlockMeta.Header.Height))
 	if err != nil {
 		if err == sql.ErrNoRows {
+			d, err := json.Marshal(b)
+			if err != nil {
+				return err
+			}
 			mtb = &model.TmBlock{
 				ChainID:   utils.NullString(b.BlockMeta.Header.ChainID),
 				Height:    utils.NullInt64(b.BlockMeta.Header.Height),
@@ -140,6 +140,7 @@ func Save(b *tmtypes.ResultBlock) error {
 				ChainID:        utils.NullString(b.BlockMeta.Header.ChainID),
 				Height:         utils.NullInt64(b.BlockMeta.Header.Height),
 				NumTxs:         utils.NullInt64(b.BlockMeta.Header.NumTxs),
+				TotalTxs:       utils.NullInt64(b.BlockMeta.Header.TotalTxs),
 				Time:           utils.NullTime(b.BlockMeta.Header.Time),
 				DataHash:       utils.NullString(b.BlockMeta.Header.DataHash.String()),
 				ValidatorsHash: utils.NullString(b.BlockMeta.Header.ValidatorsHash.String()),

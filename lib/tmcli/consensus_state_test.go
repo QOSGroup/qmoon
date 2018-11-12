@@ -9,7 +9,7 @@ import (
 )
 
 func TestConsensusState(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(tmDefaultServer))
+	opt, err := NewOption(SetOptionHost(TmDefaultServer))
 	assert.Nil(t, err)
 
 	res, err := NewClient(opt).ConsensusState.Retrieve(nil)

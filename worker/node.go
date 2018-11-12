@@ -19,7 +19,7 @@ func SyncPeersLoop() {
 	}
 
 	for _, v := range nodes {
-		//log.Printf("--SyncBlockLoop start chanID:%s", chanID)
+		//log.Printf("--SyncAllNodeBlock start chanID:%s", chanID)
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
