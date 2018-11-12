@@ -9,7 +9,7 @@ import (
 )
 
 func TestUnsubscribe(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(tmDefaultServer))
+	opt, err := NewOption(SetOptionHost(TmDefaultServer))
 	assert.Nil(t, err)
 
 	_, err = NewClient(opt).Unsubscribe.Retrieve(nil, "a")

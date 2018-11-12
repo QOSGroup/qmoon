@@ -9,7 +9,7 @@ import (
 )
 
 func TestGenesis(t *testing.T) {
-	opt, err := NewOption(SetOptionHost(tmDefaultServer))
+	opt, err := NewOption(SetOptionHost(TmDefaultServer))
 	assert.Nil(t, err)
 
 	res, err := NewClient(opt).Genesis.Retrieve(nil)

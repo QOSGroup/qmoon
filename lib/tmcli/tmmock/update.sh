@@ -1,6 +1,6 @@
 #!/bin/sh
 
-tmHost="http://18.188.103.180:26657/"
+tmHost="http://http://192.168.1.224:26657/"
 
 declare -a apis
 apis=("${apis[*]}" "abci_info")
