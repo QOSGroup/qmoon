@@ -45,18 +45,12 @@ func txGin() gin.HandlerFunc {
 			return
 		}
 
-		t, err := tx.Retrieve(nt.ChanID, height, index)
+		result, err := tx.Retrieve(nt.ChanID, height, index)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
 
-		res, err := lib.Cdc.MarshalBinaryBare(t)
-		if err != nil {
-			c.JSON(http.StatusOK, types.RPCServerError("", err))
-			return
-		}
-
-		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", res))
+		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", result))
 	}
 }

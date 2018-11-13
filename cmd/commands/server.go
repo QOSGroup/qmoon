@@ -18,6 +18,7 @@ import (
 	"github.com/QOSGroup/qmoon/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/tendermint/libs/common"
 )
 
 // ServerCmd qmoon http server
@@ -113,11 +114,15 @@ func server(cmd *cobra.Command, args []string) error {
 
 	r := gin.Default()
 	initRouter(r)
-	if err := r.Run(config.HttpServer.ListenAddress); err != nil {
-		return err
-	}
+
+	go func() {
+		if err := r.Run(config.HttpServer.ListenAddress); err != nil {
+			panic(err)
+		}
+	}()
 
 	wg.Wait()
+	common.TrapSignal(func() {})
 
 	return nil
 }

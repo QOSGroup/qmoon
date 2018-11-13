@@ -10,6 +10,7 @@ func main() {
 		commands.InitFilesCmd,
 		commands.MigrationCmd,
 		commands.NodeCmd,
+		commands.TxCmd,
 		commands.ServerCmd,
 		commands.VersionCmd)
 

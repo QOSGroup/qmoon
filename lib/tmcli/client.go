@@ -19,7 +19,7 @@ import (
 	"net/url"
 )
 
-var TmDefaultServer = "http://18.188.103.180:26657"
+var TmDefaultServer = "http://127.0.0.1:26657"
 
 var cdc = amino.NewCodec()
 
