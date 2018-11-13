@@ -134,7 +134,8 @@ CREATE TABLE IF NOT EXISTS txs(
 	qcp_sequence bigint,
 	qcp_txindex bigint,
 	qcp_isresult boolean,
-	data text,
+	origin_tx text,
+	json_tx text,
 	time timestamp with time zone,
 	created_at timestamp with time zone
 );
@@ -159,7 +160,6 @@ CREATE index peers_chain_id_idx on peers(chain_id);
 CREATE unique index peers_peer_id_idx on peers(peer_id);
 
 insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
-insert into qmoon_status(key, value)values('sync_peer_running', '0');
 
 `
 			_, err := db.Query(s)

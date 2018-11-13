@@ -4,7 +4,7 @@ package lib
 
 import (
 	"github.com/QOSGroup/qstars/star"
-	amino "github.com/tendermint/go-amino"
+	"github.com/tendermint/go-amino"
 )
 
 var Cdc = MakeCodec()

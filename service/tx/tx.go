@@ -34,7 +34,7 @@ func convertToTx(mt *model.Tx) *types.ResultTx {
 		QcpSequence: mt.QcpSequence.Int64,
 		QcpTxindex:  mt.QcpTxindex.Int64,
 		QcpIsresult: mt.QcpIsresult.Bool,
-		Data:        mt.Data.String,
+		Data:        []byte(mt.JSONTx.String),
 		Time:        mt.Time.Time,
 		CreatedAt:   mt.CreatedAt.Time,
 	}
@@ -67,24 +67,13 @@ func List(chainID string, minHeight, maxHeight int64) ([]*types.ResultTx, error)
 }
 
 // Search 交易查询
-func Retrieve(chainID string, height, index int64) (interface{}, error) {
-	cdc := lib.MakeCodec()
+func Retrieve(chainID string, height, index int64) (*types.ResultTx, error) {
 	mt, err := model.TxByChainIDHeightIndex(db.Db, utils.NullString(chainID), utils.NullInt64(height), utils.NullInt64(index))
 	if err != nil {
 		return nil, err
 	}
 
-	d, err := utils.Base64De(mt.Data.String)
-	if err != nil {
-		return nil, err
-	}
-
-	qbasetx, err := qbasetypes.DecoderTx(cdc, d)
-	if err != nil {
-		return nil, err
-	}
-
-	return qbasetx, err
+	return convertToTx(mt), err
 }
 
 func Save(b *tmctypes.ResultBlock) error {
@@ -104,7 +93,7 @@ func Save(b *tmctypes.ResultBlock) error {
 		mt.ChainID = utils.NullString(b.Block.Header.ChainID)
 		mt.Height = utils.NullInt64(b.Block.Header.Height)
 		mt.Index = utils.NullInt64(int64(k))
-		mt.Data = utils.NullString(utils.Base64En(v))
+		mt.OriginTx = utils.NullString(utils.Base64En(v))
 		mt.Time = utils.NullTime(b.Block.Time)
 		mt.CreatedAt = utils.NullTime(now)
 
@@ -145,6 +134,13 @@ func ParseTx(t qbasetypes.Tx, mt *model.Tx) error {
 }
 
 func ParseITx(t qbasetxs.ITx, mt *model.Tx) error {
+	cdc := lib.MakeCodec()
+	d, err := cdc.MarshalJSON(t)
+	if err != nil {
+		return err
+	}
+	mt.JSONTx = utils.NullString(string(d))
+
 	switch t.(type) {
 	case *qosapprove.ApproveCancelTx:
 		mt.TxType = utils.NullString("ApproveCancelTx")

@@ -3,6 +3,7 @@
 package types
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -21,19 +22,19 @@ type ResultValidator struct {
 }
 
 type ResultTx struct {
-	ChainID     string    `json:"chain_id"`
-	Height      int64     `json:"height"`
-	Index       int64     `json:"index"`        // index
-	TxType      string    `json:"tx_type"`      // tx_type
-	Maxgas      int64     `json:"maxgas"`       // maxgas
-	QcpFrom     string    `json:"qcp_from"`     // qcp_from
-	QcpTo       string    `json:"qcp_to"`       // qcp_to
-	QcpSequence int64     `json:"qcp_sequence"` // qcp_sequence
-	QcpTxindex  int64     `json:"qcp_txindex"`  // qcp_txindex
-	QcpIsresult bool      `json:"qcp_isresult"` // qcp_isresult
-	Data        string    `json:"data"`         // data
-	Time        time.Time `json:"time"`         // time
-	CreatedAt   time.Time `json:"created_at"`   // created_at
+	ChainID     string          `json:"chain_id"`
+	Height      int64           `json:"height"`
+	Index       int64           `json:"index"`        // index
+	TxType      string          `json:"tx_type"`      // tx_type
+	Maxgas      int64           `json:"maxgas"`       // maxgas
+	QcpFrom     string          `json:"qcp_from"`     // qcp_from
+	QcpTo       string          `json:"qcp_to"`       // qcp_to
+	QcpSequence int64           `json:"qcp_sequence"` // qcp_sequence
+	QcpTxindex  int64           `json:"qcp_txindex"`  // qcp_txindex
+	QcpIsresult bool            `json:"qcp_isresult"` // qcp_isresult
+	Data        json.RawMessage `json:"data"`         // data
+	Time        time.Time       `json:"time"`         // time
+	CreatedAt   time.Time       `json:"created_at"`   // created_at
 }
 
 // ResultBlockBase 块信息

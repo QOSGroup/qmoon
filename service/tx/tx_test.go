@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
-	"github.com/QOSGroup/qbase/types"
+	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/lib"
@@ -64,7 +64,7 @@ func testSend(t *testing.T) {
 	b, err := tmc.Block(&height)
 	assert.Nil(t, err)
 
-	qbasetx, err := types.DecoderTx(cdc, []byte(string(b.Block.Txs[0])))
+	qbasetx, err := qbasetypes.DecoderTx(cdc, []byte(string(b.Block.Txs[0])))
 	assert.Nil(t, err)
 
 	//初始化context相关数据
