@@ -12,13 +12,34 @@ type PriKey struct {
 	Value string `json:"value"`
 }
 
+type Validator struct {
+	ChainID          string    `json:"chain_id"`
+	Address          string    `json:"address"`
+	PubKeyType       string    `json:"pub_key_type"`
+	PubKeyValue      string    `json:"pub_key_value"`
+	VotingPower      int64     `json:"voting_power"`
+	Accum            int64     `json:"accum"`
+	FirstBlockHeight int64     `json:"first_block_height"`
+	FirstBlockTime   time.Time `json:"first_block_time"`
+	CreatedAt        time.Time `json:"created_at"`
+}
+
 type ResultValidator struct {
-	Address     string `json:"address"`
-	PubKey      PriKey `json:"pub_key"`
-	VotingPower string `json:"voting_power"`
-	Accum       int64  `json:"accum"`
-	Seqin       int64  `json:"seqin"`
-	Seqout      int64  `json:"seqout"`
+	Validator *Validator        `json:"validator"`
+	Blocks    []*BlockValidator `json:"blocks"`
+}
+
+type BlockValidator struct {
+	ChainID          string    `json:"chain_id"`
+	ValidatorAddress string    `json:"validator_address"`
+	ValidatorIndex   int64     `json:"validator_index"`
+	Height           int64     `json:"height"`
+	Round            int64     `json:"round"`
+	Type             int64     `json:"type"`
+	Signature        string    `json:"signature"`
+	Timestamp        time.Time `json:"timestamp"`
+	Accum            int64     `json:"accum"`
+	CreatedAt        time.Time `json:"created_at"`
 }
 
 type ResultTx struct {
@@ -44,6 +65,7 @@ type ResultBlockBase struct {
 	ChainID        string    `json:"chain_id"`
 	Height         int64     `json:"height"`
 	NumTxs         int64     `json:"num_txs"`
+	TotalTxs       int64     `json:"total_txs"`
 	Data           string    `json:"data"`
 	Time           time.Time `json:"time"`
 	DataHash       string    `json:"data_hash"`
@@ -52,10 +74,9 @@ type ResultBlockBase struct {
 }
 
 type ResultBlock struct {
-	ResultBlockBase
-
-	Txs        []*ResultTx        `json:"txs"`
-	Validators []*ResultValidator `json:"validators"`
+	Block      *ResultBlockBase  `json:"block"`
+	Txs        []*ResultTx       `json:"txs"`
+	Validators []*BlockValidator `json:"validators"`
 }
 
 type Sequence struct {

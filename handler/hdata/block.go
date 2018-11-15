@@ -9,6 +9,8 @@ import (
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service/block"
+	"github.com/QOSGroup/qmoon/service/tx"
+	"github.com/QOSGroup/qmoon/service/validator"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -54,8 +56,13 @@ func blockGin() gin.HandlerFunc {
 			}
 		}
 
+		ts, _ := tx.List(nt.ChanID, b.Height, b.Height)
+		vs, _ := validator.ListBlockValidatorByHeight(nt.ChanID, b.Height)
+
 		resp := &types.ResultBlock{}
-		resp.ResultBlockBase = *b
+		resp.Block = b
+		resp.Txs = ts
+		resp.Validators = vs
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", resp))
 	}

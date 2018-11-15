@@ -11,12 +11,13 @@ import (
 	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/service/block"
 	"github.com/QOSGroup/qmoon/service/tx"
+	"github.com/QOSGroup/qmoon/service/validator"
 	"github.com/QOSGroup/qmoon/utils"
 	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // CreateBlock 创建一个块
-func CreateBlock(b *tmctypes.ResultBlock) error {
+func CreateBlock(b *tmctypes.ResultBlock, vs *tmctypes.ResultValidators) error {
 	var err error
 	err = block.Save(b)
 	if err != nil {
@@ -24,9 +25,10 @@ func CreateBlock(b *tmctypes.ResultBlock) error {
 	}
 
 	err = tx.Save(b)
-	if err != nil {
-		return err
-	}
+	// TODO delete block
+
+	err = validator.Save(b, vs)
+	// TODO delete block and tx
 
 	return nil
 }
