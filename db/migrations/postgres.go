@@ -114,6 +114,8 @@ CREATE TABLE IF NOT EXISTS blocks(
     num_txs bigint,
 	total_txs bigint,
 	data_hash varchar(40),
+	validators_num bigint,
+	validators_total bigint,
 	validators_hash varchar(40),
 	time timestamp with time zone,
 	created_at timestamp with time zone
@@ -121,6 +123,37 @@ CREATE TABLE IF NOT EXISTS blocks(
 CREATE unique index blocks_chain_id_height_idx on blocks(chain_id, height);
 CREATE index blocks_chain_id_idx on blocks(chain_id);
 
+CREATE TABLE IF NOT EXISTS validators(
+	id bigserial PRIMARY KEY,
+	chain_id text,
+	address varchar(40),
+	pub_key_type text,
+	pub_key_value text,
+	voting_power bigint,
+	accum bigint,
+	first_block_height bigint,
+	first_block_time timestamp with time zone,
+	created_at timestamp with time zone
+);
+CREATE unique index validators_address_idx on validators(address);
+CREATE index validators_chain_id_idx on validators(chain_id);
+
+CREATE TABLE IF NOT EXISTS block_validators(
+	id bigserial PRIMARY KEY,
+	chain_id text,
+	height bigint,
+	validator_address varchar(40),
+	validator_index bigint,
+	type bigint,
+	round bigint,
+	signature text,
+	voting_power bigint,
+	accum bigint,
+	time timestamp with time zone,
+	created_at timestamp with time zone
+);
+CREATE index block_validators_chain_id_height_idx on block_validators(chain_id, height);
+CREATE index block_validators_address_idx on block_validators(validator_address);
 
 CREATE TABLE IF NOT EXISTS txs(
 	id bigserial PRIMARY KEY,
@@ -175,6 +208,8 @@ DROP TABLE apps;
 DROP TABLE login_status;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               DROP TABLE block_chain;
 DROP TABLE blocks;
+DROP TABLE block_validators;
+DROP TABLE txs;
 DROP TABLE accounts;
 DROP TABLE peers;
 

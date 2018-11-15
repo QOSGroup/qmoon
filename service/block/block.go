@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -25,6 +26,7 @@ func convertToBlock(mb *model.Block) *types.ResultBlockBase {
 		ChainID:        mb.ChainID.String,
 		Height:         mb.Height.Int64,
 		NumTxs:         mb.NumTxs.Int64,
+		TotalTxs:       mb.TotalTxs.Int64,
 		Time:           mb.Time.Time,
 		DataHash:       mb.DataHash.String,
 		ValidatorsHash: mb.ValidatorsHash.String,
@@ -71,6 +73,7 @@ func Retrieve(chainID string, mheight int64) (*types.ResultBlockBase, error) {
 
 // Search 块查询
 func Search(chainID string, minHeight, maxHeight int64) ([]*types.ResultBlockBase, error) {
+	log.Printf("block.Search chain_id:%s, minHeight:%d, maxHeight:%d", chainID, minHeight, maxHeight)
 	var wheres []string
 	wheres = append(wheres, fmt.Sprintf(" chain_id = '%s' ", chainID))
 	wheres = append(wheres, fmt.Sprintf(" height >= %d ", minHeight))

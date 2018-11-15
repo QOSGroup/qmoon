@@ -54,10 +54,10 @@ func SyncAllNodeBlock() {
 // maxSync 一次最多同步块数量
 // maxTime 程序最多运行时长，如果没有设置，则默认最长60s
 func SyncBlock(chanID, remote string, maxSync int64, maxTime time.Duration) error {
-	if ok := service.SyncLock(chanID + "-block"); !ok {
-		return nil
-	}
-	defer service.SyncUnlock(chanID + "-block")
+	//if ok := service.SyncLock(chanID + "-block"); !ok {
+	//	return nil
+	//}
+	//defer service.SyncUnlock(chanID + "-block")
 
 	if maxTime == 0 {
 		maxTime = time.Minute
@@ -93,7 +93,16 @@ LOOP:
 			break
 		}
 
-		err = service.CreateBlock(b)
+		v, err := tmc.Validators(&height)
+		if err != nil {
+			return err
+		}
+
+		if v == nil {
+			break
+		}
+
+		err = service.CreateBlock(b, v)
 		if err != nil {
 			log.Printf("CreateBlock error:[%s]. chaidID:%s, height:%d", err.Error(), b.Block.ChainID, b.Block.Height)
 		}

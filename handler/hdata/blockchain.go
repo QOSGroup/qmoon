@@ -51,7 +51,7 @@ func blockchainGin() gin.HandlerFunc {
 		maxHeightStr := c.Query("maxHeight")
 		maxHeight, err = strconv.ParseInt(maxHeightStr, 10, 64)
 		if err != nil {
-			maxHeight = 1
+			maxHeight = 0
 		}
 
 		minHeightStr := c.Query("minHeight")
