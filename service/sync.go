@@ -33,6 +33,10 @@ func CreateBlock(b *tmctypes.ResultBlock, vs *tmctypes.ResultValidators) error {
 	return nil
 }
 
+func CreateConsensusState(chainID string, cs *tmctypes.ResultConsensusState) error {
+	return block.UpdateConsensusState(chainID, cs)
+}
+
 // SyncLock 同步时锁定，同一个时间只会有一个同步协程
 func SyncLock(key string) bool {
 	key = "lock_" + key
