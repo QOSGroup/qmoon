@@ -104,6 +104,10 @@ func Save(b *tmctypes.ResultBlock, vs *tmctypes.ResultValidators) error {
 	}
 
 	for _, v := range c.Precommits {
+		if v.String() == "nil-Vote" {
+			continue
+		}
+
 		SaveValidator(b.Block.ChainID, v, vm[v.ValidatorAddress.String()])
 		SaveBlockValidator(b.Block.ChainID, v, vm[v.ValidatorAddress.String()])
 	}
