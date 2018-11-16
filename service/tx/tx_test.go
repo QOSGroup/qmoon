@@ -18,7 +18,6 @@ import (
 	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/QOSGroup/qstars/x/kvstore"
 	"github.com/stretchr/testify/assert"
-	"github.com/tendermint/tendermint/rpc/client"
 )
 
 const dd = "/C/xVwrQAQpScS2EEgolChSz9n5iYOIL6u+90iOhO8hTmJbWHBIBMBoKCgVxc3RhchIBMRIlChSAx3bUHCBBN7OUgge+LRxq57RtSxIBMBoKCgVxc3RhchIBMRJtCiUWJN5kIBPy2AYUkun4FJUQtbZ9NA0Zn/JPNMhdu71+DfeA6abMEkABJ/tmgFLbRmMMehOcb1IKjinDhNL+Fi13nTx9Yj+lw97gEXJbPP5Gtkyk/olclFerkABIQO6I7MiKd3HIb3QGGO6oBBoIcW9zLXRlc3QiATASC3FzdGFycy10ZXN0Gghxb3MtdGVzdCD0qAQqaQolFiTeZCA7Reelc9iSfiNZfAE+AbXCnVoLHS266D1iVzRYcGeXlBJAo9gX6etadNMV8pc03b3ywHXiYlKA8mtFFCLBRYQbrlPIlA6FpIoyieYOKrXw1fmMVSWHuotqWaxvJCpdbMPQCDCwnyBKO2hlaWd0aDoyNjQxNTIsaGFzaDpGQUU1N0FFREQ1MTdENEE0RTdEQjBEQjk0QTY3RkI5MjA5MDMyRDQ3"
@@ -59,7 +58,7 @@ txs.TxQcp:
 func testSend(t *testing.T) {
 	cdc := lib.MakeCodec()
 
-	tmc := client.NewHTTP("http://192.168.1.224:26657", "/websocket")
+	tmc := lib.TendermintClient("http://192.168.1.224:26657")
 	var height int64 = 488039
 	b, err := tmc.Block(&height)
 	assert.Nil(t, err)

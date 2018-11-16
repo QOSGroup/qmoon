@@ -334,6 +334,10 @@ func (tts *testTmServer) Close() {
 	tts.s.Close()
 }
 
+func (tts *testTmServer) URL() string {
+	return tts.s.URL
+}
+
 func NewTestTmServer() *testTmServer {
 	tts := &testTmServer{}
 

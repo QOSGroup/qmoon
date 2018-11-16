@@ -12,10 +12,10 @@ import (
 	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/model"
+	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/tendermint/go-amino"
-	"github.com/tendermint/tendermint/rpc/client"
 )
 
 type Node struct {
@@ -64,7 +64,7 @@ func covertToNodeRoute(mntr *model.NodeRoute) *NodeRoute {
 }
 
 func (n Node) AppState(cdc *amino.Codec) (*qbasetypes.GenesisState, error) {
-	tmc := client.NewHTTP(n.BaseURL, "/websocket")
+	tmc := lib.TendermintClient(n.BaseURL)
 	genesis, err := tmc.Genesis()
 	if err != nil {
 		return nil, fmt.Errorf("retrieve node genesis err:%s", err)
@@ -125,7 +125,7 @@ func DefaultRoute(nodeID int64) []NodeRoute {
 }
 
 func AddGenesis(remote string) (*model.Genesi, error) {
-	tmc := client.NewHTTP(remote, "/websocket")
+	tmc := lib.TendermintClient(remote)
 	genesis, err := tmc.Genesis()
 	if err != nil {
 		return nil, fmt.Errorf("retrieve node genesis err:%s", err)

@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/service/block"
-	"github.com/tendermint/tendermint/rpc/client"
 )
 
 var syncBlockIsRunning bool
@@ -72,7 +72,7 @@ func SyncBlock(chanID, remote string, maxSync int64, maxTime time.Duration) erro
 
 	height := start
 	syncNum := int64(0)
-	tmc := client.NewHTTP(remote, "/websocket")
+	tmc := lib.TendermintClient(remote)
 
 	ticker := time.NewTicker(maxTime)
 LOOP:

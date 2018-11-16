@@ -5,8 +5,8 @@ package worker
 import (
 	"sync"
 
+	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service"
-	"github.com/tendermint/tendermint/rpc/client"
 )
 
 // SyncPeersLoop 同步peer节点信息
@@ -32,7 +32,7 @@ func SyncPeersLoop() {
 
 // SyncPeer 同步p2p中peer信息
 func SyncPeer(chanID, remote string) error {
-	tmc := client.NewHTTP(remote, "/websocket")
+	tmc := lib.TendermintClient(remote)
 
 	b, err := tmc.NetInfo()
 	if err != nil {
