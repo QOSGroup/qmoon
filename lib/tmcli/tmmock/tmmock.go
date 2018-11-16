@@ -3,6 +3,7 @@
 package tmmock
 
 import (
+	"log"
 	"net/http"
 	"strings"
 )
@@ -42,6 +43,7 @@ func NewTendermintMock() TendermintMock {
 		vv := v
 		mux.HandleFunc("/"+v, func(w http.ResponseWriter, r *http.Request) {
 			vvv := strings.Replace(vv, "/", "_", -1)
+			log.Printf("---url:%s", r.URL.String())
 			d, ok := mockdata[vvv+".json"]
 			if !ok {
 				w.WriteHeader(http.StatusNotFound)
@@ -57,5 +59,7 @@ func NewTendermintMock() TendermintMock {
 	}
 }
 func (tm TendermintMock) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Printf("---ServeHTTP url:%s", r.URL.String())
+
 	tm.mux.ServeHTTP(w, r)
 }

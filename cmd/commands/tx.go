@@ -12,7 +12,6 @@ import (
 	//"github.com/cosmos/cosmos-sdk/cmd/gaia/app"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/rpc/client"
 )
 
 // TxCmd 交易解析
@@ -34,7 +33,7 @@ func init() {
 }
 
 func txParse(cmd *cobra.Command, args []string) error {
-	tmc := client.NewHTTP(nodeUrl, "/websocket")
+	tmc := lib.TendermintClient(nodeUrl)
 	b, err := tmc.Block(&height)
 	if err != nil {
 		return err
