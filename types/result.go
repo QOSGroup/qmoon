@@ -110,3 +110,20 @@ type ResultPeers struct {
 type ResultTxs struct {
 	Txs []*ResultTx `json:"txs"`
 }
+
+type ResultConsensusState struct {
+	ChainID         string `json:"chain_id"`         // chain_id
+	Height          string `json:"height"`           // height
+	Round           string `json:"round"`            // round
+	Step            string `json:"step"`             // step
+	PrevotesNum     int64  `json:"prevotes_num"`     // prevotes_num
+	PrevotesValue   string `json:"prevotes_value"`   // prevotes_value
+	PrecommitsNum   int64  `json:"precommits_num"`   // precommits_num
+	PrecommitsValue string `json:"precommits_value"` // precommits_value
+	StartTime       string `json:"start_time"`       // start_time
+}
+
+type ResultStatus struct {
+	ConsensusState  *ResultConsensusState `json:"consensus_state"`
+	TotalValidators int64                 `json:"total_validators"`
+}

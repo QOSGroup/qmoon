@@ -192,8 +192,22 @@ CREATE TABLE IF NOT EXISTS peers(
 CREATE index peers_chain_id_idx on peers(chain_id);
 CREATE unique index peers_peer_id_idx on peers(peer_id);
 
-insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
+CREATE TABLE IF NOT EXISTS consensus_state(
+	id bigserial PRIMARY KEY,
+	chain_id text,
+	height text,
+	round text,
+	step text,
+	prevotes_num bigint,
+	prevotes_value text,
+	precommits_num bigint,
+	precommits_value text,
+	start_time text
+);
+CREATE unique index consensus_state_chain_id_idx on consensus_state(chain_id);
 
+
+insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
 `
 			_, err := db.Query(s)
 			return err
@@ -212,7 +226,7 @@ DROP TABLE block_validators;
 DROP TABLE txs;
 DROP TABLE accounts;
 DROP TABLE peers;
-
+DROP TABLE consensus_state;
 
 `
 			_, err := db.Query(s)
