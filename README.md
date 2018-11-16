@@ -46,7 +46,7 @@ create database qmoon ENCODING 'UTF8' TEMPLATE template0;
 > - [x] 账户及app相关
 > - [x] API访问控制
 > - [ ] 数据被动同步
-> - [ ] 数据主动同步
+> - [x] 数据主动同步
 > - [x] qos数据查询API
 > - [x] qsc数据查询API
 > - [ ] 动态更新配置
