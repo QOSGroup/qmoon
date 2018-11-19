@@ -3,11 +3,11 @@
 package commands
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -91,30 +91,27 @@ func queryNode(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	headers := []string{"name", "chain_id", "url"}
+	var datas [][]string
 	if nodeName != "" {
 		res, err := service.GetNodeByName(nodeName)
 		if err != nil {
 			return err
 		}
 
-		d, err := json.MarshalIndent(res, "", "    ")
-		if err != nil {
-			return err
-		}
-
-		cmd.Println(string(d))
+		datas = append(datas, []string{res.Name, res.ChanID, res.BaseURL})
+		utils.PrintTable(cmd.OutOrStdout(), headers, datas)
 	} else {
 		res, err := service.AllNodes()
 		if err != nil {
 			return err
 		}
 
-		d, err := json.MarshalIndent(res, "", "    ")
-		if err != nil {
-			return err
+		for _, v := range res {
+			datas = append(datas, []string{v.Name, v.ChanID, v.BaseURL})
 		}
 
-		cmd.Println(string(d))
+		utils.PrintTable(cmd.OutOrStdout(), headers, datas)
 	}
 
 	return nil
