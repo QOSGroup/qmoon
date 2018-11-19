@@ -219,6 +219,7 @@ DROP TABLE qmoon_status;
 DROP TABLE nodes;
 DROP TABLE node_route;
 DROP TABLE apps;
+DROP TABLE genesis;
 DROP TABLE login_status;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               DROP TABLE block_chain;
 DROP TABLE blocks;

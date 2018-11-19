@@ -126,4 +126,6 @@ type ResultConsensusState struct {
 type ResultStatus struct {
 	ConsensusState  *ResultConsensusState `json:"consensus_state"`
 	TotalValidators int64                 `json:"total_validators"`
+	TotalTxs        int64                 `json:"total_txs"`
+	GenesisTime     time.Time             `json:"genesis_time"`
 }
