@@ -3,8 +3,6 @@
 package service
 
 import (
-	"database/sql"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -122,40 +120,6 @@ func DefaultRoute(nodeID int64) []NodeRoute {
 	}))
 
 	return rs
-}
-
-func AddGenesis(remote string) (*model.Genesi, error) {
-	tmc := lib.TendermintClient(remote)
-	genesis, err := tmc.Genesis()
-	if err != nil {
-		return nil, fmt.Errorf("retrieve node genesis err:%s", err)
-	}
-
-	d, err := json.Marshal(genesis)
-	if err != nil {
-		return nil, err
-	}
-
-	mg, err := model.GenesiByChainID(db.Db, utils.NullString(genesis.Genesis.ChainID))
-	if err != nil {
-		if err == sql.ErrNoRows {
-			mg = &model.Genesi{
-				ChainID:     utils.NullString(genesis.Genesis.ChainID),
-				GenesisTime: utils.NullTime(genesis.Genesis.GenesisTime),
-				Data:        utils.NullString(string(d)),
-				CreatedAt:   utils.NullTime(time.Now()),
-			}
-
-			err = mg.Insert(db.Db)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
-	}
-
-	return mg, nil
 }
 
 func CreateNode(name, baseURL, secretKey string, routes []NodeRoute) error {
