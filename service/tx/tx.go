@@ -40,12 +40,40 @@ func convertToTx(mt *model.Tx) *types.ResultTx {
 	}
 }
 
-// Search 交易查询
+// List 交易查询
 func List(chainID string, minHeight, maxHeight int64) ([]*types.ResultTx, error) {
 	const sqlOrder = " order by height desc "
 	var limit string
 	var wheres []string
 	wheres = append(wheres, fmt.Sprintf(" chain_id = '%s' ", chainID))
+	if minHeight != 0 && maxHeight != 0 {
+		wheres = append(wheres, fmt.Sprintf(" height >= %d ", minHeight))
+		wheres = append(wheres, fmt.Sprintf(" height <= %d ", maxHeight))
+	} else {
+		limit = " limit 20"
+	}
+
+	mbs, err := model.TxFilter(db.Db, strings.Join(wheres, " and ")+sqlOrder+limit, 0, -1)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*types.ResultTx
+	for _, v := range mbs {
+		res = append(res, convertToTx(v))
+	}
+
+	return res, err
+}
+
+// ListByAddress 交易查询
+func ListByAddress(chainID, address string, minHeight, maxHeight int64) ([]*types.ResultTx, error) {
+	const sqlOrder = " order by height desc "
+	var limit string
+	var wheres []string
+	wheres = append(wheres, fmt.Sprintf(" chain_id = '%s' ", chainID))
+	wheres = append(wheres, fmt.Sprintf(" json_tx like '%%%s%%' ", address))
+
 	if minHeight != 0 && maxHeight != 0 {
 		wheres = append(wheres, fmt.Sprintf(" height >= %d ", minHeight))
 		wheres = append(wheres, fmt.Sprintf(" height <= %d ", maxHeight))

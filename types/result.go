@@ -5,6 +5,8 @@ package types
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/QOSGroup/qbase/types"
 )
 
 type PriKey struct {
@@ -128,4 +130,10 @@ type ResultStatus struct {
 	TotalValidators int64                 `json:"total_validators"`
 	TotalTxs        int64                 `json:"total_txs"`
 	GenesisTime     time.Time             `json:"genesis_time"`
+}
+
+type ResultAccount struct {
+	Address string          `json:"address"`
+	Nonce   int64           `json:"nonce"`
+	Coins   types.BaseCoins `json:"coins"`
 }

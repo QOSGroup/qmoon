@@ -4,13 +4,13 @@ package tx
 
 import (
 	"github.com/QOSGroup/qbase/account"
-	"github.com/QOSGroup/qbase/types"
-	qosaccount "github.com/QOSGroup/qos/account"
+	qbasetypes "github.com/QOSGroup/qbase/types"
+	"github.com/QOSGroup/qmoon/types"
 )
 
 // QueryAccount query account by addr
-func (c Client) QueryAccount(addr string) (*qosaccount.QOSAccount, error) {
-	address, err := types.GetAddrFromBech32(addr)
+func (c Client) QueryAccount(addr string) (*types.ResultAccount, error) {
+	address, err := qbasetypes.GetAddrFromBech32(addr)
 	if err != nil {
 		return nil, err
 	}
@@ -21,5 +21,14 @@ func (c Client) QueryAccount(addr string) (*qosaccount.QOSAccount, error) {
 		return nil, err
 	}
 
-	return acc, nil
+	result := &types.ResultAccount{}
+	result.Address = acc.AccountAddress.String()
+	result.Nonce = acc.Nonce
+
+	result.Coins = append(result.Coins, &qbasetypes.BaseCoin{Name: "qos", Amount: acc.QOS})
+	for _, v := range acc.QSCs {
+		result.Coins = append(result.Coins, v)
+	}
+
+	return result, nil
 }
