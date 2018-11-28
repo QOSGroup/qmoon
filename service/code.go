@@ -56,22 +56,10 @@ func mailMsg(from string, to []string, code string) []byte {
 // SendCode 发送短信验证码
 func SendCode(mailSmtpServer, mailUser, mailPassword, email string) error {
 	now := time.Now()
-
-	vc, errvc := model.VerifyCodeByEmail(db.Db, utils.NullString(email))
-	if errvc == nil {
-		if vc.CreatedAt.Time.Add(VerifyCodeDuration).After(now) {
-			return errors.New("验证请求太频繁，请稍后再试")
-		}
-	}
-
 	code := utils.RandmonCode(6)
-	msg := mailMsg(mailUser, []string{email}, code)
-	err := mail.New(mailSmtpServer, mailUser, mailPassword).Send([]string{email}, msg)
-	if err != nil {
-		return err
-	}
 
-	if errvc != nil {
+	vc, err := model.VerifyCodeByEmail(db.Db, utils.NullString(email))
+	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
 		}
@@ -80,14 +68,27 @@ func SendCode(mailSmtpServer, mailUser, mailPassword, email string) error {
 		vc.Code = utils.NullString(code)
 		vc.CreatedAt = utils.NullTime(now)
 
-		err = vc.Insert(db.Db)
+		if err := vc.Insert(db.Db); err != nil {
+			return err
+		}
 	} else {
+		if vc.CreatedAt.Time.Add(VerifyCodeDuration).After(now) {
+			return errors.New("验证请求太频繁，请稍后再试")
+		}
 		vc.Email = utils.NullString(email)
 		vc.Code = utils.NullString(code)
 		vc.CreatedAt = utils.NullTime(now)
 
-		err = vc.Update(db.Db)
+		if err := vc.Update(db.Db); err != nil {
+			return err
+		}
 	}
 
-	return err
+	msg := mailMsg(mailUser, []string{email}, code)
+	err = mail.New(mailSmtpServer, mailUser, mailPassword).Send([]string{email}, msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
