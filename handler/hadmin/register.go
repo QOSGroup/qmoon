@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/QOSGroup/qmoon/lib"
+	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/service/account"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func RegisterGinRegister(r *gin.Engine) {
 type registerQuery struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Code     string `json:"code"`
 }
 
 func (q registerQuery) Validator() error {
@@ -32,6 +34,9 @@ func (q registerQuery) Validator() error {
 
 	if q.Password == "" {
 		return errors.New("密码不能为空")
+	}
+	if q.Code == "" {
+		return errors.New("验证码不能为空")
 	}
 
 	return nil
@@ -52,6 +57,11 @@ func registerGin() gin.HandlerFunc {
 		fmt.Printf("req:%+v\n", reqObj)
 		if err := reqObj.Validator(); err != nil {
 			c.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
+			return
+		}
+
+		if ok := service.CheckCode(reqObj.Email, reqObj.Code); !ok {
+			c.JSON(http.StatusOK, types.RPCInvalidParamsError("", errors.New("验证码不正确")))
 			return
 		}
 

@@ -22,6 +22,7 @@ type Config struct {
 	BaseConfig `mapstructure:",squash"`
 	HttpServer *HttpServerConfig `mapstructure:"http"`
 	DB         *DBConfig         `mapstructure:"db"`
+	Email      *EmailConfig
 }
 
 // DefaultConfig returns a default configuration
@@ -30,6 +31,7 @@ func DefaultConfig() *Config {
 		BaseConfig: DefaultBaseConfig(),
 		HttpServer: DefaultRPCConfig(),
 		DB:         DefaultDBConfig(),
+		Email:      DefaultEmailConfig(),
 	}
 }
 
@@ -39,5 +41,6 @@ func TestConfig() *Config {
 		BaseConfig: TestBaseConfig(),
 		HttpServer: TestRPCConfig(),
 		DB:         TestDBConfig(),
+		Email:      TestEmailConfig(),
 	}
 }

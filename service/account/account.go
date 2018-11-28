@@ -87,8 +87,6 @@ func CreateAccount(mail, password string) (*Account, error) {
 		return nil, err
 	}
 
-	//sendAuthEmail(mail)
-
 	return covertToAccount(ma), nil
 }
 

@@ -70,6 +70,7 @@ func initRouter(r *gin.Engine) {
 	})
 
 	handler.VersionGinRegister(r)
+	hadmin.SendCodeGinSendCode(r)
 	hadmin.RegisterGinRegister(r)
 	hadmin.LoginGinRegister(r)
 	hadmin.LoginCheckGinRegister(r)

@@ -13,7 +13,7 @@ import (
 type session struct {
 	Token    string    `json:"token"`
 	ExpireAt time.Time `json:"expireAt"`
-	Status   int64     `json:"status"` // 用户状态 0:未认证邮箱 1:已认证
+	Status   int64     `json:"status"` // 用户状态
 	Name     string    `json:"name"`   // name
 	Avatar   string    `json:"avatar"` // avatar
 }

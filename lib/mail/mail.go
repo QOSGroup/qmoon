@@ -13,9 +13,10 @@ type client struct {
 	host     string
 }
 
-func New(addr, username, password string) *client {
+func New(host, username, password string) *client {
 	c := &client{
-		addr:     addr,
+		host:     host,
+		addr:     host + ":25",
 		username: username,
 		password: password,
 	}
