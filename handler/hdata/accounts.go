@@ -7,7 +7,6 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/service/tx"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +31,7 @@ func accountQueryGin() gin.HandlerFunc {
 		}
 
 		address := c.Param("address")
-		ctx := tx.NewClient(nt.BaseURL)
+		ctx := lib.NewQstarsClient(nt.BaseURL)
 		result, err := ctx.QueryAccount(address)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
