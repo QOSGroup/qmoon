@@ -65,7 +65,7 @@ func SyncBlock(chanID, remote string, maxSync int64, maxTime time.Duration) erro
 	var start int64 = 1
 
 	latest, err := block.Latest(chanID)
-	log.Printf("--SyncBlock- latest:%+v, err:%+v", latest, err)
+	//log.Printf("--SyncBlock- latest:%+v, err:%+v", latest, err)
 	if err == nil && latest != nil {
 		start = latest.Height + 1
 	}

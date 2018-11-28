@@ -13,6 +13,7 @@ func init() {
 }
 
 func TendermintClient(remote string) *client.HTTP {
+
 	c, ok := tmcs[remote]
 	if ok {
 		return c

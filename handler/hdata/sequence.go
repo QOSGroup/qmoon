@@ -8,7 +8,6 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/service/tx"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +37,7 @@ func sequenceQueryGin() gin.HandlerFunc {
 			return
 		}
 
-		ctx := tx.NewClient(nt.BaseURL)
+		ctx := lib.NewQstarsClient(nt.BaseURL)
 		var result types.ResultSequence
 		for _, v := range gs.QCPs {
 			log.Printf("sequenceQuery url:%s, chainID:%s", nt.BaseURL, v.Name)
