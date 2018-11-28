@@ -206,6 +206,13 @@ CREATE TABLE IF NOT EXISTS consensus_state(
 );
 CREATE unique index consensus_state_chain_id_idx on consensus_state(chain_id);
 
+CREATE TABLE IF NOT EXISTS verify_code(
+	id bigserial PRIMARY KEY,
+	email text,
+	code text,
+	created_at timestamp with time zone
+);
+CREATE unique index verify_email_idx on verify_code(email);
 
 insert into qmoon_status(key, value)values('qmoon_version', 'init_schema');
 `
@@ -228,6 +235,7 @@ DROP TABLE txs;
 DROP TABLE accounts;
 DROP TABLE peers;
 DROP TABLE consensus_state;
+DROP TABLE verify_code;
 
 `
 			_, err := db.Query(s)
