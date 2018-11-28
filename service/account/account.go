@@ -12,6 +12,7 @@ import (
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/model"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 )
 
@@ -79,6 +80,7 @@ func CreateAccount(mail, password string) (*Account, error) {
 	ma := &model.Account{
 		Mail:      utils.NullString(mail),
 		Password:  utils.NullString(utils.EncryptPwd([]byte(password))),
+		Status:    utils.NullInt64(int64(types.AdminAccountStatusChecked)),
 		CreatedAt: utils.NullTime(time.Now()),
 	}
 
