@@ -165,13 +165,17 @@ func (g *Genesi) Delete(db XODB) error {
 
 // GenesisQuery returns offset-limit rows from 'public.genesis' filte by filter,
 // ordered by "id" in descending order.
-func GenesiFilter(db XODB, filter string, offset, limit int64) ([]*Genesi, error) {
+func GenesiFilter(db XODB, filter, sort string, offset, limit int64) ([]*Genesi, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, genesis_time, data, created_at` +
 		` FROM public.genesis `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -188,7 +192,9 @@ func GenesiFilter(db XODB, filter string, offset, limit int64) ([]*Genesi, error
 	// load results
 	var res []*Genesi
 	for q.Next() {
-		g := Genesi{}
+		g := Genesi{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&g.ID, &g.ChainID, &g.GenesisTime, &g.Data, &g.CreatedAt)

@@ -166,13 +166,17 @@ func (a *App) Delete(db XODB) error {
 
 // AppsQuery returns offset-limit rows from 'public.apps' filte by filter,
 // ordered by "id" in descending order.
-func AppFilter(db XODB, filter string, offset, limit int64) ([]*App, error) {
+func AppFilter(db XODB, filter, sort string, offset, limit int64) ([]*App, error) {
 	sqlstr := `SELECT ` +
 		`id, name, secret_key, status, account_id, created_at` +
 		` FROM public.apps `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -189,7 +193,9 @@ func AppFilter(db XODB, filter string, offset, limit int64) ([]*App, error) {
 	// load results
 	var res []*App
 	for q.Next() {
-		a := App{}
+		a := App{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&a.ID, &a.Name, &a.SecretKey, &a.Status, &a.AccountID, &a.CreatedAt)

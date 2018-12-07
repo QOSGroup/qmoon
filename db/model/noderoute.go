@@ -162,13 +162,17 @@ func (nr *NodeRoute) Delete(db XODB) error {
 
 // NodeRoutesQuery returns offset-limit rows from 'public.node_route' filte by filter,
 // ordered by "id" in descending order.
-func NodeRouteFilter(db XODB, filter string, offset, limit int64) ([]*NodeRoute, error) {
+func NodeRouteFilter(db XODB, filter, sort string, offset, limit int64) ([]*NodeRoute, error) {
 	sqlstr := `SELECT ` +
 		`id, node_id, route, hidden` +
 		` FROM public.node_route `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -185,7 +189,9 @@ func NodeRouteFilter(db XODB, filter string, offset, limit int64) ([]*NodeRoute,
 	// load results
 	var res []*NodeRoute
 	for q.Next() {
-		nr := NodeRoute{}
+		nr := NodeRoute{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&nr.ID, &nr.NodeID, &nr.Route, &nr.Hidden)

@@ -63,7 +63,7 @@ func covertToApp(app *model.App) *App {
 }
 
 func List(offset, limit int64) ([]*Account, error) {
-	mas, err := model.AccountFilter(db.Db, "", offset, limit)
+	mas, err := model.AccountFilter(db.Db, "", "", offset, limit)
 	if err != nil {
 		return nil, err
 	}

@@ -164,13 +164,17 @@ func (vc *VerifyCode) Delete(db XODB) error {
 
 // VerifyCodesQuery returns offset-limit rows from 'public.verify_code' filte by filter,
 // ordered by "id" in descending order.
-func VerifyCodeFilter(db XODB, filter string, offset, limit int64) ([]*VerifyCode, error) {
+func VerifyCodeFilter(db XODB, filter, sort string, offset, limit int64) ([]*VerifyCode, error) {
 	sqlstr := `SELECT ` +
 		`id, email, code, created_at` +
 		` FROM public.verify_code `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -187,7 +191,9 @@ func VerifyCodeFilter(db XODB, filter string, offset, limit int64) ([]*VerifyCod
 	// load results
 	var res []*VerifyCode
 	for q.Next() {
-		vc := VerifyCode{}
+		vc := VerifyCode{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&vc.ID, &vc.Email, &vc.Code, &vc.CreatedAt)

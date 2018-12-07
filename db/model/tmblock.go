@@ -165,13 +165,17 @@ func (tb *TmBlock) Delete(db XODB) error {
 
 // TmBlocksQuery returns offset-limit rows from 'public.tm_blocks' filte by filter,
 // ordered by "id" in descending order.
-func TmBlockFilter(db XODB, filter string, offset, limit int64) ([]*TmBlock, error) {
+func TmBlockFilter(db XODB, filter, sort string, offset, limit int64) ([]*TmBlock, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, height, data, created_at` +
 		` FROM public.tm_blocks `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -188,7 +192,9 @@ func TmBlockFilter(db XODB, filter string, offset, limit int64) ([]*TmBlock, err
 	// load results
 	var res []*TmBlock
 	for q.Next() {
-		tb := TmBlock{}
+		tb := TmBlock{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&tb.ID, &tb.ChainID, &tb.Height, &tb.Data, &tb.CreatedAt)

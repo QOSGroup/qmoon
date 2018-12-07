@@ -170,13 +170,17 @@ func (v *Validator) Delete(db XODB) error {
 
 // ValidatorsQuery returns offset-limit rows from 'public.validators' filte by filter,
 // ordered by "id" in descending order.
-func ValidatorFilter(db XODB, filter string, offset, limit int64) ([]*Validator, error) {
+func ValidatorFilter(db XODB, filter, sort string, offset, limit int64) ([]*Validator, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at` +
 		` FROM public.validators `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -193,7 +197,9 @@ func ValidatorFilter(db XODB, filter string, offset, limit int64) ([]*Validator,
 	// load results
 	var res []*Validator
 	for q.Next() {
-		v := Validator{}
+		v := Validator{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt)

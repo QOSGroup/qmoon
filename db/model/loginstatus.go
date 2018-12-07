@@ -165,13 +165,17 @@ func (ls *LoginStatus) Delete(db XODB) error {
 
 // LoginStatussQuery returns offset-limit rows from 'public.login_status' filte by filter,
 // ordered by "id" in descending order.
-func LoginStatusFilter(db XODB, filter string, offset, limit int64) ([]*LoginStatus, error) {
+func LoginStatusFilter(db XODB, filter, sort string, offset, limit int64) ([]*LoginStatus, error) {
 	sqlstr := `SELECT ` +
 		`id, account_id, login_type, token, expired_at` +
 		` FROM public.login_status `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -188,7 +192,9 @@ func LoginStatusFilter(db XODB, filter string, offset, limit int64) ([]*LoginSta
 	// load results
 	var res []*LoginStatus
 	for q.Next() {
-		ls := LoginStatus{}
+		ls := LoginStatus{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&ls.ID, &ls.AccountID, &ls.LoginType, &ls.Token, &ls.ExpiredAt)

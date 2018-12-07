@@ -15,6 +15,8 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
+const maxLimit = 20
+
 func convertToBlockValidator(bv *model.BlockValidator) *types.BlockValidator {
 	return &types.BlockValidator{
 		ChainID:          bv.ChainID.String,
@@ -37,7 +39,7 @@ func ListBlockValidatorByHeight(chainID string, height int64) ([]*types.BlockVal
 	wheres = append(wheres, fmt.Sprintf(" chain_id = '%s' ", chainID))
 	wheres = append(wheres, fmt.Sprintf(" height = %d ", height))
 
-	mbvs, err := model.BlockValidatorFilter(db.Db, strings.Join(wheres, " and ")+sqlOrder, 0, -1)
+	mbvs, err := model.BlockValidatorFilter(db.Db, strings.Join(wheres, " and "), sqlOrder, 0, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -53,17 +55,14 @@ func ListBlockValidatorByHeight(chainID string, height int64) ([]*types.BlockVal
 // ListBlockValidatorByAddress 查询
 func ListBlockValidatorByAddress(address string, minHeight, maxHeight int64) ([]*types.BlockValidator, error) {
 	const sqlOrder = " order by height desc "
-	var limit string
 	var wheres []string
 	wheres = append(wheres, fmt.Sprintf(" validator_address = '%s' ", address))
 	if minHeight != 0 && maxHeight != 0 {
 		wheres = append(wheres, fmt.Sprintf(" height >= %d ", minHeight))
 		wheres = append(wheres, fmt.Sprintf(" height <= %d ", maxHeight))
-	} else {
-		limit = " limit 20"
 	}
 
-	mbvs, err := model.BlockValidatorFilter(db.Db, strings.Join(wheres, " and ")+sqlOrder+limit, 0, -1)
+	mbvs, err := model.BlockValidatorFilter(db.Db, strings.Join(wheres, " and "), sqlOrder, 0, maxLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +82,7 @@ func retrieveBlockValidator(chainID string, height int64, validatorAddress strin
 	wheres = append(wheres, fmt.Sprintf(" height = %d ", height))
 	wheres = append(wheres, fmt.Sprintf(" validator_address = '%s' ", validatorAddress))
 
-	mbvs, err := model.BlockValidatorFilter(db.Db, strings.Join(wheres, " and "), 0, -1)
+	mbvs, err := model.BlockValidatorFilter(db.Db, strings.Join(wheres, " and "), "", 0, -1)
 	if err != nil {
 		return nil, err
 	}

@@ -209,7 +209,7 @@ func ({{ $short }} *{{ .Name }}) Delete(db XODB) error {
 
 // {{ .Name }}sQuery returns offset-limit rows from '{{ .Schema }}.{{ .Table.TableName }}' filte by filter,
 // ordered by "id" in descending order.
-func {{ .Name }}Filter(db XODB, filter string, offset, limit int64) ([]*{{ .Name }}, error) {
+func {{ .Name }}Filter(db XODB, filter, sort string, offset, limit int64) ([]*{{ .Name }}, error) {
     sqlstr := `SELECT ` +
         `{{ colnames .Fields }}` +
         ` FROM {{ $table }} `
@@ -217,6 +217,10 @@ func {{ .Name }}Filter(db XODB, filter string, offset, limit int64) ([]*{{ .Name
     if filter != ""{
         sqlstr = sqlstr + " WHERE " + filter
     }
+
+    if sort != "" {
+		sqlstr = sqlstr + " " + sort
+	}
 
     if limit > 0 {
         sqlstr = sqlstr + fmt.Sprintf(" offset %d limit %d", offset, limit)
@@ -232,7 +236,9 @@ func {{ .Name }}Filter(db XODB, filter string, offset, limit int64) ([]*{{ .Name
     // load results
     var res []*{{ .Name }}
     for q.Next() {
-        {{ $short }} := {{ .Name }}{}
+        {{ $short }} := {{ .Name }}{
+            _exists: true,
+        }
 
         // scan
         err = q.Scan({{ fieldnames .Fields (print "&" $short) }})

@@ -172,13 +172,17 @@ func (bv *BlockValidator) Delete(db XODB) error {
 
 // BlockValidatorsQuery returns offset-limit rows from 'public.block_validators' filte by filter,
 // ordered by "id" in descending order.
-func BlockValidatorFilter(db XODB, filter string, offset, limit int64) ([]*BlockValidator, error) {
+func BlockValidatorFilter(db XODB, filter, sort string, offset, limit int64) ([]*BlockValidator, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, height, validator_address, validator_index, type, round, signature, voting_power, accum, time, created_at` +
 		` FROM public.block_validators `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -195,7 +199,9 @@ func BlockValidatorFilter(db XODB, filter string, offset, limit int64) ([]*Block
 	// load results
 	var res []*BlockValidator
 	for q.Next() {
-		bv := BlockValidator{}
+		bv := BlockValidator{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&bv.ID, &bv.ChainID, &bv.Height, &bv.ValidatorAddress, &bv.ValidatorIndex, &bv.Type, &bv.Round, &bv.Signature, &bv.VotingPower, &bv.Accum, &bv.Time, &bv.CreatedAt)

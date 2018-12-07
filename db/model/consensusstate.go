@@ -168,13 +168,17 @@ func (cs *ConsensusState) Delete(db XODB) error {
 
 // ConsensusStatesQuery returns offset-limit rows from 'public.consensus_state' filte by filter,
 // ordered by "id" in descending order.
-func ConsensusStateFilter(db XODB, filter string, offset, limit int64) ([]*ConsensusState, error) {
+func ConsensusStateFilter(db XODB, filter, sort string, offset, limit int64) ([]*ConsensusState, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, height, round, step, prevotes_num, prevotes_value, precommits_num, precommits_value, start_time` +
 		` FROM public.consensus_state `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -191,7 +195,9 @@ func ConsensusStateFilter(db XODB, filter string, offset, limit int64) ([]*Conse
 	// load results
 	var res []*ConsensusState
 	for q.Next() {
-		cs := ConsensusState{}
+		cs := ConsensusState{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&cs.ID, &cs.ChainID, &cs.Height, &cs.Round, &cs.Step, &cs.PrevotesNum, &cs.PrevotesValue, &cs.PrecommitsNum, &cs.PrecommitsValue, &cs.StartTime)
