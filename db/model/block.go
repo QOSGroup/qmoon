@@ -171,13 +171,17 @@ func (b *Block) Delete(db XODB) error {
 
 // BlocksQuery returns offset-limit rows from 'public.blocks' filte by filter,
 // ordered by "id" in descending order.
-func BlockFilter(db XODB, filter string, offset, limit int64) ([]*Block, error) {
+func BlockFilter(db XODB, filter, sort string, offset, limit int64) ([]*Block, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, height, num_txs, total_txs, data_hash, validators_hash, time, created_at, validators_num, validators_total` +
 		` FROM public.blocks `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -194,7 +198,9 @@ func BlockFilter(db XODB, filter string, offset, limit int64) ([]*Block, error) 
 	// load results
 	var res []*Block
 	for q.Next() {
-		b := Block{}
+		b := Block{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&b.ID, &b.ChainID, &b.Height, &b.NumTxs, &b.TotalTxs, &b.DataHash, &b.ValidatorsHash, &b.Time, &b.CreatedAt, &b.ValidatorsNum, &b.ValidatorsTotal)

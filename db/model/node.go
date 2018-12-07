@@ -167,13 +167,17 @@ func (n *Node) Delete(db XODB) error {
 
 // NodesQuery returns offset-limit rows from 'public.nodes' filte by filter,
 // ordered by "id" in descending order.
-func NodeFilter(db XODB, filter string, offset, limit int64) ([]*Node, error) {
+func NodeFilter(db XODB, filter, sort string, offset, limit int64) ([]*Node, error) {
 	sqlstr := `SELECT ` +
 		`id, name, base_url, secret_key, chain_id, genesis_id, created_at` +
 		` FROM public.nodes `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -190,7 +194,9 @@ func NodeFilter(db XODB, filter string, offset, limit int64) ([]*Node, error) {
 	// load results
 	var res []*Node
 	for q.Next() {
-		n := Node{}
+		n := Node{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.GenesisID, &n.CreatedAt)

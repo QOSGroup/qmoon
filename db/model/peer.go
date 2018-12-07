@@ -171,13 +171,17 @@ func (p *Peer) Delete(db XODB) error {
 
 // PeersQuery returns offset-limit rows from 'public.peers' filte by filter,
 // ordered by "id" in descending order.
-func PeerFilter(db XODB, filter string, offset, limit int64) ([]*Peer, error) {
+func PeerFilter(db XODB, filter, sort string, offset, limit int64) ([]*Peer, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, moniker, peer_id, listen_addr, network, version, channels, send_start, recv_start, created_at` +
 		` FROM public.peers `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -194,7 +198,9 @@ func PeerFilter(db XODB, filter string, offset, limit int64) ([]*Peer, error) {
 	// load results
 	var res []*Peer
 	for q.Next() {
-		p := Peer{}
+		p := Peer{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&p.ID, &p.ChainID, &p.Moniker, &p.PeerID, &p.ListenAddr, &p.Network, &p.Version, &p.Channels, &p.SendStart, &p.RecvStart, &p.CreatedAt)

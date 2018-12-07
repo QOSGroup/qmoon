@@ -81,7 +81,7 @@ func AllNodes() ([]*Node, error) {
 	var res []*Node
 	var offset, limit int64 = 0, 50
 	for {
-		nts, err := model.NodeFilter(db.Db, "", offset, limit)
+		nts, err := model.NodeFilter(db.Db, "", "", offset, limit)
 		if err != nil {
 			break
 		}

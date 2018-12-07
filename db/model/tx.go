@@ -175,13 +175,17 @@ func (t *Tx) Delete(db XODB) error {
 
 // TxsQuery returns offset-limit rows from 'public.txs' filte by filter,
 // ordered by "id" in descending order.
-func TxFilter(db XODB, filter string, offset, limit int64) ([]*Tx, error) {
+func TxFilter(db XODB, filter, sort string, offset, limit int64) ([]*Tx, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at` +
 		` FROM public.txs `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -198,7 +202,9 @@ func TxFilter(db XODB, filter string, offset, limit int64) ([]*Tx, error) {
 	// load results
 	var res []*Tx
 	for q.Next() {
-		t := Tx{}
+		t := Tx{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt)

@@ -41,7 +41,7 @@ func Latest(chainID string) (*types.ResultBlockBase, error) {
 	var wheres []string
 	wheres = append(wheres, fmt.Sprintf(" chain_id='%s' ", chainID))
 
-	mbs, err := model.BlockFilter(db.Db, strings.Join(wheres, " and ")+sqlOrder, 0, 1)
+	mbs, err := model.BlockFilter(db.Db, strings.Join(wheres, " and "), sqlOrder, 0, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func Retrieve(chainID string, mheight int64) (*types.ResultBlockBase, error) {
 	wheres = append(wheres, fmt.Sprintf(" chain_id = '%s' ", chainID))
 	wheres = append(wheres, fmt.Sprintf(" height = %d ", mheight))
 
-	mbs, err := model.BlockFilter(db.Db, strings.Join(wheres, " and ")+sqlOrder, 0, -1)
+	mbs, err := model.BlockFilter(db.Db, strings.Join(wheres, " and "), sqlOrder, 0, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func Search(chainID string, minHeight, maxHeight int64) ([]*types.ResultBlockBas
 	wheres = append(wheres, fmt.Sprintf(" height >= %d ", minHeight))
 	wheres = append(wheres, fmt.Sprintf(" height <= %d ", maxHeight))
 
-	mbs, err := model.BlockFilter(db.Db, strings.Join(wheres, " and ")+sqlOrder, 0, -1)
+	mbs, err := model.BlockFilter(db.Db, strings.Join(wheres, " and "), sqlOrder, 0, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func HasTx(chainID string, minHeight, maxHeight int64) ([]*types.ResultBlockBase
 	wheres = append(wheres, fmt.Sprintf(" height <= %d ", maxHeight))
 	wheres = append(wheres, fmt.Sprintf(" num_txs != 0 "))
 
-	mbs, err := model.BlockFilter(db.Db, strings.Join(wheres, " and ")+sqlOrder, 0, -1)
+	mbs, err := model.BlockFilter(db.Db, strings.Join(wheres, " and "), sqlOrder, 0, -1)
 	if err != nil {
 		return nil, err
 	}

@@ -167,13 +167,17 @@ func (tbc *TmBlockChain) Delete(db XODB) error {
 
 // TmBlockChainsQuery returns offset-limit rows from 'public.tm_block_chain' filte by filter,
 // ordered by "id" in descending order.
-func TmBlockChainFilter(db XODB, filter string, offset, limit int64) ([]*TmBlockChain, error) {
+func TmBlockChainFilter(db XODB, filter, sort string, offset, limit int64) ([]*TmBlockChain, error) {
 	sqlstr := `SELECT ` +
 		`id, chain_id, height, num_txs, data, time, created_at` +
 		` FROM public.tm_block_chain `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -190,7 +194,9 @@ func TmBlockChainFilter(db XODB, filter string, offset, limit int64) ([]*TmBlock
 	// load results
 	var res []*TmBlockChain
 	for q.Next() {
-		tbc := TmBlockChain{}
+		tbc := TmBlockChain{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&tbc.ID, &tbc.ChainID, &tbc.Height, &tbc.NumTxs, &tbc.Data, &tbc.Time, &tbc.CreatedAt)

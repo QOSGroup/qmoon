@@ -168,13 +168,17 @@ func (a *Account) Delete(db XODB) error {
 
 // AccountsQuery returns offset-limit rows from 'public.accounts' filte by filter,
 // ordered by "id" in descending order.
-func AccountFilter(db XODB, filter string, offset, limit int64) ([]*Account, error) {
+func AccountFilter(db XODB, filter, sort string, offset, limit int64) ([]*Account, error) {
 	sqlstr := `SELECT ` +
 		`id, mail, name, avatar, description, status, password, created_at` +
 		` FROM public.accounts `
 
 	if filter != "" {
 		sqlstr = sqlstr + " WHERE " + filter
+	}
+
+	if sort != "" {
+		sqlstr = sqlstr + " " + sort
 	}
 
 	if limit > 0 {
@@ -191,7 +195,9 @@ func AccountFilter(db XODB, filter string, offset, limit int64) ([]*Account, err
 	// load results
 	var res []*Account
 	for q.Next() {
-		a := Account{}
+		a := Account{
+			_exists: true,
+		}
 
 		// scan
 		err = q.Scan(&a.ID, &a.Mail, &a.Name, &a.Avatar, &a.Description, &a.Status, &a.Password, &a.CreatedAt)
