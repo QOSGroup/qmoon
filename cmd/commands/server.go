@@ -15,6 +15,7 @@ import (
 	"github.com/QOSGroup/qmoon/handler"
 	"github.com/QOSGroup/qmoon/handler/hadmin"
 	"github.com/QOSGroup/qmoon/handler/hdata"
+	"github.com/QOSGroup/qmoon/txplugins"
 	"github.com/QOSGroup/qmoon/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -81,6 +82,8 @@ func initRouter(r *gin.Engine) {
 	hadmin.NodesGinRegister(r)
 
 	hdata.GinRegister(r)
+
+	txplugins.RegisterGin(r)
 }
 
 func runStaticServer(laddr, dir string) {
@@ -97,6 +100,10 @@ func server(cmd *cobra.Command, args []string) error {
 
 	err := db.InitDb(config.DB, logger)
 	if err != nil {
+		return err
+	}
+
+	if err := txplugins.Init(config.DB.DriverName, db.Db); err != nil {
 		return err
 	}
 
