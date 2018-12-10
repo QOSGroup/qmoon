@@ -87,7 +87,7 @@ CREATE index node_route_node_id_idx on node_route(node_id);
 
 CREATE TABLE IF NOT EXISTS tm_block_chain(
 	id bigserial PRIMARY KEY,
-	chain_id varchar(64),
+	chain_id text,
 	height bigint,
     num_txs bigint,
 	data text,
@@ -113,10 +113,10 @@ CREATE TABLE IF NOT EXISTS blocks(
 	height bigint,
     num_txs bigint,
 	total_txs bigint,
-	data_hash varchar(40),
+	data_hash text,
 	validators_num bigint,
 	validators_total bigint,
-	validators_hash varchar(40),
+	validators_hash text,
 	time timestamp with time zone,
 	created_at timestamp with time zone
 );
@@ -126,7 +126,7 @@ CREATE index blocks_chain_id_idx on blocks(chain_id);
 CREATE TABLE IF NOT EXISTS validators(
 	id bigserial PRIMARY KEY,
 	chain_id text,
-	address varchar(40),
+	address text,
 	pub_key_type text,
 	pub_key_value text,
 	voting_power bigint,
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS block_validators(
 	id bigserial PRIMARY KEY,
 	chain_id text,
 	height bigint,
-	validator_address varchar(40),
+	validator_address text,
 	validator_index bigint,
 	type bigint,
 	round bigint,
@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS peers(
 	id bigserial PRIMARY KEY,
 	chain_id text,
 	moniker text,
-	peer_id varchar(40),
+	peer_id text,
 	listen_addr text,
 	network text,
 	version text,
