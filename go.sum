@@ -4,10 +4,16 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/QOSGroup/qbase v0.0.6 h1:sGYsjg5GZxj32B5bmqaIaOm728AE48AuXdyTIMq0Fh0=
 github.com/QOSGroup/qbase v0.0.6/go.mod h1:22IlhpD5Mqr2lTa316bLAj+/hIt4yV0bO06QLiRWz5c=
+github.com/QOSGroup/qbase v0.0.7 h1:uECritbG5R2d7hAbp+DHY/8oK2sXAcpYyAp4IXihfE8=
+github.com/QOSGroup/qbase v0.0.7/go.mod h1:V5fVQ/+iXcJdXOGi5gbk4gQsGFAfgO6NyP4SCo6JLg8=
 github.com/QOSGroup/qos v0.0.2-0.20181105092243-6ec5680d4ed7 h1:w6pLTFKzXWHYTICBzd25A7556B4Ky4nnkeBerQLOSVE=
 github.com/QOSGroup/qos v0.0.2-0.20181105092243-6ec5680d4ed7/go.mod h1:cvn5EY7az5SasBjchBJKolE+Jd9qMveMQfX41gdJJws=
+github.com/QOSGroup/qos v0.0.2 h1:jjw4eQ8btzhoNb7PUXeliaYaKP94wTKi847QIgkrhcI=
+github.com/QOSGroup/qos v0.0.2/go.mod h1:AKonqSVgDcJtFttOmw6IV3UL31zkHD5V1/8kQthvGSU=
 github.com/QOSGroup/qstars v0.0.0-20181109043006-0a2bf595823b h1:1Lt/+GZUlsXuA4j4hUaCxkk3FYUiffHY/8F7p6CL7lI=
 github.com/QOSGroup/qstars v0.0.0-20181109043006-0a2bf595823b/go.mod h1:anMvAiDfQ1OVWCx4iMZ7ID+/hAFxc0Xhor/FkuijDlE=
+github.com/QOSGroup/qstars v0.0.0-20181210031011-66db9e098118 h1:EO1s/JzqxiO/XVWclE0wYlk/G8gmgDopmk8sXKDIUt4=
+github.com/QOSGroup/qstars v0.0.0-20181210031011-66db9e098118/go.mod h1:waueOZizQJdMjnj7e8fnQkBOaHRhtqvcxkKHu372E1M=
 github.com/VividCortex/gohistogram v1.0.0 h1:6+hBz+qvs0JOrrNhhmR7lFxo5sINxBCGXrdtl/UvroE=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412 h1:w1UutsfOrms1J05zt7ISrnJIXKzwaspym5BTKGx93EI=
@@ -164,6 +170,8 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/syndtr/goleveldb v0.0.0-20180815032940-ae2bd5eed72d/go.mod h1:Z4AUp2Km+PwemOoO/VB5AOx9XSsIItzFjoJlOSiYmn0=
 github.com/syndtr/goleveldb v0.0.0-20181012014443-6b91fda63f2e h1:91EeXI4y4ShkyzkMqZ7QP/ZTIqwXp3RuDu5WFzxcFAs=
 github.com/syndtr/goleveldb v0.0.0-20181012014443-6b91fda63f2e/go.mod h1:Z4AUp2Km+PwemOoO/VB5AOx9XSsIItzFjoJlOSiYmn0=
+github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5 h1:u8i49c+BxloX3XQ55cvzFNXplizZP/q00i+IlttUjAU=
+github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
 github.com/tendermint/ed25519 v0.0.0-20171027050219-d8387025d2b9 h1:zccWau0P8FELSb4HTDJ88hRo+WVNMbIbg27rFqDrhCE=
 github.com/tendermint/ed25519 v0.0.0-20171027050219-d8387025d2b9/go.mod h1:nt45hbhDkWVdMBkr2TOgOzCrpBccXdN09WOiOYTHVEk=
 github.com/tendermint/go-amino v0.12.0 h1:zpGVp3gOCwlju/4plyGEI0vLFY389o9i1PasldjiDig=
@@ -172,6 +180,10 @@ github.com/tendermint/iavl v0.11.0 h1:3RsyfghB/8hD5Fa9zN1dvPu35vnC0SbnjmEiSyWRbA
 github.com/tendermint/iavl v0.11.0/go.mod h1:EoKMMv++tDOL5qKKVnoIqtVPshRrEPeJ0WsgDOLAauM=
 github.com/tendermint/tendermint v0.23.1 h1:s58/4q//CENzOO09y/xEuBgXqstp8xDxoBGnv9hVZrk=
 github.com/tendermint/tendermint v0.23.1/go.mod h1:ymcPyWblXCplCPQjbOYbrF1fWnpslATMVqiGgWbZrlc=
+github.com/tendermint/tmlibs v0.9.0 h1:3aU/D2v3aecqpODOuBXCfi950bHTefD5Pps5X3XuJDc=
+github.com/tendermint/tmlibs v0.9.0/go.mod h1:4L0tAKpLTioy14VnmbXYTLIJN0pCMiehxDMdN6zZfM8=
+github.com/tyler-smith/go-bip39 v1.0.0 h1:FOHg9gaQLeBBRbHE/QrTLfEiBHy5pQ/yXzf9JG5pYFM=
+github.com/tyler-smith/go-bip39 v1.0.0/go.mod h1:sJ5fKU0s6JVwZjjcUEX2zFOnvq0ASQ2K9Zr6cf67kNs=
 github.com/ugorji/go/codec v0.0.0-20181018023622-b30ce92d500b h1:ap7PshyiINMYdtIz5+sdpUbypfSPWdTC4SaJhhtLtpU=
 github.com/ugorji/go/codec v0.0.0-20181018023622-b30ce92d500b/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 github.com/zondax/ledger-goclient v0.0.0-20180813155702-4296ee5701e9 h1:zqPM0tpRDgyg+4LSHNs8y22EROC9w62L+0VJhYiP5aE=

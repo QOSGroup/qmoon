@@ -15,8 +15,9 @@ import (
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
-	qostxs "github.com/QOSGroup/qos/txs"
 	qosapprove "github.com/QOSGroup/qos/txs/approve"
+	"github.com/QOSGroup/qos/txs/qsc"
+	"github.com/QOSGroup/qos/txs/transfer"
 	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/QOSGroup/qstars/x/kvstore"
 	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -165,25 +166,25 @@ func ParseITx(t qbasetxs.ITx, mt *model.Tx) error {
 	mt.JSONTx = utils.NullString(string(d))
 
 	switch t.(type) {
-	case *qosapprove.ApproveCancelTx:
+	case *qosapprove.TxCancelApprove:
 		mt.TxType = utils.NullString("ApproveCancelTx")
-	case *qosapprove.ApproveCreateTx:
+	case *qosapprove.TxCreateApprove:
 		mt.TxType = utils.NullString("ApproveCreateTx")
-	case *qosapprove.ApproveDecreaseTx:
+	case *qosapprove.TxDecreaseApprove:
 		mt.TxType = utils.NullString("ApproveDecreaseTx")
-	case *qosapprove.ApproveIncreaseTx:
+	case *qosapprove.TxIncreaseApprove:
 		mt.TxType = utils.NullString("ApproveIncreaseTx")
-	case *qosapprove.ApproveUseTx:
+	case *qosapprove.TxUseApprove:
 		mt.TxType = utils.NullString("ApproveUseTx")
 	case *kvstore.KvstoreTx:
 		mt.TxType = utils.NullString("KvstoreTx")
 	case *qbasetxs.QcpTxResult:
 		mt.TxType = utils.NullString("QcpTxResult")
-	case *qostxs.TransferTx:
+	case *transfer.TxTransfer:
 		mt.TxType = utils.NullString("TransferTx")
-	case *qostxs.TxCreateQSC:
+	case *qsc.TxCreateQSC:
 		mt.TxType = utils.NullString("TxCreateQSC")
-	case *qostxs.TxIssueQsc:
+	case *qsc.TxIssueQSC:
 		mt.TxType = utils.NullString("TxIssueQsc")
 	case *bank.WrapperSendTx:
 		mt.TxType = utils.NullString("WrapperSendTx")
