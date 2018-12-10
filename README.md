@@ -49,4 +49,5 @@ create database qmoon ENCODING 'UTF8' TEMPLATE template0;
 > - [x] 数据主动同步
 > - [x] qos数据查询API
 > - [x] qsc数据查询API
+> - [ ] 交易解析插件化
 > - [ ] 动态更新配置

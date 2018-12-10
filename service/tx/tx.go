@@ -13,6 +13,7 @@ import (
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/lib"
+	"github.com/QOSGroup/qmoon/txplugins"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	qosapprove "github.com/QOSGroup/qos/txs/approve"
@@ -191,6 +192,8 @@ func ParseITx(t qbasetxs.ITx, mt *model.Tx) error {
 	default:
 		mt.TxType = utils.NullString("Unknown")
 	}
+
+	txplugins.Parse(mt.ChainID.String, mt.Height.Int64, "", mt.Time.Time, t)
 
 	return nil
 }
