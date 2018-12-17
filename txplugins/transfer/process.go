@@ -13,6 +13,7 @@ import (
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/QOSGroup/qos/txs/transfer"
 	"github.com/gin-gonic/gin"
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type TxTransferPlugin struct{}
@@ -44,19 +45,19 @@ func (ut TransferType) String() string {
 	}
 }
 
-func (ttp TxTransferPlugin) Parse(chainID string, height int64, hash string, t time.Time, itx qbasetxs.ITx) (typeName string, hit bool, err error) {
+func (ttp TxTransferPlugin) Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (typeName string, hit bool, err error) {
 	tt, ok := itx.(*transfer.TxTransfer)
 	if !ok {
 		return "", false, nil
 	}
-	log.Printf("transfer.TxTransfer:%+v", t)
+	log.Printf("transfer.TxTransfer:%+v", blockHeader.Time)
 
 	for _, v := range tt.Senders {
-		saveTransItem(chainID, height, hash, Sender, t, v)
+		saveTransItem(blockHeader, Sender, v)
 	}
 
 	for _, v := range tt.Receivers {
-		saveTransItem(chainID, height, hash, Reciever, t, v)
+		saveTransItem(blockHeader, Reciever, v)
 	}
 
 	return "TxTransfer", true, nil
@@ -70,13 +71,15 @@ func (ttp TxTransferPlugin) RegisterGin(r *gin.Engine) {
 	AccountTxsGinRegister(r)
 }
 
-func saveTransItem(chainID string, height int64, hash string, ut TransferType, t time.Time, item transfer.TransItem) error {
+func saveTransItem(blockHeader tmtypes.Header, ut TransferType, item transfer.TransItem) error {
 	if !item.QOS.IsZero() {
-		saveTx(chainID, height, hash, item.Address.String(), "QOS", item.QOS.String(), ut, t)
+		saveTx(blockHeader.ChainID, blockHeader.Height, blockHeader.DataHash.String(), item.Address.String(),
+			"QOS", item.QOS.String(), ut, blockHeader.Time)
 	}
 
 	for _, v := range item.QSCs {
-		saveTx(chainID, height, hash, item.Address.String(), v.GetName(), v.GetAmount().String(), ut, t)
+		saveTx(blockHeader.ChainID, blockHeader.Height, blockHeader.DataHash.String(), item.Address.String(),
+			v.GetName(), v.GetAmount().String(), ut, blockHeader.Time)
 	}
 
 	return nil

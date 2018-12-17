@@ -5,6 +5,7 @@ package tx
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/QOSGroup/qstars/x/kvstore"
 	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 func convertToTx(mt *model.Tx) *types.ResultTx {
@@ -122,7 +124,7 @@ func Save(b *tmctypes.ResultBlock) error {
 		mt.Time = utils.NullTime(b.Block.Time)
 		mt.CreatedAt = utils.NullTime(now)
 
-		if err := ParseTx(qbasetx, mt); err != nil {
+		if err := ParseTx(b.Block.Header, qbasetx, mt); err != nil {
 			return err
 		}
 
@@ -133,7 +135,7 @@ func Save(b *tmctypes.ResultBlock) error {
 	return nil
 }
 
-func ParseTx(t qbasetypes.Tx, mt *model.Tx) error {
+func ParseTx(blockHeader tmtypes.Header, t qbasetypes.Tx, mt *model.Tx) error {
 	var std *qbasetxs.TxStd
 	switch implTx := t.(type) {
 	case *qbasetxs.TxStd:
@@ -151,14 +153,14 @@ func ParseTx(t qbasetypes.Tx, mt *model.Tx) error {
 
 	mt.Maxgas = utils.NullInt64(std.MaxGas.Int64())
 
-	if err := ParseITx(std.ITx, mt); err != nil {
+	if err := ParseITx(blockHeader, std.ITx, mt); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func ParseITx(t qbasetxs.ITx, mt *model.Tx) error {
+func ParseITx(blockHeader tmtypes.Header, t qbasetxs.ITx, mt *model.Tx) error {
 	cdc := lib.MakeCodec()
 	d, err := cdc.MarshalJSON(t)
 	if err != nil {
@@ -193,7 +195,8 @@ func ParseITx(t qbasetxs.ITx, mt *model.Tx) error {
 		mt.TxType = utils.NullString("Unknown")
 	}
 
-	txplugins.Parse(mt.ChainID.String, mt.Height.Int64, "", mt.Time.Time, t)
+	name, err := txplugins.Parse(blockHeader, t)
+	log.Printf("txplugins.Parse name:%s, err:%v", name, err)
 
 	return nil
 }

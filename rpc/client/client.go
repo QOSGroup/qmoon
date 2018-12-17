@@ -109,6 +109,7 @@ func NewClient(opt *option) *Client {
 		baseURL:   opt.baseURL,
 		client:    http.DefaultClient,
 		secretKey: opt.secretKey,
+		cdc:       cdc,
 	}
 
 	c.common.client = c
