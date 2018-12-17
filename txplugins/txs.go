@@ -5,18 +5,18 @@ package txplugins
 import (
 	"database/sql"
 	"errors"
-	"time"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
 	"github.com/QOSGroup/qmoon/txplugins/transfer"
 	"github.com/gin-gonic/gin"
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type TxPlugin interface {
 	DbInit(driveName string, db *sql.DB) error
 	DbClear(driveName string, db *sql.DB) error
 
-	Parse(chainID string, height int64, hash string, t time.Time, itx qbasetxs.ITx) (typeName string, hit bool, err error)
+	Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (typeName string, hit bool, err error)
 	Type() string
 
 	RegisterGin(r *gin.Engine)
@@ -54,10 +54,10 @@ func Init(driveName string, db *sql.DB) error {
 	return nil
 }
 
-func Parse(chainID string, height int64, hash string, t time.Time, itx qbasetxs.ITx) (name string, err error) {
+func Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (name string, err error) {
 	var hit bool
 	for _, tp := range tps {
-		if name, hit, err = tp.Parse(chainID, height, hash, t, itx); hit {
+		if name, hit, err = tp.Parse(blockHeader, itx); hit {
 			break
 		}
 	}

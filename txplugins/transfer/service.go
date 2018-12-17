@@ -43,7 +43,7 @@ func ListByAddress(address string, offset, limint int64) ([]TxTransfer, error) {
 	var wheres []string
 	wheres = append(wheres, fmt.Sprintf(" %s = '%s' ", "address", address))
 
-	mtts, err := model.TxTransferFilter(db.Db, strings.Join(wheres, " and "), " sort by time desc ", offset, limint)
+	mtts, err := model.TxTransferFilter(db.Db, strings.Join(wheres, " and "), " order by time desc ", offset, limint)
 	if err != nil {
 		return nil, err
 	}
