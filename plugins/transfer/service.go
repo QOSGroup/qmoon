@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/QOSGroup/qmoon/db"
-	"github.com/QOSGroup/qmoon/txplugins/transfer/model"
+	"github.com/QOSGroup/qmoon/plugins/transfer/model"
 )
 
 type TxTransfer struct {

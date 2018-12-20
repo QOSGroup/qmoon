@@ -1,18 +1,18 @@
 // Copyright 2018 The QOS Authors
 
-package txplugins
+package plugins
 
 import (
 	"database/sql"
 	"errors"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
-	"github.com/QOSGroup/qmoon/txplugins/transfer"
+	"github.com/QOSGroup/qmoon/plugins/transfer"
 	"github.com/gin-gonic/gin"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-type TxPlugin interface {
+type Pluginer interface {
 	DbInit(driveName string, db *sql.DB) error
 	DbClear(driveName string, db *sql.DB) error
 
@@ -22,7 +22,7 @@ type TxPlugin interface {
 	RegisterGin(r *gin.Engine)
 }
 
-var tps = make(map[string]TxPlugin)
+var tps = make(map[string]Pluginer)
 
 func init() {
 	register(&transfer.TxTransferPlugin{})
@@ -34,7 +34,7 @@ func RegisterGin(r *gin.Engine) {
 	}
 }
 
-func register(tp TxPlugin) error {
+func register(tp Pluginer) error {
 	if _, ok := tps[tp.Type()]; ok {
 		return errors.New("aleady registered")
 	} else {
@@ -71,10 +71,10 @@ func Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (name string, err error
 
 /*
 
-	qbasetxs "github.com/QOSGroup/qbase/txplugins"
-	"github.com/QOSGroup/qos/txplugins/approve"
-	"github.com/QOSGroup/qos/txplugins/qsc"
-	"github.com/QOSGroup/qos/txplugins/transfer"
+	qbasetxs "github.com/QOSGroup/qbase/plugins"
+	"github.com/QOSGroup/qos/plugins/approve"
+	"github.com/QOSGroup/qos/plugins/qsc"
+	"github.com/QOSGroup/qos/plugins/transfer"
 	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/QOSGroup/qstars/x/kvstore"
 

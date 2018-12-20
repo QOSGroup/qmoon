@@ -14,7 +14,7 @@ import (
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/txplugins"
+	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	qosapprove "github.com/QOSGroup/qos/txs/approve"
@@ -195,8 +195,8 @@ func ParseITx(blockHeader tmtypes.Header, t qbasetxs.ITx, mt *model.Tx) error {
 		mt.TxType = utils.NullString("Unknown")
 	}
 
-	name, err := txplugins.Parse(blockHeader, t)
-	log.Printf("txplugins.Parse name:%s, err:%v", name, err)
+	name, err := plugins.Parse(blockHeader, t)
+	log.Printf("plugins.Parse name:%s, err:%v", name, err)
 
 	return nil
 }
