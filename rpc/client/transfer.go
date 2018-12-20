@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/QOSGroup/qmoon/txplugins/transfer"
+	"github.com/QOSGroup/qmoon/plugins/transfer"
 )
 
 const transferURI = "/accounts/{address}/transfer"

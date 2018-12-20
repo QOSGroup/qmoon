@@ -9,7 +9,7 @@ import (
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
 	"github.com/QOSGroup/qmoon/db"
-	"github.com/QOSGroup/qmoon/txplugins/transfer/model"
+	"github.com/QOSGroup/qmoon/plugins/transfer/model"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/QOSGroup/qos/txs/transfer"
 	"github.com/gin-gonic/gin"
