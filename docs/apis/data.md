@@ -28,14 +28,14 @@ http 状态码一直为200
 
 ## 接口说明
 > 以下接口描述中，Response只描述 result 中数据结构 \
-> 同时提供原始tendermint的接口,需要增加前缀/nodes/{nodeName}/tendermint,比如需要访问QOS的genesis,则只需要访问 /nodes/QOS/genesis
+> 同时提供原始tendermint的接口,需要增加前缀/nodes/{chainId}/tendermint,比如需要访问QOS的genesis,则只需要访问 /nodes/QOS/genesis
 
 ### 块列表
 > 一次最多返回20个块,如果 maxHeight-minHeight > 20, 则返回 maxHeight-maxHeight-19之间的块
 
 * Uri:
 
-   `/nodes/{nodeName}/blockchain`
+   `/nodes/{chainId}/blockchain`
 
 * Method:
 
@@ -69,7 +69,7 @@ http 状态码一直为200
 
 * Uri:
 
-   `/nodes/{nodeName}/blocks/{height}`
+   `/nodes/{chainId}/blocks/{height}`
 
 * Method:
 
@@ -101,7 +101,7 @@ http 状态码一直为200
 
 * Uri:
 
-   `/nodes/{nodeName}/txs`
+   `/nodes/{chainId}/txs`
 
 * Method:
 
@@ -135,7 +135,7 @@ http 状态码一直为200
 
 * Uri:
 
-   `/nodes/{nodeName}/txs/{id}`
+   `/nodes/{chainId}/txs/{id}`
 
 * Method:
 
@@ -168,7 +168,7 @@ http 状态码一直为200
 
 * Uri:
 
-   `/nodes/{nodeName}/peer`
+   `/nodes/{chainId}/peer`
 
 * Method:
 
@@ -199,7 +199,7 @@ http 状态码一直为200
 
 * Uri:
 
-   `/nodes/{nodeName}/validators`
+   `/nodes/{chainId}/validators`
 
 * Method:
 
@@ -233,7 +233,7 @@ http 状态码一直为200
 > 查询validator参与打块信息
 * Uri:
 
-   `/nodes/{nodeName}/validators/{addr}`
+   `/nodes/{chainId}/validators/{addr}`
 
 * Method:
 
@@ -255,7 +255,7 @@ http 状态码一直为200
 
 * Uri:
 
-   `/nodes/{nodeName}/accounts/{address}`
+   `/nodes/{chainId}/accounts/{address}`
 
 * Method:
 
@@ -298,7 +298,7 @@ http 状态码一直为200
 
 * Uri:
 
-   `/nodes/{nodeName}/peers`
+   `/nodes/{chainId}/peers`
 
 * Method:
 
@@ -337,7 +337,7 @@ http 状态码一直为200
 
 * Uri:
 
-   `/nodes/{nodeName}/accounts/{addr}/txs`
+   `/nodes/{chainId}/accounts/{addr}/txs`
 
 * Method:
 
@@ -356,5 +356,70 @@ http 状态码一直为200
 ```
 "result": {
     "txs":[]
+}
+```
+
+
+### 查询账户转账记录
+> 查询账户转账记录
+
+* Uri:
+
+   `/nodes/{chainId}/accounts/:address/transfer`
+
+* Method:
+
+    `GET`
+
+* Param
+
+| 参数名   |      类型      |是否必须|默认值|说明|
+|----------|:-------------:|:-----:|:---:|:--:|
+| address | string | yes | - |地址|
+| offset | number | false | 0|开始位置|
+| limit |number  |false|20|一页大小|
+
+* Response
+```
+"result": {
+    "txs":[
+    {
+        ID      int64        `json:"id"`       // id
+        ChainID string       `json:"chain_id"` // chain_id
+        Height  int64        `json:"height"`   // height
+        Hash    string       `json:"hash"`     // hash
+        Address string       `json:"address"`  // address
+        Coin    string       `json:"coin"`     // coin
+        Amount  string       `json:"amount"`   // amount
+        Type    TransferType `json:"type"`     // type
+        Time    time.Time    `json:"time"`     // time
+     }
+    ]
+}
+```
+
+
+### 领钱
+> 领钱
+
+* Uri:
+
+   `/nodes/{chainId}/accounts/:address/withdraw`
+
+* Method:
+
+    `GET`
+
+* Param
+
+| 参数名   |      类型      |是否必须|默认值|说明|
+|----------|:-------------:|:-----:|:---:|:--:|
+| address | string | yes | - |地址|
+
+* Response
+```
+"result": {
+    hash   string
+    heigth string
 }
 ```
