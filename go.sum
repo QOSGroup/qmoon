@@ -14,6 +14,10 @@ github.com/QOSGroup/qstars v0.0.0-20181109043006-0a2bf595823b h1:1Lt/+GZUlsXuA4j
 github.com/QOSGroup/qstars v0.0.0-20181109043006-0a2bf595823b/go.mod h1:anMvAiDfQ1OVWCx4iMZ7ID+/hAFxc0Xhor/FkuijDlE=
 github.com/QOSGroup/qstars v0.0.0-20181210031011-66db9e098118 h1:EO1s/JzqxiO/XVWclE0wYlk/G8gmgDopmk8sXKDIUt4=
 github.com/QOSGroup/qstars v0.0.0-20181210031011-66db9e098118/go.mod h1:waueOZizQJdMjnj7e8fnQkBOaHRhtqvcxkKHu372E1M=
+github.com/QOSGroup/qstars v0.0.0-20181224091942-ce9bd71d1eab h1:/yaUe4zkbaeASceezTot/XAWXvZo6aglXW/rAQR2oRM=
+github.com/QOSGroup/qstars v0.0.0-20181224091942-ce9bd71d1eab/go.mod h1:waueOZizQJdMjnj7e8fnQkBOaHRhtqvcxkKHu372E1M=
+github.com/QOSGroup/qstars v0.4.0 h1:BTjbc0uaGCuYEv/5ipiFZ6tkshkwWQWHNrzYczhrRv8=
+github.com/QOSGroup/qstars v0.4.0/go.mod h1:waueOZizQJdMjnj7e8fnQkBOaHRhtqvcxkKHu372E1M=
 github.com/VividCortex/gohistogram v1.0.0 h1:6+hBz+qvs0JOrrNhhmR7lFxo5sINxBCGXrdtl/UvroE=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412 h1:w1UutsfOrms1J05zt7ISrnJIXKzwaspym5BTKGx93EI=
