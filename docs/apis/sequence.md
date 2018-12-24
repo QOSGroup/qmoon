@@ -1,0 +1,33 @@
+
+
+# Sequence
+> qos, qsc sequence查询
+
+* Uri:
+
+   `/nodes/{chainId}/peer`
+
+* Method:
+
+    `GET`
+
+* Param
+
+| 参数名   |      类型      |是否必须|默认值|说明|
+|----------|:-------------:|:-----:|:---:|:--:|
+
+
+* Response
+```
+"result":{
+    "apps":[
+    {
+        "name":"qos-test",
+         "in":"100",
+         "out":"100",
+    }
+    ]
+
+}
+```
+

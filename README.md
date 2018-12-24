@@ -11,7 +11,7 @@ https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/6874
 [![](https://tokei.rs/b1/github/QOSGroup/qmoon?category=lines)](https://github.com/QOSGroup/qmoon)
 
 
-QOS公链,QSC联盟链数据查询服务
+QOS公链,QSC联盟链数据查询服务, [文档说明](http://docs.qoschain.info/qmoon/)
 
 ## 安装
 
