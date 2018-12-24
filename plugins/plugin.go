@@ -7,6 +7,7 @@ import (
 	"errors"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
+	"github.com/QOSGroup/qmoon/plugins/atm"
 	"github.com/QOSGroup/qmoon/plugins/transfer"
 	"github.com/gin-gonic/gin"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -26,6 +27,7 @@ var tps = make(map[string]Pluginer)
 
 func init() {
 	register(&transfer.TxTransferPlugin{})
+	register(&atm.ATMPlugin{})
 }
 
 func RegisterGin(r *gin.Engine) {
