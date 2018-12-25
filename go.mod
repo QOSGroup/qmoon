@@ -1,9 +1,9 @@
 module github.com/QOSGroup/qmoon
 
 require (
-	github.com/QOSGroup/qbase v0.0.7
-	github.com/QOSGroup/qos v0.0.2
-	github.com/QOSGroup/qstars v0.4.0
+	github.com/QOSGroup/qbase v0.0.9
+	github.com/QOSGroup/qos v0.0.3
+	github.com/QOSGroup/qstars v0.4.1
 	github.com/cosmos/cosmos-sdk v0.24.2
 	github.com/didip/tollbooth v4.0.0+incompatible
 	github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7 // indirect
