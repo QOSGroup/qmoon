@@ -4,7 +4,7 @@
 
 * Uri:
 
-   `/nodes/{chainId}/accounts/:address/transfer`
+   `/nodes/{chainId}/accounts/{address}/transfer`
 
 * Method:
 
@@ -14,7 +14,9 @@
 
 | 参数名   |      类型      |是否必须|默认值|说明|
 |----------|:-------------:|:-----:|:---:|:--:|
+| chainId | string | yes | - | 链ID|
 | address | string | yes | - |地址|
+| coin | string| no | |币种 |
 | offset | number | false | 0|开始位置|
 | limit |number  |false|20|一页大小|
 

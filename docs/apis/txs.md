@@ -14,6 +14,7 @@
 
 | 参数名   |      类型      |是否必须|默认值|说明|
 |----------|:-------------:|:-----:|:---:|:--:|
+| chainId | string | yes | - | 链ID|
 | minHeight | number | false | 默认返回最新20条记录|最小高度|
 | maxHeight |number  |false|默认返回最新20条记录|最大高度|
 

@@ -6,7 +6,7 @@
 
 * Uri:
 
-   `/nodes/{chainId}/accounts/{addr}/txs`
+   `/nodes/{chainId}/accounts/{address}/txs`
 
 * Method:
 
@@ -16,6 +16,8 @@
 
 | 参数名   |      类型      |是否必须|默认值|说明|
 |----------|:-------------:|:-----:|:---:|:--:|
+| chainId | string | yes | - | 链ID|
+| address | string | yes | - |地址|
 | startDate | string | false | 最近24小时的交易 |开始时间|
 | endDate | string | false | 最近24小时的交易 |结束时间|
 | minHeight | number | false | |最小高度|
