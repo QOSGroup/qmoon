@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const transferUrl = "/node/:chainId/accounts/:address/transfer"
+const transferUrl = "/node/:nodeName/accounts/:address/transfer"
 
 // AccountTxsGinRegister 注册accountTxs
 func AccountTxsGinRegister(r *gin.Engine) {
