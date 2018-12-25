@@ -9,6 +9,7 @@ import (
 
 	cfg "github.com/QOSGroup/qmoon/config"
 	"github.com/QOSGroup/qmoon/db/model"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -85,8 +86,9 @@ var RootCmd = &cobra.Command{
 		}
 
 		if config.LogLevel == "debug" {
-			model.XOLog = log.Printf
+			logrus.SetLevel(logrus.DebugLevel)
 		}
+		model.XOLog = logrus.Debugf
 
 		//logger.Info("rootCmd", "config.BaseConfig", config.BaseConfig,
 		//	"config.HttpServer", config.HttpServer, "config.DB", config.DB)
