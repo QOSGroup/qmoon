@@ -3,23 +3,40 @@
 package lib
 
 import (
+	"sync"
+
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
-var tmcs map[string]*client.HTTP
-
-func init() {
-	tmcs = make(map[string]*client.HTTP)
+type TmClient struct {
+	tmcs map[string]*client.HTTP
+	lock *sync.Mutex
 }
 
-func TendermintClient(remote string) *client.HTTP {
+var tmcs *TmClient
 
-	c, ok := tmcs[remote]
+func init() {
+	tmcs = &TmClient{
+		tmcs: make(map[string]*client.HTTP),
+		lock: new(sync.Mutex),
+	}
+}
+
+func (tc *TmClient) Get(remote string) *client.HTTP {
+	tc.lock.Lock()
+	defer tc.lock.Unlock()
+
+	c, ok := tc.tmcs[remote]
 	if ok {
 		return c
 	}
+
 	tmc := client.NewHTTP(remote, "/websocket")
-	tmcs[remote] = tmc
+	tc.tmcs[remote] = tmc
 
 	return tmc
+}
+
+func TendermintClient(remote string) *client.HTTP {
+	return tmcs.Get(remote)
 }

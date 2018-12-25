@@ -12,6 +12,7 @@ import (
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 const sendCodeUrl = "/admin/sendCode"
@@ -61,6 +62,11 @@ func sendCodeGin() gin.HandlerFunc {
 			return
 		}
 
+		logrus.WithField("model", "hadmin").
+			WithField("MailSmtpServer", emailSmtpServer).
+			WithField("MailUser", emailUser).
+			WithField("MailPassword", emailPassword).
+			Debug()
 		if err := service.SendCode(emailSmtpServer, emailUser, emailPassword, reqObj.Email); err != nil {
 			c.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
 			return
