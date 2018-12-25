@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/db"
@@ -21,6 +22,18 @@ func getBank() string {
 
 func getChain() string {
 	return os.Getenv("ATM_CHAIN_ID")
+}
+
+func getAmount() int64 {
+	d := os.Getenv("ATM_AMOUNT")
+	if d != "" {
+		amount, err := strconv.ParseInt(d, 10, 64)
+		if err == nil {
+			return amount
+		}
+	}
+
+	return 2000 * 10000
 }
 
 func check(addr, chainid string) error {
@@ -51,7 +64,7 @@ func Withdraw(addr, chainid string) (*bank.SendResult, error) {
 	}
 
 	coin := "QOS"
-	amount := 2000
+	amount := getAmount()
 	qcli := qstarscli.NewClient(opt)
 	sr, err := qcli.TransferService.Send(nil, &qstarscli.TransferBody{
 		Address:    addr,
