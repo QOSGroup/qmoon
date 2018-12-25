@@ -37,11 +37,18 @@ func converToTxTransfer(mtt model.TxTransfer) TxTransfer {
 	}
 }
 
-func ListByAddress(address string, offset, limint int64) ([]TxTransfer, error) {
+type SearchOpt struct {
+	Coin string
+}
+
+func ListByAddress(address string, offset, limint int64, opt *SearchOpt) ([]TxTransfer, error) {
 	var res []TxTransfer
 
 	var wheres []string
 	wheres = append(wheres, fmt.Sprintf(" %s = '%s' ", "address", address))
+	if opt.Coin != "" {
+		wheres = append(wheres, fmt.Sprintf(" %s = '%s' ", "coin", opt.Coin))
+	}
 
 	mtts, err := model.TxTransferFilter(db.Db, strings.Join(wheres, " and "), " order by time desc ", offset, limint)
 	if err != nil {

@@ -23,6 +23,7 @@ func TransferGin() gin.HandlerFunc {
 		//chainID := c.Param("chainId")
 		address := c.Param("address")
 		offset, limit := int64(0), int64(20)
+		coin := c.Query("coin")
 
 		if d, err := strconv.ParseInt(c.Param("offset"), 10, 64); err == nil {
 			offset = d
@@ -32,7 +33,7 @@ func TransferGin() gin.HandlerFunc {
 			limit = d
 		}
 
-		txs, err := ListByAddress(address, offset, limit)
+		txs, err := ListByAddress(address, offset, limit, &SearchOpt{Coin: coin})
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return
