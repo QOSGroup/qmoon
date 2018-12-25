@@ -32,12 +32,14 @@ var ServerCmd = &cobra.Command{
 var (
 	explorer      string
 	explorerLaddr string
+	syncNode      bool
 )
 
 func init() {
 	registerFlagsHttpServer(ServerCmd)
 	registerFlagsDb(ServerCmd)
 
+	ServerCmd.PersistentFlags().BoolVar(&syncNode, "syncNode", false, "同步节点")
 	ServerCmd.PersistentFlags().StringVar(&explorer, "with-explorer", "", "the dir of explorer")
 	ServerCmd.PersistentFlags().StringVarP(&explorerLaddr, "explorerLaddr", "", "0.0.0.0:9528", "address of explorer listening")
 }
@@ -111,7 +113,10 @@ func server(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	worker.Start()
+	if syncNode {
+		worker.Start()
+	}
+
 	if explorer != "" {
 		go func() {
 			wg.Add(1)
