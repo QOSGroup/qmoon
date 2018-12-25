@@ -10,6 +10,7 @@ import (
 	"github.com/QOSGroup/qmoon/plugins/atm"
 	"github.com/QOSGroup/qmoon/plugins/transfer"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
@@ -46,11 +47,27 @@ func register(tp Pluginer) error {
 	return nil
 }
 
-func Init(driveName string, db *sql.DB) error {
+func DbUp(driveName string, db *sql.DB) error {
+	logrus.WithField("module", "plugins").Debug(tps)
 	for _, tp := range tps {
 		if err := tp.DbInit(driveName, db); err != nil {
+			logrus.WithField("module", "plugins").WithField("plugin", tp.Type()).Warn(err)
 			return err
 		}
+		logrus.WithField("module", "plugins").WithField("plugin", tp.Type()).Warn("OK")
+	}
+
+	return nil
+}
+
+func DbDown(driveName string, db *sql.DB) error {
+	logrus.WithField("module", "plugins").Debug(tps)
+	for _, tp := range tps {
+		if err := tp.DbClear(driveName, db); err != nil {
+			logrus.WithField("module", "plugins").WithField("plugin", tp.Type()).Warn(err)
+			return err
+		}
+		logrus.WithField("module", "plugins").WithField("plugin", tp.Type()).Warn("OK")
 	}
 
 	return nil

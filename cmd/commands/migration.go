@@ -7,6 +7,7 @@ import (
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/migrations"
+	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/spf13/cobra"
 )
 
@@ -33,10 +34,16 @@ func migration(cmd *cobra.Command, args []string) error {
 	}
 
 	if t == "up" {
-		return migrations.Up(config.DB.DriverName, db.Db)
+		migrations.Up(config.DB.DriverName, db.Db)
+		plugins.DbUp(config.DB.DriverName, db.Db)
+
 	} else if t == "down" {
-		return migrations.Down(config.DB.DriverName, db.Db)
+		migrations.Down(config.DB.DriverName, db.Db)
+		plugins.DbDown(config.DB.DriverName, db.Db)
+
 	} else {
 		return errors.New("需要参数up或down")
 	}
+
+	return nil
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const transferUrl = "/node/:chainId/accounts/:address/withdraw"
+const transferUrl = "/node/:nodeName/accounts/:address/withdraw"
 
 // AccountWithdrawGinRegister 注册accountWithdraw
 func AccountWithdrawGinRegister(r *gin.Engine) {
@@ -19,7 +19,7 @@ func AccountWithdrawGinRegister(r *gin.Engine) {
 
 func TransferGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		chainID := c.Param("chainId")
+		chainID := c.Param("nodeName")
 		address := c.Param("address")
 
 		res, err := Withdraw(address, chainID)

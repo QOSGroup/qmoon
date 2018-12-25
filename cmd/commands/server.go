@@ -103,7 +103,7 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := plugins.Init(config.DB.DriverName, db.Db); err != nil {
+	if err := plugins.DbUp(config.DB.DriverName, db.Db); err != nil {
 		return err
 	}
 
