@@ -67,6 +67,10 @@ func (ttp TxTransferPlugin) Type() string {
 	return "TxTransfer"
 }
 
+func (ttp TxTransferPlugin) Doctor() error {
+	return nil
+}
+
 func (ttp TxTransferPlugin) RegisterGin(r *gin.Engine) {
 	AccountTxsGinRegister(r)
 }

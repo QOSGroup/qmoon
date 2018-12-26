@@ -12,7 +12,8 @@ import (
 
 	"github.com/QOSGroup/qmoon/lib/qstarscli/qstarsmock"
 	"github.com/google/go-querystring/query"
-	amino "github.com/tendermint/go-amino"
+	"github.com/sirupsen/logrus"
+	"github.com/tendermint/go-amino"
 	tmltypes "github.com/tendermint/tendermint/rpc/lib/types"
 
 	"net/http"
@@ -267,6 +268,14 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 			io.Copy(w, resp.Body)
 		} else {
 			var tmresp tmltypes.RPCResponse
+
+			//body, err := ioutil.ReadAll(resp.Body)
+			//logrus.WithField("req", req.RequestURI).WithField("body", string(body)).WithField("err", err).Debugln()
+			//if err != nil {
+			//	return resp, err
+			//}
+			//fmt.Println(string(body))
+			//err = json.Unmarshal(body, &tmresp)
 			err = json.NewDecoder(resp.Body).Decode(&tmresp)
 			if err != nil {
 				if err == io.EOF {
@@ -281,6 +290,10 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 			}
 
 			err = c.cdc.UnmarshalJSON(tmresp.Result, v)
+			logrus.WithField("model", "qstarscli").
+				WithField("result", string(tmresp.Result)).
+				WithField("err", err).
+				Debugln()
 			if err != nil {
 				return resp, err
 			}

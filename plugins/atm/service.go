@@ -20,10 +20,6 @@ func getBank() string {
 	return os.Getenv("ATM_KEY")
 }
 
-func getChain() string {
-	return os.Getenv("ATM_CHAIN_ID")
-}
-
 func getAmount() int64 {
 	d := os.Getenv("ATM_AMOUNT")
 	if d != "" {
@@ -37,8 +33,7 @@ func getAmount() int64 {
 }
 
 func check(addr, chainid string) error {
-	now := time.Now()
-	t := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	t := utils.DayStart(time.Now())
 	_, err := AtmRecordByAddressChainidCreateat(db.Db, utils.NullString(addr), utils.NullString(chainid), utils.NullTime(t))
 	if err == nil {
 		return errors.New("今天已经领取")
@@ -58,17 +53,39 @@ func Withdraw(addr, chainid string) (*bank.SendResult, error) {
 		return nil, err
 	}
 
+	coin := "qos"
+	amount := getAmount()
+	sr, err := send(addr, chainid, fmt.Sprintf("%d%s", amount, coin))
+	if err != nil {
+		return nil, err
+	}
+
+	ar := &AtmRecord{}
+	ar.Address = utils.NullString(addr)
+	ar.Chainid = utils.NullString(chainid)
+	ar.Coin = utils.NullString(coin)
+	ar.Amount = utils.NullString(fmt.Sprintf("%d", amount))
+	ar.Createat = utils.NullTime(utils.DayStart(time.Now()))
+	ar.Height = utils.NullString(sr.Heigth)
+	ar.Hash = utils.NullString(sr.Hash)
+
+	if err := ar.Insert(db.Db); err != nil {
+		return nil, err
+	}
+
+	return sr, nil
+}
+
+func send(addr, chainid string, amount string) (*bank.SendResult, error) {
 	opt, err := qstarscli.NewOption(qstarscli.SetOptionHost(os.Getenv("Qstars")))
 	if err != nil {
 		return nil, err
 	}
 
-	coin := "QOS"
-	amount := getAmount()
 	qcli := qstarscli.NewClient(opt)
 	sr, err := qcli.TransferService.Send(nil, &qstarscli.TransferBody{
 		Address:    addr,
-		Amount:     fmt.Sprintf("%d%s", amount, coin),
+		Amount:     amount,
 		PirvateKey: getBank(),
 		ChainID:    chainid,
 	})
@@ -77,18 +94,9 @@ func Withdraw(addr, chainid string) (*bank.SendResult, error) {
 		return nil, err
 	}
 
-	if sr.Code != "0" {
+	if sr.Hash == "" {
 		return nil, errors.New(sr.Error)
 	}
 
-	ar := &AtmRecord{}
-	ar.Address = utils.NullString(addr)
-	ar.Chainid = utils.NullString(chainid)
-	ar.Coin = utils.NullString(coin)
-	ar.Amount = utils.NullString(fmt.Sprintf("%d", amount))
-	ar.Createat = utils.NullTime(time.Now())
-	ar.Height = utils.NullString(sr.Heigth)
-	ar.Hash = utils.NullString(sr.Hash)
-
-	return sr, ar.Insert(db.Db)
+	return sr, nil
 }

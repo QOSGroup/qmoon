@@ -31,3 +31,7 @@ func (ttp ATMPlugin) RegisterGin(r *gin.Engine) {
 func (ttp ATMPlugin) Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (typeName string, hit bool, err error) {
 	return "", false, nil
 }
+
+func (ttp ATMPlugin) Doctor() error {
+	return nil
+}
