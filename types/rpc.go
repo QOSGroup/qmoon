@@ -71,7 +71,7 @@ func RPCForbiddenError(id string, err error) RPCResponse {
 }
 
 func RPCInternalError(id string, err error) RPCResponse {
-	return NewRPCErrorResponse(id, -32603, "Internal error", err.Error())
+	return NewRPCErrorResponse(id, -32603, err.Error(), "Internal error")
 }
 
 func RPCServerError(id string, err error) RPCResponse {

@@ -5,6 +5,7 @@ package plugins
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
 	"github.com/QOSGroup/qmoon/plugins/atm"
@@ -20,6 +21,8 @@ type Pluginer interface {
 
 	Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (typeName string, hit bool, err error)
 	Type() string
+
+	Doctor() error
 
 	RegisterGin(r *gin.Engine)
 }
@@ -86,6 +89,16 @@ func Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (name string, err error
 	}
 
 	return
+}
+
+func Doctor() error {
+	for _, tp := range tps {
+		if err := tp.Doctor(); err != nil {
+			return fmt.Errorf("Check %s fail, err:%s ", tp.Type(), err.Error())
+		}
+	}
+
+	return nil
 }
 
 /*

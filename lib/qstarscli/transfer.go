@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/QOSGroup/qstars/x/bank"
+	"github.com/sirupsen/logrus"
 )
 
 const transferURI = "/accounts/{address}/send"
@@ -16,9 +17,9 @@ type TransferBody struct {
 	Amount        string `json:"amount"`
 	PirvateKey    string `json:"privatekey"`
 	ChainID       string `json:"chain_id"`
-	AccountNumber int64  `json:"account_number"`
-	Sequence      int64  `json:"sequence"`
-	Gas           int64  `json:"gas"`
+	AccountNumber int64  `json:"-"`
+	Sequence      int64  `json:"-"`
+	Gas           int64  `json:"-"`
 }
 
 func (s *transferService) Send(ctx context.Context, body *TransferBody) (*bank.SendResult, error) {
@@ -29,12 +30,14 @@ func (s *transferService) Send(ctx context.Context, body *TransferBody) (*bank.S
 	}
 
 	req, err := s.client.NewRequest("POST", u, body)
+	logrus.WithField("module", "qstarscli").WithField("url", s.client.host+u).WithField("body", body).Debug()
 	if err != nil {
 		return nil, err
 	}
 
 	var res bank.SendResult
-	_, err = s.client.Do(ctx, req, &res)
+	resp, err := s.client.Do(ctx, req, &res)
+	logrus.WithField("module", "qstarscli").WithField("resp", resp).WithField("err", err).Debugln()
 	if err != nil {
 		return nil, err
 	}
