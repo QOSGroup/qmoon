@@ -108,8 +108,14 @@ func Save(b *tmctypes.ResultBlock, vs *tmctypes.ResultValidators) error {
 			continue
 		}
 
-		SaveValidator(b.Block.ChainID, v, vm[v.ValidatorAddress.String()])
-		SaveBlockValidator(b.Block.ChainID, v, vm[v.ValidatorAddress.String()])
+		var validator *tmtypes.Validator
+		var ok bool
+		if validator, ok = vm[v.ValidatorAddress.String()]; !ok {
+			validator = new(tmtypes.Validator)
+		}
+
+		SaveValidator(b.Block.ChainID, v, validator)
+		SaveBlockValidator(b.Block.ChainID, v, validator)
 	}
 
 	return nil
