@@ -63,6 +63,11 @@ type ResultBlockBase struct {
 	CreatedAt      time.Time `json:"-"`
 }
 
+type ResultBlockDuration struct {
+	Height   int64 `json:"height"`
+	Duration int64
+}
+
 type ResultBlock struct {
 	Block      *ResultBlockBase  `json:"block"`
 	Txs        []*ResultTx       `json:"txs"`
