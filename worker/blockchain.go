@@ -31,20 +31,20 @@ func SyncAllNodeBlock() {
 		return
 	}
 
-	needSync := map[string]string{}
+	needSync := map[string]service.Node{}
 	for _, v := range nodes {
 		if v.ChanID != "" && v.BaseURL != "" {
-			needSync[v.ChanID] = v.BaseURL
+			needSync[v.ChanID] = *v
 		}
 	}
 
-	for chanID, nodeUrl := range needSync {
+	for _, v := range needSync {
 		//log.Printf("--SyncAllNodeBlock start chanID:%s", chanID)
 		wg.Add(1)
-		go func(chanID, nodeUrl string) {
+		go func(node service.Node) {
 			defer wg.Done()
-			SyncBlock(chanID, nodeUrl, 100, time.Second*5)
-		}(chanID, nodeUrl)
+			SyncBlock(node, 100, time.Second*5)
+		}(v)
 	}
 
 	wg.Wait()
@@ -53,7 +53,7 @@ func SyncAllNodeBlock() {
 // SyncBlock 同步块
 // maxSync 一次最多同步块数量
 // maxTime 程序最多运行时长，如果没有设置，则默认最长60s
-func SyncBlock(chanID, remote string, maxSync int64, maxTime time.Duration) error {
+func SyncBlock(node service.Node, maxSync int64, maxTime time.Duration) error {
 	//if ok := service.SyncLock(chanID + "-block"); !ok {
 	//	return nil
 	//}
@@ -64,7 +64,7 @@ func SyncBlock(chanID, remote string, maxSync int64, maxTime time.Duration) erro
 	}
 	var start int64 = 1
 
-	latest, err := block.Latest(chanID)
+	latest, err := block.Latest(node.ChanID)
 	//log.Printf("--SyncBlock- latest:%+v, err:%+v", latest, err)
 	if err == nil && latest != nil {
 		start = latest.Height + 1
@@ -72,7 +72,7 @@ func SyncBlock(chanID, remote string, maxSync int64, maxTime time.Duration) erro
 
 	height := start
 	syncNum := int64(0)
-	tmc := lib.TendermintClient(remote)
+	tmc := lib.TendermintClient(node.BaseURL)
 
 	ticker := time.NewTicker(maxTime)
 LOOP:
@@ -93,7 +93,7 @@ LOOP:
 			break
 		}
 
-		v, err := tmc.Validators(&height)
+		v, err := service.GetQOSValidator(tmc, height, node)
 		if err != nil {
 			return err
 		}

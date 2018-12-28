@@ -23,6 +23,13 @@ type Validator struct {
 	FirstBlockHeight sql.NullInt64  `json:"first_block_height"` // first_block_height
 	FirstBlockTime   pq.NullTime    `json:"first_block_time"`   // first_block_time
 	CreatedAt        pq.NullTime    `json:"created_at"`         // created_at
+	Status           sql.NullInt64  `json:"status"`             // status
+	InactiveCode     sql.NullInt64  `json:"inactive_code"`      // inactive_code
+	InactiveTime     pq.NullTime    `json:"inactive_time"`      // inactive_time
+	InactiveHeight   sql.NullInt64  `json:"inactive_height"`    // inactive_height
+	BondHeight       sql.NullInt64  `json:"bond_height"`        // bond_height
+	Name             sql.NullString `json:"name"`               // name
+	Owner            sql.NullString `json:"owner"`              // owner
 
 	// xo fields
 	_exists, _deleted bool
@@ -49,14 +56,14 @@ func (v *Validator) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.validators (` +
-		`chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at` +
+		`chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at, status, inactive_code, inactive_time, inactive_height, bond_height, name, owner` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16` +
 		`) RETURNING id`
 
 	// run query
-	XOLog(sqlstr, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt)
-	err = db.QueryRow(sqlstr, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt).Scan(&v.ID)
+	XOLog(sqlstr, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt, v.Status, v.InactiveCode, v.InactiveTime, v.InactiveHeight, v.BondHeight, v.Name, v.Owner)
+	err = db.QueryRow(sqlstr, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt, v.Status, v.InactiveCode, v.InactiveTime, v.InactiveHeight, v.BondHeight, v.Name, v.Owner).Scan(&v.ID)
 	if err != nil {
 		return err
 	}
@@ -83,14 +90,14 @@ func (v *Validator) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.validators SET (` +
-		`chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at` +
+		`chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at, status, inactive_code, inactive_time, inactive_height, bond_height, name, owner` +
 		`) = ( ` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
-		`) WHERE id = $10`
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16` +
+		`) WHERE id = $17`
 
 	// run query
-	XOLog(sqlstr, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt, v.ID)
-	_, err = db.Exec(sqlstr, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt, v.ID)
+	XOLog(sqlstr, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt, v.Status, v.InactiveCode, v.InactiveTime, v.InactiveHeight, v.BondHeight, v.Name, v.Owner, v.ID)
+	_, err = db.Exec(sqlstr, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt, v.Status, v.InactiveCode, v.InactiveTime, v.InactiveHeight, v.BondHeight, v.Name, v.Owner, v.ID)
 	return err
 }
 
@@ -116,18 +123,18 @@ func (v *Validator) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.validators (` +
-		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at` +
+		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at, status, inactive_code, inactive_time, inactive_height, bond_height, name, owner` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at` +
+		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at, status, inactive_code, inactive_time, inactive_height, bond_height, name, owner` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.chain_id, EXCLUDED.address, EXCLUDED.pub_key_type, EXCLUDED.pub_key_value, EXCLUDED.voting_power, EXCLUDED.accum, EXCLUDED.first_block_height, EXCLUDED.first_block_time, EXCLUDED.created_at` +
+		`EXCLUDED.id, EXCLUDED.chain_id, EXCLUDED.address, EXCLUDED.pub_key_type, EXCLUDED.pub_key_value, EXCLUDED.voting_power, EXCLUDED.accum, EXCLUDED.first_block_height, EXCLUDED.first_block_time, EXCLUDED.created_at, EXCLUDED.status, EXCLUDED.inactive_code, EXCLUDED.inactive_time, EXCLUDED.inactive_height, EXCLUDED.bond_height, EXCLUDED.name, EXCLUDED.owner` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, v.ID, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt)
-	_, err = db.Exec(sqlstr, v.ID, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt)
+	XOLog(sqlstr, v.ID, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt, v.Status, v.InactiveCode, v.InactiveTime, v.InactiveHeight, v.BondHeight, v.Name, v.Owner)
+	_, err = db.Exec(sqlstr, v.ID, v.ChainID, v.Address, v.PubKeyType, v.PubKeyValue, v.VotingPower, v.Accum, v.FirstBlockHeight, v.FirstBlockTime, v.CreatedAt, v.Status, v.InactiveCode, v.InactiveTime, v.InactiveHeight, v.BondHeight, v.Name, v.Owner)
 	if err != nil {
 		return err
 	}
@@ -172,7 +179,7 @@ func (v *Validator) Delete(db XODB) error {
 // ordered by "id" in descending order.
 func ValidatorFilter(db XODB, filter, sort string, offset, limit int64) ([]*Validator, error) {
 	sqlstr := `SELECT ` +
-		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at` +
+		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at, status, inactive_code, inactive_time, inactive_height, bond_height, name, owner` +
 		` FROM public.validators `
 
 	if filter != "" {
@@ -202,7 +209,7 @@ func ValidatorFilter(db XODB, filter, sort string, offset, limit int64) ([]*Vali
 		}
 
 		// scan
-		err = q.Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt)
+		err = q.Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt, &v.Status, &v.InactiveCode, &v.InactiveTime, &v.InactiveHeight, &v.BondHeight, &v.Name, &v.Owner)
 		if err != nil {
 			return nil, err
 		}
@@ -221,7 +228,7 @@ func ValidatorByAddress(db XODB, address sql.NullString) (*Validator, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at ` +
+		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at, status, inactive_code, inactive_time, inactive_height, bond_height, name, owner ` +
 		`FROM public.validators ` +
 		`WHERE address = $1`
 
@@ -231,7 +238,7 @@ func ValidatorByAddress(db XODB, address sql.NullString) (*Validator, error) {
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, address).Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt)
+	err = db.QueryRow(sqlstr, address).Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt, &v.Status, &v.InactiveCode, &v.InactiveTime, &v.InactiveHeight, &v.BondHeight, &v.Name, &v.Owner)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +254,7 @@ func ValidatorsByChainID(db XODB, chainID sql.NullString) ([]*Validator, error) 
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at ` +
+		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at, status, inactive_code, inactive_time, inactive_height, bond_height, name, owner ` +
 		`FROM public.validators ` +
 		`WHERE chain_id = $1`
 
@@ -267,7 +274,7 @@ func ValidatorsByChainID(db XODB, chainID sql.NullString) ([]*Validator, error) 
 		}
 
 		// scan
-		err = q.Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt)
+		err = q.Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt, &v.Status, &v.InactiveCode, &v.InactiveTime, &v.InactiveHeight, &v.BondHeight, &v.Name, &v.Owner)
 		if err != nil {
 			return nil, err
 		}
@@ -286,7 +293,7 @@ func ValidatorByID(db XODB, id int64) (*Validator, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at ` +
+		`id, chain_id, address, pub_key_type, pub_key_value, voting_power, accum, first_block_height, first_block_time, created_at, status, inactive_code, inactive_time, inactive_height, bond_height, name, owner ` +
 		`FROM public.validators ` +
 		`WHERE id = $1`
 
@@ -296,7 +303,7 @@ func ValidatorByID(db XODB, id int64) (*Validator, error) {
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, id).Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt)
+	err = db.QueryRow(sqlstr, id).Scan(&v.ID, &v.ChainID, &v.Address, &v.PubKeyType, &v.PubKeyValue, &v.VotingPower, &v.Accum, &v.FirstBlockHeight, &v.FirstBlockTime, &v.CreatedAt, &v.Status, &v.InactiveCode, &v.InactiveTime, &v.InactiveHeight, &v.BondHeight, &v.Name, &v.Owner)
 	if err != nil {
 		return nil, err
 	}

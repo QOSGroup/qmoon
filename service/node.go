@@ -25,6 +25,7 @@ type Node struct {
 	SecretKey string       `json:"-"`       // secret_key
 	Routers   []*NodeRoute `json:"routers"`
 	ChanID    string       `json:"chanId"`
+	NodeType  string       `json:"-"`
 }
 
 type NodeRoute struct {
@@ -39,16 +40,14 @@ func covertToNode(mnt *model.Node) *Node {
 	for _, v := range nmtrs {
 		routers = append(routers, covertToNodeRoute(v))
 	}
-
-	g, _ := mnt.Genesi(db.Db)
-
 	return &Node{
 		mnt:       mnt,
 		mntrs:     nmtrs,
 		Name:      mnt.Name.String,
 		BaseURL:   mnt.BaseURL.String,
 		SecretKey: mnt.SecretKey.String,
-		ChanID:    g.ChainID.String,
+		ChanID:    mnt.ChainID.String,
+		NodeType:  mnt.NodeType.String,
 		Routers:   routers,
 	}
 }
@@ -122,7 +121,7 @@ func DefaultRoute(nodeID int64) []NodeRoute {
 	return rs
 }
 
-func CreateNode(name, baseURL, secretKey string, routes []NodeRoute) error {
+func CreateNode(name, baseURL, nodeType, secretKey string, routes []NodeRoute) error {
 	if strings.HasSuffix(baseURL, "/") {
 		baseURL = baseURL[:len(baseURL)-1]
 	}
@@ -139,6 +138,7 @@ func CreateNode(name, baseURL, secretKey string, routes []NodeRoute) error {
 	mnt.CreatedAt = utils.NullTime(time.Now())
 	mnt.GenesisID = utils.NullInt64(g.ID)
 	mnt.ChainID = utils.NullString(g.ChainID.String)
+	mnt.NodeType = utils.NullString(nodeType)
 	if err := mnt.Insert(db.Db); err != nil {
 		return err
 	}

@@ -6,18 +6,20 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/service/block"
 	"github.com/QOSGroup/qmoon/service/tx"
 	"github.com/QOSGroup/qmoon/service/validator"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // CreateBlock 创建一个块
-func CreateBlock(b *tmctypes.ResultBlock, vs *tmctypes.ResultValidators) error {
+func CreateBlock(b *tmctypes.ResultBlock, vals []types.Validator) error {
 	var err error
 	err = block.Save(b)
 	if err != nil {
@@ -27,8 +29,32 @@ func CreateBlock(b *tmctypes.ResultBlock, vs *tmctypes.ResultValidators) error {
 	err = tx.Save(b)
 	// TODO delete block
 
-	err = validator.Save(b, vs)
+	err = validator.SaveBlockValidator(b, vals)
 	// TODO delete block and tx
+
+	return nil
+}
+
+func CreateValidator(chainId string, vals types.Validators) error {
+	for _, val := range vals {
+		validator.CreateValidator(chainId, val)
+	}
+
+	valMap := make(map[string]types.Validator)
+	for _, v := range vals {
+		valMap[v.Address] = v
+	}
+
+	allVals, err := validator.ListValidatorByChain(chainId)
+	if err == nil {
+		for _, v := range allVals {
+			if v.Status == types.Active {
+				if _, ok := valMap[v.Address]; !ok {
+					validator.InactiveValidator(v.Address, int64(types.Inactive), 0, 0, time.Time{})
+				}
+			}
+		}
+	}
 
 	return nil
 }

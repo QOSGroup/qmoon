@@ -12,6 +12,7 @@ import (
 	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
+	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
@@ -91,7 +92,7 @@ func retrieveBlockValidator(chainID string, height int64, validatorAddress strin
 		return nil, errors.New("not found")
 	}
 
-	return mbvs[1], nil
+	return mbvs[0], nil
 }
 
 // Search 单个查询
@@ -104,7 +105,7 @@ func RetrieveBlockValidator(chainID string, height int64, validatorAddress strin
 	return convertToBlockValidator(mbv), nil
 }
 
-func SaveBlockValidator(chainId string, v *tmtypes.Vote, vl *tmtypes.Validator) error {
+func saveBlockValidator(chainId string, v *tmtypes.Vote, vl types.Validator) error {
 	now := time.Now()
 	mbv, err := retrieveBlockValidator(chainId, v.Height, v.ValidatorAddress.String())
 	if err != nil {
@@ -125,6 +126,30 @@ func SaveBlockValidator(chainId string, v *tmtypes.Vote, vl *tmtypes.Validator) 
 		if err := mbv.Insert(db.Db); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func SaveBlockValidator(b *tmctypes.ResultBlock, vs []types.Validator) error {
+	c := b.Block.LastCommit
+	if c.Precommits == nil || len(c.Precommits) == 0 {
+		return nil
+	}
+
+	vm := make(map[string]types.Validator)
+	for _, v := range vs {
+		vm[v.Address] = v
+	}
+
+	for _, v := range c.Precommits {
+		if v.String() == "nil-Vote" {
+			continue
+		}
+
+		UpdateValidatorFirstBlock(b.Block.ChainID, v.ValidatorAddress.String(), b.Block.Height, b.Block.Time)
+
+		saveBlockValidator(b.Block.ChainID, v, vm[v.ValidatorAddress.String()])
 	}
 
 	return nil

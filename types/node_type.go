@@ -2,6 +2,15 @@
 
 package types
 
+const (
+	NodeTypeQOS = "QOS"
+	NodeTypeQSC = "QSC"
+)
+
+func CheckNodeType(nodeType string) bool {
+	return nodeType == NodeTypeQOS || nodeType == NodeTypeQSC
+}
+
 type NodeTypeRouter struct {
 	Route  string `json:"route"`
 	Hidden bool   `json:"hidden"`

@@ -9,6 +9,7 @@ import (
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
 	"github.com/QOSGroup/qmoon/plugins/atm"
+	"github.com/QOSGroup/qmoon/plugins/example"
 	"github.com/QOSGroup/qmoon/plugins/transfer"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -32,6 +33,7 @@ var tps = make(map[string]Pluginer)
 func init() {
 	register(&transfer.TxTransferPlugin{})
 	register(&atm.ATMPlugin{})
+	register(&example.EgPlugin{})
 }
 
 func RegisterGin(r *gin.Engine) {
