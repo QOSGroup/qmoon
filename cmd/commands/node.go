@@ -4,9 +4,11 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/spf13/cobra"
 )
@@ -44,11 +46,14 @@ var deleteNodeCmd = &cobra.Command{
 var (
 	nodeName string
 	nodeUrl  string
+	nodeType string
 )
 
 func init() {
 	createNodeCmd.PersistentFlags().StringVar(&nodeName, "nodeName", "", "the name of node")
 	createNodeCmd.PersistentFlags().StringVar(&nodeUrl, "nodeUrl", "", "the url of node")
+	createNodeCmd.PersistentFlags().StringVar(&nodeType, "nodeType", "", fmt.Sprintf("节点类型:%s, %s",
+		types.NodeTypeQOS, types.NodeTypeQSC))
 
 	updateNodeCmd.PersistentFlags().StringVar(&nodeName, "nodeName", "", "the name of node")
 	updateNodeCmd.PersistentFlags().StringVar(&nodeUrl, "nodeUrl", "", "the url of node")
@@ -77,7 +82,15 @@ func createNode(cmd *cobra.Command, args []string) error {
 		return errors.New("nodeUrl 不能为空")
 	}
 
-	err = service.CreateNode(nodeName, nodeUrl, "", nil)
+	if nodeType == "" {
+		return errors.New("nodeType 不能为空")
+	}
+
+	if !types.CheckNodeType(nodeType) {
+		return errors.New("nodeType 不支持")
+	}
+
+	err = service.CreateNode(nodeName, nodeUrl, nodeType, "", nil)
 	if err != nil {
 		return err
 	}

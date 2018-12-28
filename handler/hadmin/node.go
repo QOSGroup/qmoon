@@ -26,6 +26,7 @@ func NodesGinRegister(r *gin.Engine) {
 type createNodeQuery struct {
 	Name      string              `json:"name"`
 	BaseURL   string              `json:"baseUrl"`
+	NodeType  string              `json:"nodeType"`
 	SecretKey string              `json:"secretKey"`
 	Routers   []service.NodeRoute `json:"routers"`
 }
@@ -37,6 +38,10 @@ func (q createNodeQuery) Validator() error {
 
 	if q.BaseURL == "" {
 		return errors.New("baseUrl不能为空")
+	}
+
+	if q.NodeType == "" {
+		return errors.New("nodeType不能为空")
 	}
 
 	return nil
@@ -55,7 +60,7 @@ func createNodeGin() gin.HandlerFunc {
 			return
 		}
 
-		err := service.CreateNode(reqObj.Name, reqObj.BaseURL, reqObj.SecretKey, reqObj.Routers)
+		err := service.CreateNode(reqObj.Name, reqObj.BaseURL, reqObj.NodeType, reqObj.SecretKey, reqObj.Routers)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

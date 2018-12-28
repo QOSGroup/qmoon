@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS nodes(
 	base_url text,
 	secret_key text,
 	chain_id text,
+    node_type text,
 	genesis_id BIGINT REFERENCES genesis(id),
 	created_at timestamp with time zone
 );
@@ -125,6 +126,8 @@ CREATE index blocks_chain_id_idx on blocks(chain_id);
 
 CREATE TABLE IF NOT EXISTS validators(
 	id bigserial PRIMARY KEY,
+    name text,
+	owner text,
 	chain_id text,
 	address text,
 	pub_key_type text,
@@ -133,10 +136,17 @@ CREATE TABLE IF NOT EXISTS validators(
 	accum bigint,
 	first_block_height bigint,
 	first_block_time timestamp with time zone,
+	status int,
+    inactive_code int,
+    inactive_time timestamp with time zone,
+	inactive_height bigint,
+	bond_height bigint,
 	created_at timestamp with time zone
 );
 CREATE unique index validators_address_idx on validators(address);
 CREATE index validators_chain_id_idx on validators(chain_id);
+
+
 
 CREATE TABLE IF NOT EXISTS block_validators(
 	id bigserial PRIMARY KEY,

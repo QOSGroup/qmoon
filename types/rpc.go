@@ -10,6 +10,12 @@ import (
 	amino "github.com/tendermint/go-amino"
 )
 
+const (
+	UrlPrefixNodes   = "/nodes"
+	UrlNodeProxy     = UrlPrefixNodes + "/:nodeName"
+	UrlPrefixPlugins = "/plugins"
+)
+
 type RPCResponse struct {
 	JSONRPC string      `json:"jsonrpc"`
 	ID      string      `json:"id"`
