@@ -82,7 +82,7 @@ func listNodesGin() gin.HandlerFunc {
 		}
 		fmt.Printf("---req:%+v\n", c.Request)
 		for _, v := range nts {
-			(*v).BaseURL = "http://" + c.Request.Host + "/node/" + v.Name
+			(*v).BaseURL = "http://" + c.Request.Host + "/nodes/" + v.Name
 		}
 
 		res := listNodesResp{

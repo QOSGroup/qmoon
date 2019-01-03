@@ -20,7 +20,7 @@ func init() {
 
 // StatusQueryGinRegister 注册statusQuery
 func StatusQueryGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+statusQueryUrl, middleware.ApiAuthGin(), statusQueryGin())
+	r.GET(NodeProxy+statusQueryUrl, middleware.ApiAuthGin(), statusQueryGin())
 }
 
 func statusQueryGin() gin.HandlerFunc {

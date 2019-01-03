@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const transferUrl = "/node/:nodeName/accounts/:address/withdraw"
+const transferUrl = types.UrlNodeProxy + "/accounts/:address/withdraw"
 
 // AccountWithdrawGinRegister 注册accountWithdraw
 func AccountWithdrawGinRegister(r *gin.Engine) {

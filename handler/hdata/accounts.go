@@ -19,7 +19,7 @@ func init() {
 
 // AccountQueryGinRegister 注册accountQuery
 func AccountQueryGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+accountQueryUrl, middleware.ApiAuthGin(), accountQueryGin())
+	r.GET(NodeProxy+accountQueryUrl, middleware.ApiAuthGin(), accountQueryGin())
 }
 
 func accountQueryGin() gin.HandlerFunc {

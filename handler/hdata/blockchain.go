@@ -21,7 +21,7 @@ func init() {
 
 // BlockchainGinRegister 注册blockchain
 func BlockchainGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+blockchainUrl, middleware.ApiAuthGin(), blockchainGin())
+	r.GET(NodeProxy+blockchainUrl, middleware.ApiAuthGin(), blockchainGin())
 }
 
 type blockchainQuery struct {

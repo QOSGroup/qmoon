@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const transferUrl = "/node/:nodeName/accounts/:address/transfer"
+const transferUrl = types.UrlNodeProxy + "/accounts/:address/transfer"
 
 // AccountTxsGinRegister 注册accountTxs
 func AccountTxsGinRegister(r *gin.Engine) {

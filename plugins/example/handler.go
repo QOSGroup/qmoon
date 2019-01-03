@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const exampleUrl = "/plugins/example"
+const exampleUrl = types.UrlNodeProxy + "/plugins/example"
 
 // ExampleGinRegister 注册Example
 func ExampleGinRegister(r *gin.Engine) {

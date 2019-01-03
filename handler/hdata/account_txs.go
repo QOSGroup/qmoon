@@ -21,7 +21,7 @@ func init() {
 
 // AccountTxsGinRegister 注册accountTxs
 func AccountTxsGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+accountTxsUrl, middleware.ApiAuthGin(), accountTxsGin())
+	r.GET(NodeProxy+accountTxsUrl, middleware.ApiAuthGin(), accountTxsGin())
 }
 
 func accountTxsGin() gin.HandlerFunc {
