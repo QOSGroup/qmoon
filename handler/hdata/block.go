@@ -23,7 +23,7 @@ func init() {
 
 // BlockGinRegister 注册block
 func BlockGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+blockUrl, middleware.ApiAuthGin(), blockGin())
+	r.GET(NodeProxy+blockUrl, middleware.ApiAuthGin(), blockGin())
 }
 
 func blockGin() gin.HandlerFunc {

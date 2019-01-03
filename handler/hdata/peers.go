@@ -20,7 +20,7 @@ func init() {
 
 // PeersGinRegister 注册peers
 func PeersGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+peersUrl, middleware.ApiAuthGin(), peersGin())
+	r.GET(NodeProxy+peersUrl, middleware.ApiAuthGin(), peersGin())
 }
 
 func peersGin() gin.HandlerFunc {

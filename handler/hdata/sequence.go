@@ -20,7 +20,7 @@ func init() {
 
 // SequenceQueryGinRegister 注册sequenceQuery
 func SequenceQueryGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+sequenceQueryUrl, middleware.ApiAuthGin(), sequenceQueryGin())
+	r.GET(NodeProxy+sequenceQueryUrl, middleware.ApiAuthGin(), sequenceQueryGin())
 }
 
 func sequenceQueryGin() gin.HandlerFunc {

@@ -18,3 +18,5 @@ go.sum
 cmd/cmd
 cmd/qmoon
 docs/dist
+
+Makefile

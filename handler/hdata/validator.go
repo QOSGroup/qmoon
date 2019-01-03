@@ -21,7 +21,7 @@ func init() {
 
 // ValidatorGinRegister 注册validator
 func ValidatorGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+validatorUrl, middleware.ApiAuthGin(), validatorGin())
+	r.GET(NodeProxy+validatorUrl, middleware.ApiAuthGin(), validatorGin())
 }
 
 func validatorGin() gin.HandlerFunc {

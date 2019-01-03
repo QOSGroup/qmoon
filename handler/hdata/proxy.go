@@ -15,10 +15,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const nodeProxy = "/node/:nodeName"
+const NodeProxy = "/nodes/:nodeName"
 
 func init() {
-	hdataHander[nodeProxy] = ProxyGinRegister
+	hdataHander[NodeProxy] = ProxyGinRegister
 }
 
 type ginHandler struct {
@@ -83,7 +83,7 @@ const tendermintPrefix = "/tendermint"
 // ProxyGinRegister 代理handler
 func ProxyGinRegister(r *gin.Engine) {
 	for k, v := range tmRouter {
-		u := nodeProxy + tendermintPrefix + k
+		u := NodeProxy + tendermintPrefix + k
 		if v == nil {
 			r.GET(u, middleware.ApiAuthGin(), proxyGin())
 		} else {

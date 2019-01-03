@@ -22,7 +22,7 @@ func init() {
 
 // BlockDurationGinRegister 注册blockDuration
 func BlockDurationGinRegister(r *gin.Engine) {
-	r.GET(nodeProxy+blockDurationUrl, middleware.ApiAuthGin(), blockDurationGin())
+	r.GET(NodeProxy+blockDurationUrl, middleware.ApiAuthGin(), blockDurationGin())
 }
 
 type blockDurationQuery struct {
