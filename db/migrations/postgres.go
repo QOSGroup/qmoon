@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS accounts(
 );
 CREATE unique index accounts_mail_idx on accounts(mail);
 insert into accounts(mail, name, status, password)values('admin@test.local', 'admin', 1, MD5('123456'));
+insert into accounts(mail, name, status, password)values('admin@test.com', 'admin', 1, MD5('123456'));
 
 create table login_status(
    id bigserial primary key,

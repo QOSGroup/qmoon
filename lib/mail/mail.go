@@ -16,7 +16,7 @@ type client struct {
 func New(host, username, password string) *client {
 	c := &client{
 		host:     host,
-		addr:     host + ":25",
+		addr:     host + ":465",
 		username: username,
 		password: password,
 	}

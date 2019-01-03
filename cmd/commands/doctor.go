@@ -4,9 +4,11 @@ package commands
 
 import (
 	"log"
+	"os"
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -17,19 +19,44 @@ var DoctorCmd = &cobra.Command{
 	RunE:  doctor,
 }
 
+var (
+	email           string
+	emailSmtpServer string
+	emailUser       string
+	emailPassword   string
+)
+
 func init() {
+	emailSmtpServer = os.Getenv("MailSmtpServer")
+	emailUser = os.Getenv("MailUser")
+	emailPassword = os.Getenv("MailPassword")
+
+	//DoctorCmd.PersistentFlags().StringVar(&email, "email", "", "the mail")
+	email = "xuyz1988@163.com"
 	registerFlagsDb(DoctorCmd)
 }
 
 func doctor(cmd *cobra.Command, args []string) error {
-	err := db.InitDb(config.DB, logger)
+	logrus.WithField("model", "hadmin").
+		WithField("MailSmtpServer", emailSmtpServer).
+		WithField("MailUser", emailUser).
+		WithField("MailPassword", emailPassword).
+		Info()
+
+	var err error
+	err = db.InitDb(config.DB, logger)
 	if err != nil {
 		log.Printf("Check db fail err:%s", err.Error())
 	}
+	//
+	//err = service.Doctor()
+	//if err != nil {
+	//	log.Printf("Check env fail err:%s", err.Error())
+	//}
 
-	err = service.Doctor()
+	err = service.SendCode(emailSmtpServer, emailUser, emailPassword, email)
 	if err != nil {
-		log.Printf("Check env fail err:%s", err.Error())
+		log.Printf("Check mail fail err:%s", err.Error())
 	}
 
 	return nil
