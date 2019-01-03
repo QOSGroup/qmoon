@@ -12,6 +12,7 @@ func main() {
 		commands.NodeCmd,
 		commands.TxCmd,
 		commands.ServerCmd,
+		commands.DoctorCmd,
 		commands.VersionCmd)
 
 	//cmd := cli.PrepareBaseCmd(rootCmd, "", os.ExpandEnv(filepath.Join("$HOME", cfg.DefaultQMoonDir)))

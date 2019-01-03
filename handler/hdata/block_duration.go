@@ -12,7 +12,6 @@ import (
 	"github.com/QOSGroup/qmoon/service/block"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 const blockDurationUrl = "/blockDuration"
