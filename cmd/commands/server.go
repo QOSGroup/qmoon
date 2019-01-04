@@ -16,7 +16,9 @@ import (
 	"github.com/QOSGroup/qmoon/handler/hadmin"
 	"github.com/QOSGroup/qmoon/handler/hdata"
 	"github.com/QOSGroup/qmoon/plugins"
+	"github.com/QOSGroup/qmoon/static"
 	"github.com/QOSGroup/qmoon/worker"
+	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/common"
@@ -71,6 +73,13 @@ func initRouter(r *gin.Engine) {
 			c.AbortWithStatus(http.StatusOK)
 		}
 	})
+
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/static/swagger-ui/")
+	})
+	r.NoRoute(
+		gin.WrapH(http.FileServer(
+			&assetfs.AssetFS{Asset: static.Asset, AssetDir: static.AssetDir, AssetInfo: static.AssetInfo, Prefix: ""})))
 
 	handler.VersionGinRegister(r)
 	hadmin.SendCodeGinSendCode(r)

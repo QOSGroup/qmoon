@@ -4,7 +4,7 @@
 
 * Uri:
 
-   `/nodes/{chainId}/txs/{txId}`
+   `/nodes/{chainId}/tx`
 
 * Method:
 
@@ -15,7 +15,8 @@
 | 参数名   |      类型      |是否必须|默认值|说明|
 |----------|:-------------:|:-----:|:---:|:--:|
 | chainId | string | yes | - | 链ID|
-| txId | integer | yes | - |qmoon中交易ID|
+| height | integer | yes | - |块高度|
+| index | integer | yes | - |交易在当前块序号|
 
 * Response
 ```

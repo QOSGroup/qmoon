@@ -5,7 +5,7 @@
 
 * Uri:
 
-   `/nodes/{chainId}/peer`
+   `/nodes/{chainId}/sequence`
 
 * Method:
 

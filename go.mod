@@ -6,6 +6,7 @@ require (
 	github.com/QOSGroup/qstars v0.4.1
 	github.com/cosmos/cosmos-sdk v0.24.2
 	github.com/didip/tollbooth v4.0.0+incompatible
+	github.com/elazarl/go-bindata-assetfs v1.0.0
 	github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-sql-driver/mysql v1.4.0

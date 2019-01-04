@@ -1,0 +1,1139 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Qmoon",
+    "description": "### 基本约束\n  1. 服务正常情况下，http状态码为`200`\n  1. 未登录,http状态码为`401`\n  1. 未授权,http状态码为`403`\n  1. 响应体为json对象\n\n---\n## http响应状态码说明\n| http status | 描述 |\n| - | :-: |\n| 200 | 服务正常，具体业务是否正常根据响应体里的code来判断|\n| 401 | 未登录|\n| 403 | 未授权|\n| 500 | 服务错误|\n",
+    "version": "0.2"
+  },
+  "schemes": [
+    "http"
+  ],
+  "securityDefinitions": {
+    "APIKeyHeader": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization"
+    }
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "parameters": {
+    "chainIDParam": {
+      "in": "path",
+      "name": "chainId",
+      "required": true,
+      "type": "string",
+      "description": "chain id"
+    },
+    "minHeightParam": {
+      "in": "query",
+      "name": "minHeight",
+      "required": false,
+      "type": "integer",
+      "description": "最小高度"
+    },
+    "maxHeightParam": {
+      "in": "query",
+      "name": "maxHeight",
+      "required": false,
+      "type": "integer",
+      "description": "最大高度"
+    },
+    "offsetParam": {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "type": "integer",
+      "description": "偏移"
+    },
+    "limitParam": {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "type": "integer",
+      "description": "数量"
+    }
+  },
+  "paths": {
+    "/nodes": {
+      "get": {
+        "summary": "节点列表",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "nodes": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/Node"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/blockchain": {
+      "get": {
+        "summary": "块链",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "$ref": "#/parameters/minHeightParam"
+          },
+          {
+            "$ref": "#/parameters/maxHeightParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "last_height": {
+                          "type": "integer",
+                          "description": "最新高度"
+                        },
+                        "blocks": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/Blockchain"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/blocks/{height}": {
+      "get": {
+        "summary": "块信息",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "height",
+            "required": true,
+            "type": "integer",
+            "description": "高度"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "block": {
+                          "$ref": "#/definitions/Block"
+                        },
+                        "txs": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/Tx"
+                          }
+                        },
+                        "validators": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/BlockValidator"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/txs": {
+      "get": {
+        "summary": "交易列表",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "$ref": "#/parameters/minHeightParam"
+          },
+          {
+            "$ref": "#/parameters/maxHeightParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Tx"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/tx": {
+      "get": {
+        "summary": "交易详情",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "query",
+            "name": "height",
+            "required": false,
+            "type": "integer",
+            "description": "块高度"
+          },
+          {
+            "in": "query",
+            "name": "index",
+            "required": false,
+            "type": "integer",
+            "description": "交易在当前块序号"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "$ref": "#/definitions/Tx"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/sequence": {
+      "get": {
+        "summary": "sequence查询",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "apps": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/Sequence"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/validators": {
+      "get": {
+        "summary": "validators",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "query",
+            "name": "height",
+            "required": false,
+            "type": "integer",
+            "description": "块高度"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Validator"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/validators/{address}": {
+      "get": {
+        "summary": "validator详情",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "validator"
+          },
+          {
+            "in": "query",
+            "name": "minHeight",
+            "required": false,
+            "type": "integer",
+            "description": "打块查询"
+          },
+          {
+            "in": "query",
+            "name": "maxHeight",
+            "required": false,
+            "type": "integer",
+            "description": "打块查询"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "validator": {
+                          "$ref": "#/definitions/Validator"
+                        },
+                        "blocks": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/Validator"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/peers": {
+      "get": {
+        "summary": "peers",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "n_peers": {
+                          "type": "integer",
+                          "description": "peer 数量"
+                        },
+                        "peers": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/Peer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/accounts/{address}": {
+      "get": {
+        "summary": "账户查询",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "账户地址"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "allOf": [
+                        {
+                          "$ref": "#/definitions/Account"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "coins": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/definitions/BaseCoin"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/accounts/{address}/txs": {
+      "get": {
+        "summary": "账户相关tx",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "账户地址"
+          },
+          {
+            "$ref": "#/parameters/minHeightParam"
+          },
+          {
+            "$ref": "#/parameters/maxHeightParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Tx"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/accounts/{address}/transfer": {
+      "get": {
+        "summary": "账户相关transfer",
+        "tags": [
+          "pluginApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "账户地址"
+          },
+          {
+            "$ref": "#/parameters/offsetParam"
+          },
+          {
+            "$ref": "#/parameters/limitParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/TxTransfer"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/accounts/{address}/withdraw": {
+      "get": {
+        "summary": "领币",
+        "tags": [
+          "pluginApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "账户地址'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "$ref": "#/definitions/SendResult"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "description": "标准错误封装",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "错误码"
+        },
+        "message": {
+          "type": "string",
+          "description": "错误信息"
+        },
+        "data": {
+          "type": "string",
+          "description": "错误详细描述"
+        }
+      }
+    },
+    "BaseResponseBody": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "type": "string",
+          "description": "jsonrpc"
+        },
+        "id": {
+          "type": "string",
+          "description": "jsonrpc"
+        }
+      }
+    },
+    "Node": {
+      "type": "object",
+      "description": "node信息",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "名称"
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "基础地址"
+        },
+        "chinId": {
+          "type": "string",
+          "description": "chain id"
+        }
+      }
+    },
+    "Blockchain": {
+      "type": "object",
+      "description": "块链信息",
+      "properties": {
+        "chinId": {
+          "type": "string",
+          "description": "chain id"
+        },
+        "height": {
+          "type": "integer",
+          "description": "高度"
+        },
+        "num_txs": {
+          "type": "string",
+          "description": "当前块交易数量"
+        },
+        "total_txs": {
+          "type": "string",
+          "description": "累计交易数量"
+        },
+        "time": {
+          "type": "string",
+          "description": "chain id"
+        },
+        "data_hash": {
+          "type": "string",
+          "description": "数据hash"
+        },
+        "validators_hash": {
+          "type": "string",
+          "description": "validators hash"
+        }
+      }
+    },
+    "Block": {
+      "type": "object",
+      "description": "块信息",
+      "properties": {
+        "chinId": {
+          "type": "string",
+          "description": "chain id"
+        },
+        "height": {
+          "type": "integer",
+          "description": "高度"
+        },
+        "num_txs": {
+          "type": "string",
+          "description": "当前块交易数量"
+        },
+        "total_txs": {
+          "type": "string",
+          "description": "累计交易数量"
+        },
+        "time": {
+          "type": "string",
+          "description": "chain id"
+        },
+        "data_hash": {
+          "type": "string",
+          "description": "数据hash"
+        },
+        "validators_hash": {
+          "type": "string",
+          "description": "validators hash"
+        }
+      }
+    },
+    "Tx": {
+      "type": "object",
+      "description": "交易信息",
+      "properties": {
+        "chinId": {
+          "type": "string",
+          "description": "chain id"
+        },
+        "height": {
+          "type": "integer",
+          "description": "高度"
+        },
+        "index": {
+          "type": "integer",
+          "description": "交易在当前块序号"
+        },
+        "tx_type": {
+          "type": "string",
+          "description": "交易类型"
+        },
+        "maxgas": {
+          "type": "integer",
+          "description": "maxgas"
+        },
+        "qcp_from": {
+          "type": "string",
+          "description": "qcp_from"
+        },
+        "qcp_to": {
+          "type": "string",
+          "description": "qcp_to"
+        },
+        "qcp_sequence": {
+          "type": "integer",
+          "description": "qcp_sequence"
+        },
+        "qcp_txindex": {
+          "type": "integer",
+          "description": "qcp_txindex"
+        },
+        "qcp_isresult": {
+          "type": "boolean",
+          "description": "qcp_isresult"
+        },
+        "data": {
+          "type": "string",
+          "description": "原始tx数据"
+        },
+        "time": {
+          "type": "string",
+          "description": "UTC格式"
+        }
+      }
+    },
+    "TxTransfer": {
+      "type": "object",
+      "description": "transfer",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "id"
+        },
+        "chain_id": {
+          "type": "string",
+          "description": "chain_id"
+        },
+        "height": {
+          "type": "integer",
+          "description": "块高度"
+        },
+        "hash": {
+          "type": "string",
+          "description": "hash"
+        },
+        "address": {
+          "type": "string",
+          "description": "账户address"
+        },
+        "coin": {
+          "type": "string",
+          "description": "币名称"
+        },
+        "amount": {
+          "type": "string",
+          "description": "数量"
+        },
+        "type": {
+          "type": "string",
+          "description": "类型(0:转出, 1:转入)"
+        },
+        "time": {
+          "type": "string",
+          "description": "UTC格式"
+        }
+      }
+    },
+    "BlockValidator": {
+      "type": "object",
+      "description": "参与打块的validator",
+      "properties": {
+        "chinId": {
+          "type": "string",
+          "description": "chain id"
+        },
+        "validator_address": {
+          "type": "string",
+          "description": "validator_address"
+        },
+        "validator_index": {
+          "type": "integer",
+          "description": "validator_index"
+        },
+        "height": {
+          "type": "integer",
+          "description": "height"
+        },
+        "round": {
+          "type": "integer",
+          "description": "round"
+        },
+        "type": {
+          "type": "integer",
+          "description": "type"
+        },
+        "signature": {
+          "type": "string",
+          "description": "signature"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "UTC"
+        },
+        "accum": {
+          "type": "integer",
+          "description": "accum"
+        }
+      }
+    },
+    "Sequence": {
+      "type": "object",
+      "description": "跨链sequence",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "名称"
+        },
+        "in": {
+          "type": "integer",
+          "description": "in"
+        },
+        "out": {
+          "type": "integer",
+          "description": "out"
+        }
+      }
+    },
+    "Validator": {
+      "type": "object",
+      "description": "validator",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "名称"
+        },
+        "owner": {
+          "type": "string",
+          "description": "owner"
+        },
+        "chain_id": {
+          "type": "string",
+          "description": "chain_id"
+        },
+        "address": {
+          "type": "string",
+          "description": "address"
+        },
+        "pub_key_type": {
+          "type": "string",
+          "description": "pub_key_type"
+        },
+        "pub_key_value": {
+          "type": "string",
+          "description": "pub_key_value"
+        },
+        "voting_power": {
+          "type": "integer",
+          "description": "voting_power"
+        },
+        "accum": {
+          "type": "integer",
+          "description": "accum"
+        },
+        "first_block_height": {
+          "type": "integer",
+          "description": "first_block_height"
+        },
+        "first_block_time": {
+          "type": "string",
+          "description": "UTC"
+        },
+        "status": {
+          "type": "integer",
+          "description": "status"
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "statusStr"
+        },
+        "inactiveCode": {
+          "type": "integer",
+          "description": "inactiveCode"
+        },
+        "inactiveTime": {
+          "type": "string",
+          "description": "UTC"
+        },
+        "inactiveHeight": {
+          "type": "integer",
+          "description": "inactiveHeight"
+        },
+        "bondHeight": {
+          "type": "integer",
+          "description": "bondHeight"
+        },
+        "percent": {
+          "type": "string",
+          "description": "percent"
+        }
+      }
+    },
+    "Peer": {
+      "type": "object",
+      "description": "peer",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "peer id"
+        },
+        "moniker": {
+          "type": "string",
+          "description": "moniker"
+        },
+        "listen_addr": {
+          "type": "string",
+          "description": "listen_addr"
+        },
+        "network": {
+          "type": "string",
+          "description": "network"
+        },
+        "version": {
+          "type": "string",
+          "description": "version"
+        },
+        "channels": {
+          "type": "string",
+          "description": "channels"
+        },
+        "send_start": {
+          "type": "string",
+          "description": "UTC"
+        },
+        "recv_start": {
+          "type": "string",
+          "description": "listen_addr"
+        }
+      }
+    },
+    "Account": {
+      "type": "object",
+      "description": "币",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "地址"
+        },
+        "nonce": {
+          "type": "integer",
+          "description": "nonce"
+        }
+      }
+    },
+    "BaseCoin": {
+      "type": "object",
+      "description": "币",
+      "properties": {
+        "coin_name": {
+          "type": "string",
+          "description": "币名称"
+        },
+        "amount": {
+          "type": "integer",
+          "description": "数量"
+        }
+      }
+    },
+    "SendResult": {
+      "type": "object",
+      "description": "交易结果",
+      "properties": {
+        "hash": {
+          "type": "string",
+          "description": "hash"
+        },
+        "error": {
+          "type": "string",
+          "description": "error"
+        },
+        "code": {
+          "type": "string",
+          "description": "code"
+        },
+        "result": {
+          "type": "string",
+          "description": "result"
+        },
+        "heigth": {
+          "type": "string",
+          "description": "heigth"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "baseApi",
+      "description": "基础API"
+    },
+    {
+      "name": "pluginApi",
+      "description": "插件API"
+    }
+  ]
+}
