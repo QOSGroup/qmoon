@@ -20,17 +20,15 @@
 
 * Response
 ```
-"result":{
-    "validators": [
-        {
-            "address": "C95E740DBD2285BB2060630FDE24FCD971ADE4C7",
-            "pub_key": {
-                "type": "tendermint/PubKeyEd25519",
-                "value": "XsVLCKdI6FMhQex5gPzZqunXli8fREkZrOgRj6Lipdg="
-            },
-            "voting_power": "10",
-            "accum": "0",
-        }
-    ]
-}
+"result":[
+    {
+        "address": "C95E740DBD2285BB2060630FDE24FCD971ADE4C7",
+        "pub_key": {
+            "type": "tendermint/PubKeyEd25519",
+            "value": "XsVLCKdI6FMhQex5gPzZqunXli8fREkZrOgRj6Lipdg="
+        },
+        "voting_power": "10",
+        "accum": "0",
+    }
+]
 ```

@@ -19,4 +19,6 @@ cmd/cmd
 cmd/qmoon
 docs/dist
 
+qmoon
+
 Makefile
