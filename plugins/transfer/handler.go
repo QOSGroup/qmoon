@@ -25,11 +25,11 @@ func TransferGin() gin.HandlerFunc {
 		offset, limit := int64(0), int64(20)
 		coin := c.Query("coin")
 
-		if d, err := strconv.ParseInt(c.Param("offset"), 10, 64); err == nil {
+		if d, err := strconv.ParseInt(c.Query("offset"), 10, 64); err == nil {
 			offset = d
 		}
 
-		if d, err := strconv.ParseInt(c.Param("limit"), 10, 64); err == nil {
+		if d, err := strconv.ParseInt(c.Query("limit"), 10, 64); err == nil {
 			limit = d
 		}
 
