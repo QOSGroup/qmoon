@@ -27,6 +27,8 @@ require (
 	github.com/stretchr/testify v1.2.2
 	github.com/tendermint/go-amino v0.12.0
 	github.com/tendermint/tendermint v0.23.1
+	github.com/tidwall/gjson v1.1.3
+	github.com/tidwall/match v1.0.1 // indirect
 	github.com/ugorji/go/codec v0.0.0-20181018023622-b30ce92d500b // indirect
 	golang.org/x/crypto v0.0.0-20181030102418-4d3f4d9ffa16 // indirect
 	golang.org/x/sys v0.0.0-20181031143558-9b800f95dbbc // indirect

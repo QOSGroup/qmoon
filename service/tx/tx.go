@@ -3,7 +3,6 @@
 package tx
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -19,11 +18,13 @@ import (
 	"github.com/QOSGroup/qmoon/utils"
 	qosapprove "github.com/QOSGroup/qos/txs/approve"
 	"github.com/QOSGroup/qos/txs/qsc"
+	"github.com/QOSGroup/qos/txs/staking"
 	"github.com/QOSGroup/qos/txs/transfer"
 	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/QOSGroup/qstars/x/kvstore"
 	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/tidwall/gjson"
 )
 
 func convertToTx(mt *model.Tx) *types.ResultTx {
@@ -148,13 +149,17 @@ func ParseTx(blockHeader tmtypes.Header, t qbasetypes.Tx, mt *model.Tx) error {
 		mt.QcpIsresult = utils.NullBool(implTx.IsResult)
 		std = implTx.TxStd
 	default:
-		return errors.New("unsupport itx type")
+		mt.TxType = utils.NullString(t.Type())
 	}
 
 	mt.Maxgas = utils.NullInt64(std.MaxGas.Int64())
 
 	if err := ParseITx(blockHeader, std.ITx, mt); err != nil {
 		return err
+	}
+
+	if mt.TxType.String == "Unknown" {
+		mt.TxType = utils.NullString(t.Type())
 	}
 
 	return nil
@@ -179,6 +184,12 @@ func ParseITx(blockHeader tmtypes.Header, t qbasetxs.ITx, mt *model.Tx) error {
 		mt.TxType = utils.NullString("ApproveIncreaseTx")
 	case *qosapprove.TxUseApprove:
 		mt.TxType = utils.NullString("ApproveUseTx")
+	case *staking.TxRevokeValidator:
+		mt.TxType = utils.NullString("TxRevokeValidator")
+	case *staking.TxCreateValidator:
+		mt.TxType = utils.NullString("TxCreateValidator")
+	case *staking.TxActiveValidator:
+		mt.TxType = utils.NullString("TxActiveValidator")
 	case *kvstore.KvstoreTx:
 		mt.TxType = utils.NullString("KvstoreTx")
 	case *qbasetxs.QcpTxResult:
@@ -192,7 +203,12 @@ func ParseITx(blockHeader tmtypes.Header, t qbasetxs.ITx, mt *model.Tx) error {
 	case *bank.WrapperSendTx:
 		mt.TxType = utils.NullString("WrapperSendTx")
 	default:
-		mt.TxType = utils.NullString("Unknown")
+		typeInJson := gjson.Get(string(d), "type")
+		if typeInJson.Exists() {
+			mt.TxType = utils.NullString(typeInJson.String())
+		} else {
+			mt.TxType = utils.NullString("Unknown")
+		}
 	}
 
 	name, err := plugins.Parse(blockHeader, t)
