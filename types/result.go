@@ -9,6 +9,31 @@ import (
 	"github.com/QOSGroup/qbase/types"
 )
 
+type ResultTime time.Time
+
+const resultTimeFormart = "2006-01-02 15:04:05.379794+08"
+
+func (rt ResultTime) Time() time.Time {
+	return time.Time(rt)
+}
+func (rt *ResultTime) UnmarshalJSON(data []byte) (err error) {
+	now, err := time.ParseInLocation(`"`+resultTimeFormart+`"`, string(data), time.Local)
+	*rt = ResultTime(now)
+	return
+}
+
+func (rt ResultTime) MarshalJSON() ([]byte, error) {
+	b := make([]byte, 0, len(resultTimeFormart)+2)
+	b = append(b, '"')
+	b = time.Time(rt).AppendFormat(b, resultTimeFormart)
+	b = append(b, '"')
+	return b, nil
+}
+
+func (rt ResultTime) String() string {
+	return time.Time(rt).Format(resultTimeFormart)
+}
+
 type PriKey struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`
@@ -17,19 +42,6 @@ type PriKey struct {
 type ResultValidator struct {
 	Validator *Validator        `json:"validator"`
 	Blocks    []*BlockValidator `json:"blocks"`
-}
-
-type BlockValidator struct {
-	ChainID          string    `json:"chain_id"`
-	ValidatorAddress string    `json:"validator_address"`
-	ValidatorIndex   int64     `json:"validator_index"`
-	Height           int64     `json:"height"`
-	Round            int64     `json:"round"`
-	Type             int64     `json:"type"`
-	Signature        string    `json:"signature"`
-	Timestamp        time.Time `json:"timestamp"`
-	Accum            int64     `json:"accum"`
-	CreatedAt        time.Time `json:"created_at"`
 }
 
 type ResultTx struct {
@@ -44,23 +56,23 @@ type ResultTx struct {
 	QcpTxindex  int64           `json:"qcp_txindex"`  // qcp_txindex
 	QcpIsresult bool            `json:"qcp_isresult"` // qcp_isresult
 	Data        json.RawMessage `json:"data"`         // data
-	Time        time.Time       `json:"time"`         // time
-	CreatedAt   time.Time       `json:"created_at"`   // created_at
+	Time        ResultTime      `json:"time"`         // time
+	CreatedAt   ResultTime      `json:"created_at"`   // created_at
 }
 
 // ResultBlockBase 块信息
 type ResultBlockBase struct {
-	ID             int64     `json:"-"`
-	BlockID        string    `json:"block_id"`
-	ChainID        string    `json:"chain_id"`
-	Height         int64     `json:"height"`
-	NumTxs         int64     `json:"num_txs"`
-	TotalTxs       int64     `json:"total_txs"`
-	Data           string    `json:"data"`
-	Time           time.Time `json:"time"`
-	DataHash       string    `json:"data_hash"`
-	ValidatorsHash string    `json:"validators_hash"`
-	CreatedAt      time.Time `json:"-"`
+	ID             int64      `json:"-"`
+	BlockID        string     `json:"block_id"`
+	ChainID        string     `json:"chain_id"`
+	Height         int64      `json:"height"`
+	NumTxs         int64      `json:"num_txs"`
+	TotalTxs       int64      `json:"total_txs"`
+	Data           string     `json:"data"`
+	Time           ResultTime `json:"time"`
+	DataHash       string     `json:"data_hash"`
+	ValidatorsHash string     `json:"validators_hash"`
+	CreatedAt      ResultTime `json:"-"`
 }
 
 type ResultBlockDuration struct {
@@ -85,16 +97,16 @@ type ResultSequence struct {
 }
 
 type ResultPeer struct {
-	Moniker    string    `json:"moniker"`
-	ID         int64     `json:"-"`
-	PeerID     string    `json:"id"`
-	ListenAddr string    `json:"listen_addr"`
-	Network    string    `json:"network"`
-	Version    string    `json:"version"`
-	Channels   string    `json:"channels"`
-	SendStart  time.Time `json:"send_start"`
-	RecvStart  time.Time `json:"recv_start"`
-	CreateAt   time.Time `json:"create_at"`
+	Moniker    string     `json:"moniker"`
+	ID         int64      `json:"-"`
+	PeerID     string     `json:"id"`
+	ListenAddr string     `json:"listen_addr"`
+	Network    string     `json:"network"`
+	Version    string     `json:"version"`
+	Channels   string     `json:"channels"`
+	SendStart  ResultTime `json:"send_start"`
+	RecvStart  ResultTime `json:"recv_start"`
+	CreateAt   ResultTime `json:"create_at"`
 }
 
 type ResultPeers struct {
@@ -122,7 +134,7 @@ type ResultStatus struct {
 	ConsensusState  *ResultConsensusState `json:"consensus_state"`
 	TotalValidators int64                 `json:"total_validators"`
 	TotalTxs        int64                 `json:"total_txs"`
-	GenesisTime     time.Time             `json:"genesis_time"`
+	GenesisTime     ResultTime            `json:"genesis_time"`
 }
 
 type ResultAccount struct {

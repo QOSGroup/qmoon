@@ -40,8 +40,8 @@ func convertToTx(mt *model.Tx) *types.ResultTx {
 		QcpTxindex:  mt.QcpTxindex.Int64,
 		QcpIsresult: mt.QcpIsresult.Bool,
 		Data:        []byte(mt.JSONTx.String),
-		Time:        mt.Time.Time,
-		CreatedAt:   mt.CreatedAt.Time,
+		Time:        types.ResultTime(mt.Time.Time),
+		CreatedAt:   types.ResultTime(mt.CreatedAt.Time),
 	}
 }
 
@@ -103,6 +103,12 @@ func Retrieve(chainID string, height, index int64) (*types.ResultTx, error) {
 
 	return convertToTx(mt), err
 }
+
+//func RetrieveTxResult(tx []byte) error {
+//	txHash := sha256.Sum256(tx)
+//
+//	return nil
+//}
 
 func Save(b *tmctypes.ResultBlock) error {
 	if b.Block.NumTxs == 0 {

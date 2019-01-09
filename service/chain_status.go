@@ -28,7 +28,7 @@ func ChainStatus(chainID string, cached bool) (*types.ResultStatus, error) {
 	if err != nil {
 		return nil, err
 	}
-	result.GenesisTime = g.GenesisTime
+	result.GenesisTime = types.ResultTime(g.GenesisTime)
 
 	cs, err1 := block.RetrieveConsensusState(chainID)
 	result.ConsensusState = cs
