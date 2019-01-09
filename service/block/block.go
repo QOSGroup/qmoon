@@ -27,10 +27,10 @@ func convertToBlock(mb *model.Block) *types.ResultBlockBase {
 		Height:         mb.Height.Int64,
 		NumTxs:         mb.NumTxs.Int64,
 		TotalTxs:       mb.TotalTxs.Int64,
-		Time:           mb.Time.Time,
+		Time:           types.ResultTime(mb.Time.Time),
 		DataHash:       mb.DataHash.String,
 		ValidatorsHash: mb.ValidatorsHash.String,
-		CreatedAt:      mb.CreatedAt.Time,
+		CreatedAt:      types.ResultTime(mb.CreatedAt.Time),
 	}
 }
 

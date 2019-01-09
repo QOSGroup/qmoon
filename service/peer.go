@@ -23,9 +23,9 @@ func convertToPeer(mp *model.Peer) *types.ResultPeer {
 		Network:    mp.Network.String,
 		Version:    mp.Version.String,
 		Channels:   mp.Channels.String,
-		SendStart:  mp.SendStart.Time,
-		RecvStart:  mp.RecvStart.Time,
-		CreateAt:   mp.CreatedAt.Time,
+		SendStart:  types.ResultTime(mp.SendStart.Time),
+		RecvStart:  types.ResultTime(mp.RecvStart.Time),
+		CreateAt:   types.ResultTime(mp.CreatedAt.Time),
 	}
 }
 

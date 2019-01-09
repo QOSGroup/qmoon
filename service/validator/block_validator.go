@@ -28,8 +28,8 @@ func convertToBlockValidator(bv *model.BlockValidator) *types.BlockValidator {
 		Type:             bv.Type.Int64,
 		Signature:        bv.Signature.String,
 		Timestamp:        bv.Time.Time,
-		Accum:            bv.Accum.Int64,
-		CreatedAt:        bv.CreatedAt.Time,
+		//Accum:            bv.Accum.Int64,
+		//CreatedAt:        bv.CreatedAt.Time,
 	}
 }
 

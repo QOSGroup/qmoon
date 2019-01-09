@@ -87,7 +87,7 @@ func blockDurationGin() gin.HandlerFunc {
 		for i := len(bs) - 1; i > 0; i-- {
 			var d types.ResultBlockDuration
 			d.Height = bs[i].Height
-			d.Duration = int64(bs[i-1].Time.Sub(bs[i].Time).Nanoseconds()) / int64(time.Millisecond)
+			d.Duration = int64(bs[i-1].Time.Time().Sub(bs[i].Time.Time()).Nanoseconds()) / int64(time.Millisecond)
 			res = append(res, d)
 		}
 
