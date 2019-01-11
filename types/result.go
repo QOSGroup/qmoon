@@ -55,9 +55,10 @@ type ResultTx struct {
 	QcpSequence int64           `json:"qcp_sequence"` // qcp_sequence
 	QcpTxindex  int64           `json:"qcp_txindex"`  // qcp_txindex
 	QcpIsresult bool            `json:"qcp_isresult"` // qcp_isresult
-	Data        json.RawMessage `json:"data"`         // data
-	Time        ResultTime      `json:"time"`         // time
-	CreatedAt   ResultTime      `json:"created_at"`   // created_at
+	TxStatus    string          `json:"txStatus"`
+	Data        json.RawMessage `json:"data"`       // data
+	Time        ResultTime      `json:"time"`       // time
+	CreatedAt   ResultTime      `json:"created_at"` // created_at
 }
 
 // ResultBlockBase 块信息

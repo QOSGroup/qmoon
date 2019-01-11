@@ -4,9 +4,10 @@ package atm
 
 import (
 	"database/sql"
+
 	qbasetxs "github.com/QOSGroup/qbase/txs"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type ATMPlugin struct{}
@@ -28,7 +29,7 @@ func (ttp ATMPlugin) RegisterGin(r *gin.Engine) {
 	AccountWithdrawGinRegister(r)
 }
 
-func (ttp ATMPlugin) Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (typeName string, hit bool, err error) {
+func (ttp ATMPlugin) Parse(blockHeader types.BlockHeader, itx qbasetxs.ITx) (typeName string, hit bool, err error) {
 	return "", false, nil
 }
 

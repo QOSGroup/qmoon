@@ -9,31 +9,34 @@ import (
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/plugins/transfer/model"
+	"github.com/QOSGroup/qmoon/types"
 )
 
 type TxTransfer struct {
-	ID      int64        `json:"id"`       // id
-	ChainID string       `json:"chain_id"` // chain_id
-	Height  int64        `json:"height"`   // height
-	Hash    string       `json:"hash"`     // hash
-	Address string       `json:"address"`  // address
-	Coin    string       `json:"coin"`     // coin
-	Amount  string       `json:"amount"`   // amount
-	Type    TransferType `json:"type"`     // type
-	Time    time.Time    `json:"time"`     // time
+	ID       int64        `json:"id"`       // id
+	ChainID  string       `json:"chain_id"` // chain_id
+	Height   int64        `json:"height"`   // height
+	Hash     string       `json:"hash"`     // hash
+	Address  string       `json:"address"`  // address
+	Coin     string       `json:"coin"`     // coin
+	Amount   string       `json:"amount"`   // amount
+	Type     TransferType `json:"type"`     // type
+	TxStatus string       `json:"txStatus"`
+	Time     time.Time    `json:"time"` // time
 }
 
 func converToTxTransfer(mtt model.TxTransfer) TxTransfer {
 	return TxTransfer{
-		ID:      mtt.ID,
-		ChainID: mtt.ChainID.String,
-		Height:  mtt.Height.Int64,
-		Hash:    mtt.Hash.String,
-		Address: mtt.Address.String,
-		Coin:    mtt.Coin.String,
-		Amount:  mtt.Amount.String,
-		Type:    TransferType(mtt.Type.Int64),
-		Time:    mtt.Time.Time,
+		ID:       mtt.ID,
+		ChainID:  mtt.ChainID.String,
+		Height:   mtt.Height.Int64,
+		Hash:     mtt.Hash.String,
+		Address:  mtt.Address.String,
+		Coin:     mtt.Coin.String,
+		Amount:   mtt.Amount.String,
+		Type:     TransferType(mtt.Type.Int64),
+		TxStatus: types.TxStatus(mtt.TxStatus.Int64).String(),
+		Time:     mtt.Time.Time,
 	}
 }
 

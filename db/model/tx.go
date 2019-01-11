@@ -28,6 +28,7 @@ type Tx struct {
 	JSONTx      sql.NullString `json:"json_tx"`      // json_tx
 	Time        pq.NullTime    `json:"time"`         // time
 	CreatedAt   pq.NullTime    `json:"created_at"`   // created_at
+	TxStatus    sql.NullInt64  `json:"tx_status"`    // tx_status
 
 	// xo fields
 	_exists, _deleted bool
@@ -54,14 +55,14 @@ func (t *Tx) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.txs (` +
-		`chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at` +
+		`chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15` +
 		`) RETURNING id`
 
 	// run query
-	XOLog(sqlstr, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt)
-	err = db.QueryRow(sqlstr, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt).Scan(&t.ID)
+	XOLog(sqlstr, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt, t.TxStatus)
+	err = db.QueryRow(sqlstr, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt, t.TxStatus).Scan(&t.ID)
 	if err != nil {
 		return err
 	}
@@ -88,14 +89,14 @@ func (t *Tx) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.txs SET (` +
-		`chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at` +
+		`chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status` +
 		`) = ( ` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14` +
-		`) WHERE id = $15`
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15` +
+		`) WHERE id = $16`
 
 	// run query
-	XOLog(sqlstr, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt, t.ID)
-	_, err = db.Exec(sqlstr, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt, t.ID)
+	XOLog(sqlstr, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt, t.TxStatus, t.ID)
+	_, err = db.Exec(sqlstr, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt, t.TxStatus, t.ID)
 	return err
 }
 
@@ -121,18 +122,18 @@ func (t *Tx) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.txs (` +
-		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at` +
+		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at` +
+		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.chain_id, EXCLUDED.height, EXCLUDED.tx_type, EXCLUDED.index, EXCLUDED.maxgas, EXCLUDED.qcp_from, EXCLUDED.qcp_to, EXCLUDED.qcp_sequence, EXCLUDED.qcp_txindex, EXCLUDED.qcp_isresult, EXCLUDED.origin_tx, EXCLUDED.json_tx, EXCLUDED.time, EXCLUDED.created_at` +
+		`EXCLUDED.id, EXCLUDED.chain_id, EXCLUDED.height, EXCLUDED.tx_type, EXCLUDED.index, EXCLUDED.maxgas, EXCLUDED.qcp_from, EXCLUDED.qcp_to, EXCLUDED.qcp_sequence, EXCLUDED.qcp_txindex, EXCLUDED.qcp_isresult, EXCLUDED.origin_tx, EXCLUDED.json_tx, EXCLUDED.time, EXCLUDED.created_at, EXCLUDED.tx_status` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, t.ID, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt)
-	_, err = db.Exec(sqlstr, t.ID, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt)
+	XOLog(sqlstr, t.ID, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt, t.TxStatus)
+	_, err = db.Exec(sqlstr, t.ID, t.ChainID, t.Height, t.TxType, t.Index, t.Maxgas, t.QcpFrom, t.QcpTo, t.QcpSequence, t.QcpTxindex, t.QcpIsresult, t.OriginTx, t.JSONTx, t.Time, t.CreatedAt, t.TxStatus)
 	if err != nil {
 		return err
 	}
@@ -177,7 +178,7 @@ func (t *Tx) Delete(db XODB) error {
 // ordered by "id" in descending order.
 func TxFilter(db XODB, filter, sort string, offset, limit int64) ([]*Tx, error) {
 	sqlstr := `SELECT ` +
-		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at` +
+		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status` +
 		` FROM public.txs `
 
 	if filter != "" {
@@ -207,7 +208,7 @@ func TxFilter(db XODB, filter, sort string, offset, limit int64) ([]*Tx, error) 
 		}
 
 		// scan
-		err = q.Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt)
+		err = q.Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt, &t.TxStatus)
 		if err != nil {
 			return nil, err
 		}
@@ -226,7 +227,7 @@ func TxesByChainIDHeight(db XODB, chainID sql.NullString, height sql.NullInt64) 
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at ` +
+		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status ` +
 		`FROM public.txs ` +
 		`WHERE chain_id = $1 AND height = $2`
 
@@ -246,7 +247,7 @@ func TxesByChainIDHeight(db XODB, chainID sql.NullString, height sql.NullInt64) 
 		}
 
 		// scan
-		err = q.Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt)
+		err = q.Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt, &t.TxStatus)
 		if err != nil {
 			return nil, err
 		}
@@ -265,7 +266,7 @@ func TxByChainIDHeightIndex(db XODB, chainID sql.NullString, height sql.NullInt6
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at ` +
+		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status ` +
 		`FROM public.txs ` +
 		`WHERE chain_id = $1 AND height = $2 AND index = $3`
 
@@ -275,7 +276,7 @@ func TxByChainIDHeightIndex(db XODB, chainID sql.NullString, height sql.NullInt6
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, chainID, height, index).Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt)
+	err = db.QueryRow(sqlstr, chainID, height, index).Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt, &t.TxStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +292,7 @@ func TxesByChainID(db XODB, chainID sql.NullString) ([]*Tx, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at ` +
+		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status ` +
 		`FROM public.txs ` +
 		`WHERE chain_id = $1`
 
@@ -311,7 +312,7 @@ func TxesByChainID(db XODB, chainID sql.NullString) ([]*Tx, error) {
 		}
 
 		// scan
-		err = q.Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt)
+		err = q.Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt, &t.TxStatus)
 		if err != nil {
 			return nil, err
 		}
@@ -330,7 +331,7 @@ func TxByID(db XODB, id int64) (*Tx, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at ` +
+		`id, chain_id, height, tx_type, index, maxgas, qcp_from, qcp_to, qcp_sequence, qcp_txindex, qcp_isresult, origin_tx, json_tx, time, created_at, tx_status ` +
 		`FROM public.txs ` +
 		`WHERE id = $1`
 
@@ -340,7 +341,7 @@ func TxByID(db XODB, id int64) (*Tx, error) {
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, id).Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt)
+	err = db.QueryRow(sqlstr, id).Scan(&t.ID, &t.ChainID, &t.Height, &t.TxType, &t.Index, &t.Maxgas, &t.QcpFrom, &t.QcpTo, &t.QcpSequence, &t.QcpTxindex, &t.QcpIsresult, &t.OriginTx, &t.JSONTx, &t.Time, &t.CreatedAt, &t.TxStatus)
 	if err != nil {
 		return nil, err
 	}

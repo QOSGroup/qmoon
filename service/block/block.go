@@ -17,7 +17,6 @@ import (
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/gin-gonic/gin/json"
-	tmtypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 func convertToBlock(mb *model.Block) *types.ResultBlockBase {
@@ -113,9 +112,9 @@ func HasTx(chainID string, minHeight, maxHeight int64) ([]*types.ResultBlockBase
 	return res, err
 }
 
-func Save(b *tmtypes.ResultBlock) error {
-	mtb, err := model.TmBlockByChainIDHeight(db.Db, utils.NullString(b.BlockMeta.Header.ChainID),
-		utils.NullInt64(b.BlockMeta.Header.Height))
+func Save(b *types.Block) error {
+	mtb, err := model.TmBlockByChainIDHeight(db.Db, utils.NullString(b.Header.ChainID),
+		utils.NullInt64(b.Header.Height))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			d, err := json.Marshal(b)
@@ -123,8 +122,8 @@ func Save(b *tmtypes.ResultBlock) error {
 				return err
 			}
 			mtb = &model.TmBlock{
-				ChainID:   utils.NullString(b.BlockMeta.Header.ChainID),
-				Height:    utils.NullInt64(b.BlockMeta.Header.Height),
+				ChainID:   utils.NullString(b.Header.ChainID),
+				Height:    utils.NullInt64(b.Header.Height),
 				Data:      utils.NullString(string(d)),
 				CreatedAt: utils.NullTime(time.Now()),
 			}
@@ -135,18 +134,18 @@ func Save(b *tmtypes.ResultBlock) error {
 		}
 	}
 
-	mb, err := model.BlockByChainIDHeight(db.Db, utils.NullString(b.BlockMeta.Header.ChainID),
-		utils.NullInt64(b.BlockMeta.Header.Height))
+	mb, err := model.BlockByChainIDHeight(db.Db, utils.NullString(b.Header.ChainID),
+		utils.NullInt64(b.Header.Height))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			mb = &model.Block{
-				ChainID:        utils.NullString(b.BlockMeta.Header.ChainID),
-				Height:         utils.NullInt64(b.BlockMeta.Header.Height),
-				NumTxs:         utils.NullInt64(b.BlockMeta.Header.NumTxs),
-				TotalTxs:       utils.NullInt64(b.BlockMeta.Header.TotalTxs),
-				Time:           utils.NullTime(b.BlockMeta.Header.Time),
-				DataHash:       utils.NullString(b.BlockMeta.Header.DataHash.String()),
-				ValidatorsHash: utils.NullString(b.BlockMeta.Header.ValidatorsHash.String()),
+				ChainID:        utils.NullString(b.Header.ChainID),
+				Height:         utils.NullInt64(b.Header.Height),
+				NumTxs:         utils.NullInt64(b.Header.NumTxs),
+				TotalTxs:       utils.NullInt64(b.Header.TotalTxs),
+				Time:           utils.NullTime(b.Header.Time),
+				DataHash:       utils.NullString(b.Header.DataHash),
+				ValidatorsHash: utils.NullString(b.Header.ValidatorsHash),
 				CreatedAt:      utils.NullTime(time.Now()),
 			}
 			err = mb.Insert(db.Db)

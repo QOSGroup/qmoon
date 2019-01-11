@@ -14,15 +14,16 @@ import (
 
 // TxTransfer represents a row from 'public.tx_transfer'.
 type TxTransfer struct {
-	ID      int64          `json:"id"`       // id
-	ChainID sql.NullString `json:"chain_id"` // chain_id
-	Height  sql.NullInt64  `json:"height"`   // height
-	Hash    sql.NullString `json:"hash"`     // hash
-	Address sql.NullString `json:"address"`  // address
-	Coin    sql.NullString `json:"coin"`     // coin
-	Amount  sql.NullString `json:"amount"`   // amount
-	Type    sql.NullInt64  `json:"type"`     // type
-	Time    pq.NullTime    `json:"time"`     // time
+	ID       int64          `json:"id"`        // id
+	ChainID  sql.NullString `json:"chain_id"`  // chain_id
+	Height   sql.NullInt64  `json:"height"`    // height
+	Hash     sql.NullString `json:"hash"`      // hash
+	Address  sql.NullString `json:"address"`   // address
+	Coin     sql.NullString `json:"coin"`      // coin
+	Amount   sql.NullString `json:"amount"`    // amount
+	Type     sql.NullInt64  `json:"type"`      // type
+	Time     pq.NullTime    `json:"time"`      // time
+	TxStatus sql.NullInt64  `json:"tx_status"` // tx_status
 
 	// xo fields
 	_exists, _deleted bool
@@ -49,14 +50,14 @@ func (tt *TxTransfer) Insert(db model.XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.tx_transfer (` +
-		`chain_id, height, hash, address, coin, amount, type, time` +
+		`chain_id, height, hash, address, coin, amount, type, time, tx_status` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
 		`) RETURNING id`
 
 	// run query
-	model.XOLog(sqlstr, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time)
-	err = db.QueryRow(sqlstr, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time).Scan(&tt.ID)
+	model.XOLog(sqlstr, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time, tt.TxStatus)
+	err = db.QueryRow(sqlstr, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time, tt.TxStatus).Scan(&tt.ID)
 	if err != nil {
 		return err
 	}
@@ -83,14 +84,14 @@ func (tt *TxTransfer) Update(db model.XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.tx_transfer SET (` +
-		`chain_id, height, hash, address, coin, amount, type, time` +
+		`chain_id, height, hash, address, coin, amount, type, time, tx_status` +
 		`) = ( ` +
-		`$1, $2, $3, $4, $5, $6, $7, $8` +
-		`) WHERE id = $9`
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
+		`) WHERE id = $10`
 
 	// run query
-	model.XOLog(sqlstr, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time, tt.ID)
-	_, err = db.Exec(sqlstr, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time, tt.ID)
+	model.XOLog(sqlstr, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time, tt.TxStatus, tt.ID)
+	_, err = db.Exec(sqlstr, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time, tt.TxStatus, tt.ID)
 	return err
 }
 
@@ -116,18 +117,18 @@ func (tt *TxTransfer) Upsert(db model.XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.tx_transfer (` +
-		`id, chain_id, height, hash, address, coin, amount, type, time` +
+		`id, chain_id, height, hash, address, coin, amount, type, time, tx_status` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, chain_id, height, hash, address, coin, amount, type, time` +
+		`id, chain_id, height, hash, address, coin, amount, type, time, tx_status` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.chain_id, EXCLUDED.height, EXCLUDED.hash, EXCLUDED.address, EXCLUDED.coin, EXCLUDED.amount, EXCLUDED.type, EXCLUDED.time` +
+		`EXCLUDED.id, EXCLUDED.chain_id, EXCLUDED.height, EXCLUDED.hash, EXCLUDED.address, EXCLUDED.coin, EXCLUDED.amount, EXCLUDED.type, EXCLUDED.time, EXCLUDED.tx_status` +
 		`)`
 
 	// run query
-	model.XOLog(sqlstr, tt.ID, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time)
-	_, err = db.Exec(sqlstr, tt.ID, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time)
+	model.XOLog(sqlstr, tt.ID, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time, tt.TxStatus)
+	_, err = db.Exec(sqlstr, tt.ID, tt.ChainID, tt.Height, tt.Hash, tt.Address, tt.Coin, tt.Amount, tt.Type, tt.Time, tt.TxStatus)
 	if err != nil {
 		return err
 	}
@@ -172,7 +173,7 @@ func (tt *TxTransfer) Delete(db model.XODB) error {
 // ordered by "id" in descending order.
 func TxTransferFilter(db model.XODB, filter, sort string, offset, limit int64) ([]*TxTransfer, error) {
 	sqlstr := `SELECT ` +
-		`id, chain_id, height, hash, address, coin, amount, type, time` +
+		`id, chain_id, height, hash, address, coin, amount, type, time, tx_status` +
 		` FROM public.tx_transfer `
 
 	if filter != "" {
@@ -202,7 +203,7 @@ func TxTransferFilter(db model.XODB, filter, sort string, offset, limit int64) (
 		}
 
 		// scan
-		err = q.Scan(&tt.ID, &tt.ChainID, &tt.Height, &tt.Hash, &tt.Address, &tt.Coin, &tt.Amount, &tt.Type, &tt.Time)
+		err = q.Scan(&tt.ID, &tt.ChainID, &tt.Height, &tt.Hash, &tt.Address, &tt.Coin, &tt.Amount, &tt.Type, &tt.Time, &tt.TxStatus)
 		if err != nil {
 			return nil, err
 		}
@@ -221,7 +222,7 @@ func TxTransfersByAddress(db model.XODB, address sql.NullString) ([]*TxTransfer,
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, height, hash, address, coin, amount, type, time ` +
+		`id, chain_id, height, hash, address, coin, amount, type, time, tx_status ` +
 		`FROM public.tx_transfer ` +
 		`WHERE address = $1`
 
@@ -241,7 +242,7 @@ func TxTransfersByAddress(db model.XODB, address sql.NullString) ([]*TxTransfer,
 		}
 
 		// scan
-		err = q.Scan(&tt.ID, &tt.ChainID, &tt.Height, &tt.Hash, &tt.Address, &tt.Coin, &tt.Amount, &tt.Type, &tt.Time)
+		err = q.Scan(&tt.ID, &tt.ChainID, &tt.Height, &tt.Hash, &tt.Address, &tt.Coin, &tt.Amount, &tt.Type, &tt.Time, &tt.TxStatus)
 		if err != nil {
 			return nil, err
 		}
@@ -260,7 +261,7 @@ func TxTransferByID(db model.XODB, id int64) (*TxTransfer, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, chain_id, height, hash, address, coin, amount, type, time ` +
+		`id, chain_id, height, hash, address, coin, amount, type, time, tx_status ` +
 		`FROM public.tx_transfer ` +
 		`WHERE id = $1`
 
@@ -270,7 +271,7 @@ func TxTransferByID(db model.XODB, id int64) (*TxTransfer, error) {
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, id).Scan(&tt.ID, &tt.ChainID, &tt.Height, &tt.Hash, &tt.Address, &tt.Coin, &tt.Amount, &tt.Type, &tt.Time)
+	err = db.QueryRow(sqlstr, id).Scan(&tt.ID, &tt.ChainID, &tt.Height, &tt.Hash, &tt.Address, &tt.Coin, &tt.Amount, &tt.Type, &tt.Time, &tt.TxStatus)
 	if err != nil {
 		return nil, err
 	}

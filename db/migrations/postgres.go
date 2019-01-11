@@ -178,6 +178,7 @@ CREATE TABLE IF NOT EXISTS txs(
 	qcp_sequence bigint,
 	qcp_txindex bigint,
 	qcp_isresult boolean,
+    tx_status int default 0,
 	origin_tx text,
 	json_tx text,
 	time timestamp with time zone,

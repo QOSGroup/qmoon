@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS tx_transfer(
 	address text,
 	coin text,
 	amount text,
+    tx_status int default 0,
 	type int2, --0:send 1:recieve
 	time timestamp with time zone 
 );

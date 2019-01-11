@@ -6,8 +6,8 @@ import (
 	"database/sql"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type EgPlugin struct{}
@@ -29,7 +29,7 @@ func (ttp EgPlugin) RegisterGin(r *gin.Engine) {
 	ExampleGinRegister(r)
 }
 
-func (ttp EgPlugin) Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (typeName string, hit bool, err error) {
+func (ttp EgPlugin) Parse(blockHeader types.BlockHeader, itx qbasetxs.ITx) (typeName string, hit bool, err error) {
 	return "", false, nil
 }
 
