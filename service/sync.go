@@ -10,6 +10,7 @@ import (
 
 	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/db/model"
+	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service/block"
 	"github.com/QOSGroup/qmoon/service/tx"
 	"github.com/QOSGroup/qmoon/service/validator"
@@ -19,17 +20,21 @@ import (
 )
 
 // CreateBlock 创建一个块
-func CreateBlock(b *tmctypes.ResultBlock, vals []types.Validator) error {
-	var err error
+func CreateBlock(cli *lib.TmClient, height *int64) error {
+	b, err := cli.RetrieveBlock(height)
+	if err != nil {
+		return err
+	}
+
 	err = block.Save(b)
 	if err != nil {
 		return err
 	}
 
-	err = tx.Save(b)
+	err = tx.Save(cli, b)
 	// TODO delete block
 
-	err = validator.SaveBlockValidator(b, vals)
+	err = validator.SaveBlockValidator(b.Precommits)
 	// TODO delete block and tx
 
 	return nil

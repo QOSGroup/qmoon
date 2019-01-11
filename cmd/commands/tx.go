@@ -3,14 +3,6 @@
 package commands
 
 import (
-	"fmt"
-	"log"
-
-	//qbasetypes "github.com/QOSGroup/qbase/types"
-	"github.com/QOSGroup/qmoon/lib"
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
-	//"github.com/cosmos/cosmos-sdk/cmd/gaia/app"
-
 	"github.com/spf13/cobra"
 )
 
@@ -33,28 +25,28 @@ func init() {
 }
 
 func txParse(cmd *cobra.Command, args []string) error {
-	tmc := lib.TendermintClient(nodeUrl)
-	b, err := tmc.Block(&height)
-	if err != nil {
-		return err
-	}
-
-	if b.Block.NumTxs == 0 {
-		fmt.Printf("没有交易\n")
-		return nil
-	}
-
-	cdc := lib.MakeCodec()
-	for k, v := range b.Block.Data.Txs {
-		var tx cosmostypes.Msg
-		err := cdc.UnmarshalBinaryBare(v, &tx)
-		if err != nil {
-			return err
-		}
-
-		log.Printf("tx%d, %+v", k, tx)
-
-	}
+	//tmc := lib.TendermintClient(nodeUrl)
+	//b, err := tmc.Block(&height)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//if b.Block.NumTxs == 0 {
+	//	fmt.Printf("没有交易\n")
+	//	return nil
+	//}
+	//
+	//cdc := lib.MakeCodec()
+	//for k, v := range b.Block.Data.Txs {
+	//	var tx cosmostypes.Msg
+	//	err := cdc.UnmarshalBinaryBare(v, &tx)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	log.Printf("tx%d, %+v", k, tx)
+	//
+	//}
 
 	return nil
 }

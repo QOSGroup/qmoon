@@ -11,16 +11,16 @@ import (
 	"github.com/QOSGroup/qmoon/plugins/atm"
 	"github.com/QOSGroup/qmoon/plugins/example"
 	"github.com/QOSGroup/qmoon/plugins/transfer"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type Pluginer interface {
 	DbInit(driveName string, db *sql.DB) error
 	DbClear(driveName string, db *sql.DB) error
 
-	Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (typeName string, hit bool, err error)
+	Parse(blockHeader types.BlockHeader, itx qbasetxs.ITx) (typeName string, hit bool, err error)
 	Type() string
 
 	Doctor() error
@@ -78,7 +78,7 @@ func DbDown(driveName string, db *sql.DB) error {
 	return nil
 }
 
-func Parse(blockHeader tmtypes.Header, itx qbasetxs.ITx) (name string, err error) {
+func Parse(blockHeader types.BlockHeader, itx qbasetxs.ITx) (name string, err error) {
 	var hit bool
 	for _, tp := range tps {
 		if name, hit, err = tp.Parse(blockHeader, itx); hit {

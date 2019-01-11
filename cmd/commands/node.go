@@ -86,7 +86,7 @@ func createNode(cmd *cobra.Command, args []string) error {
 		return errors.New("nodeType 不能为空")
 	}
 
-	if !types.CheckNodeType(nodeType) {
+	if !types.CheckNodeType(types.NodeType(nodeType)) {
 		return errors.New("nodeType 不支持")
 	}
 

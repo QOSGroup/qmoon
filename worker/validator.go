@@ -7,6 +7,7 @@ import (
 
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/types"
 )
 
 var syncValidatorIsRunning bool
@@ -50,7 +51,7 @@ func SyncAllNodeValidator() {
 func SyncValidator(node service.Node) error {
 	tmc := lib.TendermintClient(node.BaseURL)
 
-	v, err := service.GetQOSValidator(tmc, 0, node)
+	v, err := service.GetQOSValidator(tmc, 0, types.NodeType(node.NodeType))
 	if err != nil {
 		return err
 	}

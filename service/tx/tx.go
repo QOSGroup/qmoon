@@ -22,8 +22,6 @@ import (
 	"github.com/QOSGroup/qos/txs/transfer"
 	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/QOSGroup/qstars/x/kvstore"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 	"github.com/tidwall/gjson"
 )
 
@@ -41,6 +39,7 @@ func convertToTx(mt *model.Tx) *types.ResultTx {
 		QcpIsresult: mt.QcpIsresult.Bool,
 		Data:        []byte(mt.JSONTx.String),
 		Time:        types.ResultTime(mt.Time.Time),
+		TxStatus:    types.TxStatus(mt.TxStatus.Int64).String(),
 		CreatedAt:   types.ResultTime(mt.CreatedAt.Time),
 	}
 }
@@ -104,34 +103,26 @@ func Retrieve(chainID string, height, index int64) (*types.ResultTx, error) {
 	return convertToTx(mt), err
 }
 
-//func RetrieveTxResult(tx []byte) error {
-//	txHash := sha256.Sum256(tx)
-//
-//	return nil
-//}
-
-func Save(b *tmctypes.ResultBlock) error {
-	if b.Block.NumTxs == 0 {
-		return nil
-	}
+func Save(cli *lib.TmClient, b *types.Block) error {
 	cdc := lib.MakeCodec()
 
 	now := time.Now()
-	for k, v := range b.Block.Data.Txs {
+	for k, v := range b.Txs {
 		qbasetx, err := qbasetypes.DecoderTx(cdc, v)
 		if err != nil {
 			return err
 		}
 
 		mt := &model.Tx{}
-		mt.ChainID = utils.NullString(b.Block.Header.ChainID)
-		mt.Height = utils.NullInt64(b.Block.Header.Height)
+		mt.ChainID = utils.NullString(b.Header.ChainID)
+		mt.Height = utils.NullInt64(b.Header.Height)
 		mt.Index = utils.NullInt64(int64(k))
 		mt.OriginTx = utils.NullString(utils.Base64En(v))
-		mt.Time = utils.NullTime(b.Block.Time)
+		mt.Time = utils.NullTime(b.Header.Time)
+		mt.TxStatus = utils.NullInt64(int64(cli.RetrieveTxResult(v)))
 		mt.CreatedAt = utils.NullTime(now)
 
-		if err := ParseTx(b.Block.Header, qbasetx, mt); err != nil {
+		if err := ParseTx(b.Header, qbasetx, mt); err != nil {
 			return err
 		}
 
@@ -142,7 +133,7 @@ func Save(b *tmctypes.ResultBlock) error {
 	return nil
 }
 
-func ParseTx(blockHeader tmtypes.Header, t qbasetypes.Tx, mt *model.Tx) error {
+func ParseTx(blockHeader types.BlockHeader, t qbasetypes.Tx, mt *model.Tx) error {
 	var std *qbasetxs.TxStd
 	switch implTx := t.(type) {
 	case *qbasetxs.TxStd:
@@ -171,7 +162,7 @@ func ParseTx(blockHeader tmtypes.Header, t qbasetypes.Tx, mt *model.Tx) error {
 	return nil
 }
 
-func ParseITx(blockHeader tmtypes.Header, t qbasetxs.ITx, mt *model.Tx) error {
+func ParseITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *model.Tx) error {
 	cdc := lib.MakeCodec()
 	d, err := cdc.MarshalJSON(t)
 	if err != nil {

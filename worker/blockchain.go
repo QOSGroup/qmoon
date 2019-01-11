@@ -65,7 +65,6 @@ func SyncBlock(node service.Node, maxSync int64, maxTime time.Duration) error {
 	var start int64 = 1
 
 	latest, err := block.Latest(node.ChanID)
-	//log.Printf("--SyncBlock- latest:%+v, err:%+v", latest, err)
 	if err == nil && latest != nil {
 		start = latest.Height + 1
 	}
@@ -83,28 +82,9 @@ LOOP:
 		default:
 		}
 
-		//log.Printf("--------height:%s %d", chanID, height)
-		b, err := tmc.Block(&height)
+		err = service.CreateBlock(tmc, &height)
 		if err != nil {
-			return err
-		}
-
-		if b == nil {
-			break
-		}
-
-		v, err := service.GetQOSValidator(tmc, height, node)
-		if err != nil {
-			return err
-		}
-
-		if v == nil {
-			break
-		}
-
-		err = service.CreateBlock(b, v)
-		if err != nil {
-			log.Printf("CreateBlock error:[%s]. chaidID:%s, height:%d", err.Error(), b.Block.ChainID, b.Block.Height)
+			log.Printf("CreateBlock error:[%s]. chaidID:%s, height:%d", err.Error(), node.ChanID, height)
 		}
 
 		height++

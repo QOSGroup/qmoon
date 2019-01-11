@@ -3,10 +3,9 @@
 package types
 
 import (
-	qostypes "github.com/QOSGroup/qos/types"
-	tmtypes "github.com/tendermint/tendermint/types"
-
 	"time"
+
+	qostypes "github.com/QOSGroup/qos/types"
 )
 
 const (
@@ -62,46 +61,4 @@ func (vals Validators) Less(i, j int) bool {
 
 func (vals Validators) Swap(i, j int) {
 	vals[i], vals[j] = vals[j], vals[i]
-}
-
-func ParseQOSValidator(chainID string, val qostypes.Validator) Validator {
-	return Validator{
-		Name:    val.Name,
-		Owner:   val.Owner.String(),
-		ChainID: chainID,
-		Address: val.ValidatorPubKey.Address().String(),
-		//PubKeyType       :"",
-		PubKeyValue: string(val.ValidatorPubKey.Bytes()),
-		VotingPower: int64(val.BondTokens),
-		//Accum            :0,
-		//FirstBlockHeight :,
-		//FirstBlockTime   time.Time             `json:"first_block_time"`
-		//CreatedAt        time.Time             `json:"created_at"`
-		Status:         val.Status,
-		InactiveCode:   val.InactiveCode,
-		InactiveTime:   val.InactiveTime,
-		InactiveHeight: int64(val.InactiveHeight),
-		BondHeight:     int64(val.BondHeight),
-	}
-}
-
-func ParseQSCValidator(chainID string, val tmtypes.Validator) Validator {
-	return Validator{
-		//Name:  val.Name,
-		//Owner: val.Owner.String(),
-		ChainID: chainID,
-		Address: val.Address.String(),
-		//PubKeyType       :"",
-		PubKeyValue: val.PubKey.Address().String(),
-		VotingPower: val.VotingPower,
-		Accum:       val.Accum,
-		//FirstBlockHeight :,
-		//FirstBlockTime   time.Time             `json:"first_block_time"`
-		//CreatedAt        time.Time             `json:"created_at"`
-		//Status:         val.Status,
-		//InactiveCode:   val.InactiveCode,
-		//InactiveTime:   val.InactiveTime,
-		//InactiveHeight: int64(val.InactiveHeight),
-		//BondHeight:     int64(val.BondHeight),
-	}
 }

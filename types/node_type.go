@@ -2,12 +2,14 @@
 
 package types
 
+type NodeType string
+
 const (
-	NodeTypeQOS = "QOS"
-	NodeTypeQSC = "QSC"
+	NodeTypeQOS NodeType = "QOS"
+	NodeTypeQSC NodeType = "QSC"
 )
 
-func CheckNodeType(nodeType string) bool {
+func CheckNodeType(nodeType NodeType) bool {
 	return nodeType == NodeTypeQOS || nodeType == NodeTypeQSC
 }
 

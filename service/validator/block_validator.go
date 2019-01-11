@@ -12,8 +12,6 @@ import (
 	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 const maxLimit = 20
@@ -105,21 +103,21 @@ func RetrieveBlockValidator(chainID string, height int64, validatorAddress strin
 	return convertToBlockValidator(mbv), nil
 }
 
-func saveBlockValidator(chainId string, v *tmtypes.Vote, vl types.Validator) error {
+func saveBlockValidator(chainId string, v *types.BlockValidator) error {
 	now := time.Now()
-	mbv, err := retrieveBlockValidator(chainId, v.Height, v.ValidatorAddress.String())
+	mbv, err := retrieveBlockValidator(chainId, v.Height, v.ValidatorAddress)
 	if err != nil {
 		mbv = &model.BlockValidator{
 			ChainID:          utils.NullString(chainId),
 			Height:           utils.NullInt64(v.Height),
-			ValidatorAddress: utils.NullString(v.ValidatorAddress.String()),
+			ValidatorAddress: utils.NullString(v.ValidatorAddress),
 			ValidatorIndex:   utils.NullInt64(int64(v.ValidatorIndex)),
 			Type:             utils.NullInt64(int64(v.Type)),
 			Round:            utils.NullInt64(int64(v.Round)),
-			Signature:        utils.NullString(utils.Base64En(v.Signature)),
+			Signature:        utils.NullString(v.Signature),
 			Time:             utils.NullTime(v.Timestamp),
-			VotingPower:      utils.NullInt64(vl.VotingPower),
-			Accum:            utils.NullInt64(vl.Accum),
+			VotingPower:      utils.NullInt64(v.VotingPower),
+			Accum:            utils.NullInt64(v.Accum),
 			CreatedAt:        utils.NullTime(now),
 		}
 
@@ -131,25 +129,15 @@ func saveBlockValidator(chainId string, v *tmtypes.Vote, vl types.Validator) err
 	return nil
 }
 
-func SaveBlockValidator(b *tmctypes.ResultBlock, vs []types.Validator) error {
-	c := b.Block.LastCommit
-	if c.Precommits == nil || len(c.Precommits) == 0 {
-		return nil
+func SaveBlockValidator(vars []*types.BlockValidator) error {
+	vm := make(map[string]*types.BlockValidator)
+	for _, v := range vars {
+		vm[v.ValidatorAddress] = v
 	}
 
-	vm := make(map[string]types.Validator)
-	for _, v := range vs {
-		vm[v.Address] = v
-	}
-
-	for _, v := range c.Precommits {
-		if v.String() == "nil-Vote" {
-			continue
-		}
-
-		UpdateValidatorFirstBlock(b.Block.ChainID, v.ValidatorAddress.String(), b.Block.Height, b.Block.Time)
-
-		saveBlockValidator(b.Block.ChainID, v, vm[v.ValidatorAddress.String()])
+	for _, v := range vars {
+		UpdateValidatorFirstBlock(v.ChainID, v.ValidatorAddress, v.Height, v.Timestamp)
+		saveBlockValidator(v.ChainID, v)
 	}
 
 	return nil

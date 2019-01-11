@@ -18,9 +18,9 @@ type Node struct {
 	BaseURL   sql.NullString `json:"base_url"`   // base_url
 	SecretKey sql.NullString `json:"secret_key"` // secret_key
 	ChainID   sql.NullString `json:"chain_id"`   // chain_id
+	NodeType  sql.NullString `json:"node_type"`  // node_type
 	GenesisID sql.NullInt64  `json:"genesis_id"` // genesis_id
 	CreatedAt pq.NullTime    `json:"created_at"` // created_at
-	NodeType  sql.NullString `json:"node_type"`  // node_type
 
 	// xo fields
 	_exists, _deleted bool
@@ -47,14 +47,14 @@ func (n *Node) Insert(db XODB) error {
 
 	// sql insert query, primary key provided by sequence
 	const sqlstr = `INSERT INTO public.nodes (` +
-		`name, base_url, secret_key, chain_id, genesis_id, created_at, node_type` +
+		`name, base_url, secret_key, chain_id, node_type, genesis_id, created_at` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7` +
 		`) RETURNING id`
 
 	// run query
-	XOLog(sqlstr, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.GenesisID, n.CreatedAt, n.NodeType)
-	err = db.QueryRow(sqlstr, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.GenesisID, n.CreatedAt, n.NodeType).Scan(&n.ID)
+	XOLog(sqlstr, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.NodeType, n.GenesisID, n.CreatedAt)
+	err = db.QueryRow(sqlstr, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.NodeType, n.GenesisID, n.CreatedAt).Scan(&n.ID)
 	if err != nil {
 		return err
 	}
@@ -81,14 +81,14 @@ func (n *Node) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE public.nodes SET (` +
-		`name, base_url, secret_key, chain_id, genesis_id, created_at, node_type` +
+		`name, base_url, secret_key, chain_id, node_type, genesis_id, created_at` +
 		`) = ( ` +
 		`$1, $2, $3, $4, $5, $6, $7` +
 		`) WHERE id = $8`
 
 	// run query
-	XOLog(sqlstr, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.GenesisID, n.CreatedAt, n.NodeType, n.ID)
-	_, err = db.Exec(sqlstr, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.GenesisID, n.CreatedAt, n.NodeType, n.ID)
+	XOLog(sqlstr, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.NodeType, n.GenesisID, n.CreatedAt, n.ID)
+	_, err = db.Exec(sqlstr, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.NodeType, n.GenesisID, n.CreatedAt, n.ID)
 	return err
 }
 
@@ -114,18 +114,18 @@ func (n *Node) Upsert(db XODB) error {
 
 	// sql query
 	const sqlstr = `INSERT INTO public.nodes (` +
-		`id, name, base_url, secret_key, chain_id, genesis_id, created_at, node_type` +
+		`id, name, base_url, secret_key, chain_id, node_type, genesis_id, created_at` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, name, base_url, secret_key, chain_id, genesis_id, created_at, node_type` +
+		`id, name, base_url, secret_key, chain_id, node_type, genesis_id, created_at` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.base_url, EXCLUDED.secret_key, EXCLUDED.chain_id, EXCLUDED.genesis_id, EXCLUDED.created_at, EXCLUDED.node_type` +
+		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.base_url, EXCLUDED.secret_key, EXCLUDED.chain_id, EXCLUDED.node_type, EXCLUDED.genesis_id, EXCLUDED.created_at` +
 		`)`
 
 	// run query
-	XOLog(sqlstr, n.ID, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.GenesisID, n.CreatedAt, n.NodeType)
-	_, err = db.Exec(sqlstr, n.ID, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.GenesisID, n.CreatedAt, n.NodeType)
+	XOLog(sqlstr, n.ID, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.NodeType, n.GenesisID, n.CreatedAt)
+	_, err = db.Exec(sqlstr, n.ID, n.Name, n.BaseURL, n.SecretKey, n.ChainID, n.NodeType, n.GenesisID, n.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func (n *Node) Delete(db XODB) error {
 // ordered by "id" in descending order.
 func NodeFilter(db XODB, filter, sort string, offset, limit int64) ([]*Node, error) {
 	sqlstr := `SELECT ` +
-		`id, name, base_url, secret_key, chain_id, genesis_id, created_at, node_type` +
+		`id, name, base_url, secret_key, chain_id, node_type, genesis_id, created_at` +
 		` FROM public.nodes `
 
 	if filter != "" {
@@ -200,7 +200,7 @@ func NodeFilter(db XODB, filter, sort string, offset, limit int64) ([]*Node, err
 		}
 
 		// scan
-		err = q.Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.GenesisID, &n.CreatedAt, &n.NodeType)
+		err = q.Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.NodeType, &n.GenesisID, &n.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -226,7 +226,7 @@ func NodesByGenesisID(db XODB, genesisID sql.NullInt64) ([]*Node, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, name, base_url, secret_key, chain_id, genesis_id, created_at, node_type ` +
+		`id, name, base_url, secret_key, chain_id, node_type, genesis_id, created_at ` +
 		`FROM public.nodes ` +
 		`WHERE genesis_id = $1`
 
@@ -246,7 +246,7 @@ func NodesByGenesisID(db XODB, genesisID sql.NullInt64) ([]*Node, error) {
 		}
 
 		// scan
-		err = q.Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.GenesisID, &n.CreatedAt, &n.NodeType)
+		err = q.Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.NodeType, &n.GenesisID, &n.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -265,7 +265,7 @@ func NodeByName(db XODB, name sql.NullString) (*Node, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, name, base_url, secret_key, chain_id, genesis_id, created_at, node_type ` +
+		`id, name, base_url, secret_key, chain_id, node_type, genesis_id, created_at ` +
 		`FROM public.nodes ` +
 		`WHERE name = $1`
 
@@ -275,7 +275,7 @@ func NodeByName(db XODB, name sql.NullString) (*Node, error) {
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, name).Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.GenesisID, &n.CreatedAt, &n.NodeType)
+	err = db.QueryRow(sqlstr, name).Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.NodeType, &n.GenesisID, &n.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +291,7 @@ func NodeByID(db XODB, id int64) (*Node, error) {
 
 	// sql query
 	const sqlstr = `SELECT ` +
-		`id, name, base_url, secret_key, chain_id, genesis_id, created_at, node_type ` +
+		`id, name, base_url, secret_key, chain_id, node_type, genesis_id, created_at ` +
 		`FROM public.nodes ` +
 		`WHERE id = $1`
 
@@ -301,7 +301,7 @@ func NodeByID(db XODB, id int64) (*Node, error) {
 		_exists: true,
 	}
 
-	err = db.QueryRow(sqlstr, id).Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.GenesisID, &n.CreatedAt, &n.NodeType)
+	err = db.QueryRow(sqlstr, id).Scan(&n.ID, &n.Name, &n.BaseURL, &n.SecretKey, &n.ChainID, &n.NodeType, &n.GenesisID, &n.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
