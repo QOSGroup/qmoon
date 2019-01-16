@@ -158,6 +158,9 @@ func (tc *TmClient) RetrieveBlock(height *int64) (*types.Block, error) {
 
 	var precommit []*types.BlockValidator
 	for _, v := range block.Block.LastCommit.Precommits {
+		if v == nil {
+			continue
+		}
 		precommit = append(precommit, parseVote(block.Block.ChainID, v))
 	}
 	result.Precommits = precommit
