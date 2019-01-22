@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS tx_transfer(
 	coin text,
 	amount text,
     tx_status int default 0,
+    is_multi boolean default false,
+    multi_data text,
 	type int2, --0:send 1:recieve
 	time timestamp with time zone 
 );
