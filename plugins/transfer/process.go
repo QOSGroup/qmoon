@@ -52,6 +52,11 @@ func (ttp TxTransferPlugin) Parse(blockHeader types.BlockHeader, itx qbasetxs.IT
 	}
 	log.Printf("transfer.TxTransfer:%+v", blockHeader.Time)
 
+	//d, err := json.Marshal(tt)
+	//if err != nil {
+	//	return "", true, err
+	//}
+
 	for _, v := range tt.Senders {
 		saveTransItem(blockHeader, Sender, v)
 	}
@@ -73,6 +78,17 @@ func (ttp TxTransferPlugin) Doctor() error {
 
 func (ttp TxTransferPlugin) RegisterGin(r *gin.Engine) {
 	AccountTxsGinRegister(r)
+}
+
+type Transfer struct {
+	ChainID  string
+	Height   int64
+	Hash     string
+	Sender   string
+	Reciever string
+	Coin     string
+	Amount   string
+	Time     time.Time
 }
 
 func saveTransItem(blockHeader types.BlockHeader, ut TransferType, item transfer.TransItem) error {
