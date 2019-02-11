@@ -3,7 +3,6 @@
 package hadmin
 
 import (
-	"net/http"
 	"testing"
 
 	"github.com/QOSGroup/qmoon/handler"
@@ -39,7 +38,7 @@ func TestRegisterGinEmptyPassword(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestRegisterGinSuccess(t *testing.T) {
+func TestRegisterGinEmptyCode(t *testing.T) {
 
 	body := registerQuery{
 		Email:    "test@123.com",
@@ -49,7 +48,6 @@ func TestRegisterGinSuccess(t *testing.T) {
 	assert.Nil(t, err)
 
 	var res account.Account
-	resp, err := handler.NewHttpTest(t, req).Do(RegisterGinRegister, &res)
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
+	_, err = handler.NewHttpTest(t, req).Do(RegisterGinRegister, &res)
+	assert.NotNil(t, err)
 }

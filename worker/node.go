@@ -3,10 +3,12 @@
 package worker
 
 import (
+	"context"
 	"sync"
+	"time"
 
-	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/service/syncer"
 )
 
 // SyncPeersLoop 同步peer节点信息
@@ -18,30 +20,22 @@ func SyncPeersLoop() {
 		return
 	}
 
-	for _, v := range nodes {
-		//log.Printf("--SyncAllNodeBlock start chanID:%s", chanID)
+	needSync := make(map[string]*service.Node)
+	for _, node := range nodes {
+		if node.ChanID != "" && node.BaseURL != "" {
+			needSync[node.ChanID] = node
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	for _, v := range needSync {
 		wg.Add(1)
-		go func() {
+		go func(node *service.Node) {
 			defer wg.Done()
-			SyncPeer(v.ChanID, v.BaseURL)
-		}()
+			syncer.NewSyncer(v).Peer(ctx)
+		}(v)
 	}
 
 	wg.Wait()
-}
-
-// SyncPeer 同步p2p中peer信息
-func SyncPeer(chanID, remote string) error {
-	tmc := lib.TendermintClient(remote)
-
-	b, err := tmc.NetInfo()
-	if err != nil {
-		return err
-	}
-
-	if b == nil {
-		return nil
-	}
-
-	return service.SavePeers(chanID, b.Peers)
+	cancel()
 }

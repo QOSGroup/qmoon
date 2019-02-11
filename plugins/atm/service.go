@@ -3,16 +3,14 @@
 package atm
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/lib/qstarscli"
-	"github.com/QOSGroup/qmoon/plugins/atm/models"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/sirupsen/logrus"
@@ -48,12 +46,12 @@ func getAmount() int64 {
 
 func ipCheck(ip, chainid string) error {
 	t := utils.DayStart(time.Now())
-	ir, err := models.AtmIPRecordByIPChainidCreateat(db.Db, utils.NullString(ip), utils.NullString(chainid), utils.NullTime(t))
+	ir, err := models.RetrieveAtmIpRecordByIpCreateat(chainid, ip, t)
 	if err != nil {
 		return nil
 	}
 
-	if ir.Amount.Int64 >= getAtmIPLimit() {
+	if ir.Amount >= int(getAtmIPLimit()) {
 		return errors.New("超过今日领取上限，请明天再来")
 	}
 
@@ -62,21 +60,17 @@ func ipCheck(ip, chainid string) error {
 
 func ipWithdraw(ip, chainid string) error {
 	t := utils.DayStart(time.Now())
-	ir, err := models.AtmIPRecordByIPChainidCreateat(db.Db, utils.NullString(ip), utils.NullString(chainid), utils.NullTime(t))
+	ir, err := models.RetrieveAtmIpRecordByIpCreateat(chainid, ip, t)
 	if err != nil {
-		if err != sql.ErrNoRows {
-			return err
+		ir = &models.AtmIpRecord{
+			Ip:            ip,
+			Amount:        1,
+			CreatedAtUnix: t.Unix(),
 		}
-		ir = &models.AtmIPRecord{
-			Chainid:  utils.NullString(chainid),
-			IP:       utils.NullString(ip),
-			Amount:   utils.NullInt64(1),
-			Createat: utils.NullTime(t),
-		}
-		return ir.Insert(db.Db)
+		return ir.Insert(chainid)
 	} else {
-		ir.Amount = utils.NullInt64(ir.Amount.Int64 + 1)
-		return ir.Update(db.Db)
+		ir.Amount = ir.Amount + 1
+		return ir.Update(chainid)
 	}
 
 	return nil
@@ -84,7 +78,7 @@ func ipWithdraw(ip, chainid string) error {
 
 func check(addr, chainid string) error {
 	t := utils.DayStart(time.Now())
-	_, err := models.AtmRecordByAddressChainidCreateat(db.Db, utils.NullString(addr), utils.NullString(chainid), utils.NullTime(t))
+	_, err := models.RetrieveAtmRecordByAddressCreateat(chainid, addr, t)
 	if err == nil {
 		return errors.New("今天已经领取")
 	}
@@ -111,15 +105,15 @@ func Withdraw(addr, chainid string) (*bank.SendResult, error) {
 	}
 
 	ar := &models.AtmRecord{}
-	ar.Address = utils.NullString(addr)
-	ar.Chainid = utils.NullString(chainid)
-	ar.Coin = utils.NullString(coin)
-	ar.Amount = utils.NullString(fmt.Sprintf("%d", amount))
-	ar.Createat = utils.NullTime(utils.DayStart(time.Now()))
-	ar.Height = utils.NullString(sr.Heigth)
-	ar.Hash = utils.NullString(sr.Hash)
+	ar.Address = addr
+	ar.Chainid = chainid
+	ar.Coin = coin
+	ar.Amount = fmt.Sprintf("%d", amount)
+	ar.Createat = utils.DayStart(time.Now())
+	ar.Height = sr.Heigth
+	ar.Hash = sr.Hash
 
-	if err := ar.Insert(db.Db); err != nil {
+	if err := ar.Insert(chainid); err != nil {
 		return nil, err
 	}
 

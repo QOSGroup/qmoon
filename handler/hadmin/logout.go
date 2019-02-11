@@ -27,7 +27,7 @@ func logoutGin() gin.HandlerFunc {
 			return
 		}
 
-		err = service.Logout(acc.ID)
+		err = service.Logout(acc.Id)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

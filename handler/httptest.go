@@ -12,22 +12,14 @@ import (
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/service/account"
+	"github.com/QOSGroup/qmoon/testdata"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 	tmltypes "github.com/tendermint/tendermint/rpc/lib/types"
 )
 
-const (
-	TestInternalUser         = "test1@internal.local"
-	TestInternalUserPassword = "123456"
-)
-
 func CreateTestUser() error {
-	acc, err := account.CreateAccount(TestInternalUser, TestInternalUserPassword)
-	if err != nil {
-		panic(err)
-	}
-	_, err = acc.CreateApp("app")
+	_, err := account.CreateAccount(testdata.User, testdata.UserPassword)
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +43,7 @@ func NewHttpTest(t *testing.T, req *http.Request) *HttpTest {
 }
 
 func (ht *HttpTest) WithSession() *HttpTest {
-	t, err := service.Login(TestInternalUser, TestInternalUserPassword)
+	t, err := service.Login(testdata.User, testdata.UserPassword)
 	if err != nil {
 		panic(err)
 	}
@@ -67,7 +59,7 @@ func (ht *HttpTest) WithLocalIP() *HttpTest {
 }
 
 func (ht *HttpTest) WithAuth() *HttpTest {
-	acc, err := account.RetrieveAccountByMail(TestInternalUser)
+	acc, err := account.RetrieveAccountByMail(testdata.User)
 	if err != nil {
 		panic(err)
 	}
@@ -88,7 +80,7 @@ func (ht *HttpTest) Do(f func(r *gin.Engine), v interface{}) (*httptest.Response
 	rw := httptest.NewRecorder()
 	r.ServeHTTP(rw, ht.req)
 
-	ht.t.Logf("request: %s %s, response.body:%s", ht.req.Method, ht.req.URL.String(), rw.Body.String())
+	//ht.t.Logf("request: %s %s, response.body:%s", ht.req.Method, ht.req.URL.String(), rw.Body.String())
 	if w, ok := v.(io.Writer); ok {
 		io.Copy(w, rw.Body)
 	} else {

@@ -8,10 +8,8 @@ import (
 	"time"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
-	"github.com/QOSGroup/qmoon/db"
-	"github.com/QOSGroup/qmoon/plugins/transfer/model"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"github.com/QOSGroup/qmoon/utils"
 	"github.com/QOSGroup/qos/txs/transfer"
 	"github.com/gin-gonic/gin"
 )
@@ -106,15 +104,14 @@ func saveTransItem(blockHeader types.BlockHeader, ut TransferType, item transfer
 }
 
 func saveTx(chainID string, height int64, hash string, address string, coin string, amount string, ut TransferType, t time.Time) error {
-	tt := &model.TxTransfer{}
-	tt.ChainID = utils.NullString(chainID)
-	tt.Height = utils.NullInt64(height)
-	tt.Hash = utils.NullString(hash)
-	tt.Address = utils.NullString(address)
-	tt.Coin = utils.NullString(coin)
-	tt.Amount = utils.NullString(amount)
-	tt.Type = utils.NullInt64(int64(ut))
-	tt.Time = utils.NullTime(t)
+	tt := &models.TxTransfer{}
+	tt.Height = height
+	tt.Hash = hash
+	tt.Address = address
+	tt.Coin = coin
+	tt.Amount = amount
+	tt.Type = int(ut)
+	tt.Time = t
 
-	return tt.Insert(db.Db)
+	return tt.Insert(chainID)
 }

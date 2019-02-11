@@ -17,12 +17,12 @@ func GetNodeFromUrl() func(c *gin.Context) {
 		if nodeName == "" {
 			c.AbortWithStatusJSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 		}
-		nt, err := service.GetNodeByName(nodeName)
+		node, err := service.GetNodeByName(nodeName)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 		}
 
-		c.Set(types.AuthNode, nt)
+		c.Set(types.AuthNode, node)
 	}
 }
 
@@ -32,10 +32,10 @@ func GetNodeFromRequest(c *gin.Context) (*service.Node, error) {
 		return nil, errors.New("服务异常")
 	}
 
-	acc, ok := d.(*service.Node)
+	node, ok := d.(*service.Node)
 	if !ok {
 		return nil, errors.New("服务异常")
 	}
 
-	return acc, nil
+	return node, nil
 }

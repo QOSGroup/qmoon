@@ -2,7 +2,6 @@ package qstarscli
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/QOSGroup/qstars/client/lcd"
 )
@@ -28,8 +27,7 @@ func (s *versionService) Retrieve(ctx context.Context) (*lcd.ResultCLIVersion, e
 	}
 
 	var res lcd.ResultCLIVersion
-	resp, err := s.client.Do(ctx, req, &res)
-	fmt.Printf("--resp:%+v,err:%+v\n", resp, err)
+	_, err = s.client.Do(ctx, req, &res)
 	if err != nil {
 		return nil, err
 	}

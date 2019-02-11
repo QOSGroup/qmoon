@@ -7,7 +7,6 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -25,13 +24,13 @@ func StatusQueryGinRegister(r *gin.Engine) {
 
 func statusQueryGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		nt, err := getNodeFromUrl(c)
+		node, err := GetNodeFromUrl(c)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 			return
 		}
 
-		result, err := service.ChainStatus(nt.ChanID, false)
+		result, err := node.ChainStatus(false)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 		}

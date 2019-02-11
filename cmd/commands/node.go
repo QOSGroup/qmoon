@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
@@ -52,8 +51,8 @@ var (
 func init() {
 	createNodeCmd.PersistentFlags().StringVar(&nodeName, "nodeName", "", "the name of node")
 	createNodeCmd.PersistentFlags().StringVar(&nodeUrl, "nodeUrl", "", "the url of node")
-	createNodeCmd.PersistentFlags().StringVar(&nodeType, "nodeType", "", fmt.Sprintf("节点类型:%s, %s",
-		types.NodeTypeQOS, types.NodeTypeQSC))
+	createNodeCmd.PersistentFlags().StringVar(&nodeType, "nodeType", "", fmt.Sprintf("节点类型:%s, %s, %s",
+		types.NodeTypeQOS, types.NodeTypeQSC, types.NodeTypeCOSMOS))
 
 	updateNodeCmd.PersistentFlags().StringVar(&nodeName, "nodeName", "", "the name of node")
 	updateNodeCmd.PersistentFlags().StringVar(&nodeUrl, "nodeUrl", "", "the url of node")
@@ -69,11 +68,6 @@ func init() {
 }
 
 func createNode(cmd *cobra.Command, args []string) error {
-	err := db.InitDb(config.DB, logger)
-	if err != nil {
-		return err
-	}
-
 	if nodeName == "" {
 		return errors.New("nodeName 不能为空")
 	}
@@ -90,8 +84,7 @@ func createNode(cmd *cobra.Command, args []string) error {
 		return errors.New("nodeType 不支持")
 	}
 
-	err = service.CreateNode(nodeName, nodeUrl, nodeType, "", nil)
-	if err != nil {
+	if err := service.CreateNode(nodeName, nodeUrl, nodeType, ""); err != nil {
 		return err
 	}
 
@@ -99,12 +92,7 @@ func createNode(cmd *cobra.Command, args []string) error {
 }
 
 func queryNode(cmd *cobra.Command, args []string) error {
-	err := db.InitDb(config.DB, logger)
-	if err != nil {
-		return err
-	}
-
-	headers := []string{"name", "chain_id", "url"}
+	headers := []string{"name", "chain_id", "node_type", "url"}
 	var datas [][]string
 	if nodeName != "" {
 		res, err := service.GetNodeByName(nodeName)
@@ -112,7 +100,7 @@ func queryNode(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		datas = append(datas, []string{res.Name, res.ChanID, res.BaseURL})
+		datas = append(datas, []string{res.Name, res.ChanID, res.NodeType, res.BaseURL})
 		utils.PrintTable(cmd.OutOrStdout(), headers, datas)
 	} else {
 		res, err := service.AllNodes()
@@ -121,7 +109,7 @@ func queryNode(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, v := range res {
-			datas = append(datas, []string{v.Name, v.ChanID, v.BaseURL})
+			datas = append(datas, []string{v.Name, v.ChanID, v.NodeType, v.BaseURL})
 		}
 
 		utils.PrintTable(cmd.OutOrStdout(), headers, datas)
@@ -139,14 +127,5 @@ func deleteNode(cmd *cobra.Command, args []string) error {
 	if len(args) != 1 {
 		return errors.New("需要参数nodeName")
 	}
-	name := args[0]
-
-	err := db.InitDb(config.DB, logger)
-	if err != nil {
-		return err
-	}
-
-	err = service.DeleteNodeByName(name)
-
-	return err
+	return service.DeleteNodeByName(args[0])
 }

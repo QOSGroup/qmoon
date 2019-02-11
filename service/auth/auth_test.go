@@ -6,14 +6,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/QOSGroup/qmoon/db"
+	"github.com/QOSGroup/qmoon/config"
 	"github.com/QOSGroup/qmoon/lib/qstarscli"
 	"github.com/QOSGroup/qmoon/lib/tmcli"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
-	dbTest := db.NewTestDb(m)
+	dbTest, err := models.NewTestEngine(config.TestDBConfig())
+	if err != nil {
+		panic(err)
+	}
 	defer dbTest.Close()
 
 	tq := qstarscli.NewTestQstarsServer()
@@ -43,6 +47,5 @@ func TestCheck(t *testing.T) {
 	sign2, err := sd2.Sign(secretKey)
 	assert.Nil(t, err)
 
-	t.Log(string(sign1))
 	assert.Equal(t, sign1, sign2)
 }

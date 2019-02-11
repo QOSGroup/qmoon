@@ -44,6 +44,6 @@ func TestDBConfig() *DBConfig {
 		User:       "postgres",
 		Password:   "",
 		Addr:       "localhost:5432",
-		Database:   "qmoon-test",
+		Database:   "qmoon_test",
 	}
 }

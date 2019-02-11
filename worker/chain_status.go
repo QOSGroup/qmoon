@@ -3,11 +3,12 @@
 package worker
 
 import (
-	"log"
+	"context"
 	"sync"
+	"time"
 
-	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/service/syncer"
 )
 
 var syncConsensusStateIsRunning bool
@@ -29,45 +30,22 @@ func SyncAllConsensusState() {
 		return
 	}
 
-	needSync := map[string]string{}
-	for _, v := range nodes {
-		if v.ChanID != "" && v.BaseURL != "" {
-			needSync[v.ChanID] = v.BaseURL
+	needSync := make(map[string]*service.Node)
+	for _, node := range nodes {
+		if node.ChanID != "" && node.BaseURL != "" {
+			needSync[node.ChanID] = node
 		}
 	}
 
-	for chanID, nodeUrl := range needSync {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	for _, v := range needSync {
 		wg.Add(1)
-		go func(chanID, nodeUrl string) {
+		go func(node *service.Node) {
 			defer wg.Done()
-			SyncConsensusState(chanID, nodeUrl)
-		}(chanID, nodeUrl)
+			syncer.NewSyncer(v).ConsensusState(ctx)
+		}(v)
 	}
 
 	wg.Wait()
-}
-
-// SyncConsensusState 同步共识过程
-func SyncConsensusState(chanID, remote string) error {
-	//if ok := service.SyncLock(chanID + "-block"); !ok {
-	//	return nil
-	//}
-	//defer service.SyncUnlock(chanID + "-block")
-
-	tmc := lib.TendermintClient(remote)
-	cs, err := tmc.ConsensusState()
-	if err != nil {
-		return err
-	}
-
-	if cs == nil {
-		return nil
-	}
-
-	err = service.CreateConsensusState(chanID, cs)
-	if err != nil {
-		log.Printf("CreateConsensusState error:[%s]. chaidID:%s", err.Error(), chanID)
-	}
-
-	return nil
+	cancel()
 }

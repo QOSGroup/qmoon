@@ -6,14 +6,12 @@ import (
 	"time"
 
 	"github.com/QOSGroup/qmoon/lib/cache"
-	"github.com/QOSGroup/qmoon/service/block"
-	"github.com/QOSGroup/qmoon/service/validator"
 	"github.com/QOSGroup/qmoon/types"
 )
 
 const chainStatusCache = "ChainStatusCache"
 
-func ChainStatus(chainID string, cached bool) (*types.ResultStatus, error) {
+func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	result := &types.ResultStatus{}
 	if cached {
 		d, ok := cache.Get(chainStatusCache)
@@ -24,19 +22,19 @@ func ChainStatus(chainID string, cached bool) (*types.ResultStatus, error) {
 		}
 	}
 
-	g, err := RetrieveGenesis(chainID)
+	g, err := n.RetrieveGenesis(n.ChanID)
 	if err != nil {
 		return nil, err
 	}
 	result.GenesisTime = types.ResultTime(g.GenesisTime)
 
-	cs, err1 := block.RetrieveConsensusState(chainID)
+	cs, err1 := n.ConsensusState()
 	result.ConsensusState = cs
 
-	vs, err2 := validator.ListValidatorByChain(chainID)
+	vs, err2 := n.Validators()
 	result.TotalValidators = int64(len(vs))
 
-	lb, err3 := block.Latest(chainID)
+	lb, err3 := n.LatestBlock()
 	if err3 == nil {
 		result.TotalTxs = lb.TotalTxs
 	}

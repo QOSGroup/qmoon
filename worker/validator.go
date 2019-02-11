@@ -3,11 +3,12 @@
 package worker
 
 import (
+	"context"
 	"sync"
+	"time"
 
-	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/service"
-	"github.com/QOSGroup/qmoon/types"
+	"github.com/QOSGroup/qmoon/service/syncer"
 )
 
 var syncValidatorIsRunning bool
@@ -29,34 +30,22 @@ func SyncAllNodeValidator() {
 		return
 	}
 
-	needSync := map[string]service.Node{}
-	for _, v := range nodes {
-		if v.ChanID != "" && v.BaseURL != "" {
-			needSync[v.ChanID] = *v
+	needSync := make(map[string]*service.Node)
+	for _, node := range nodes {
+		if node.ChanID != "" && node.BaseURL != "" {
+			needSync[node.ChanID] = node
 		}
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 	for _, v := range needSync {
 		wg.Add(1)
-		go func(node service.Node) {
+		go func(node *service.Node) {
 			defer wg.Done()
-			SyncValidator(node)
+			syncer.NewSyncer(v).Validator(ctx)
 		}(v)
 	}
 
 	wg.Wait()
-}
-
-// SyncValidator 同步validator
-func SyncValidator(node service.Node) error {
-	tmc := lib.TendermintClient(node.BaseURL)
-
-	v, err := service.GetQOSValidator(tmc, 0, types.NodeType(node.NodeType))
-	if err != nil {
-		return err
-	}
-
-	service.CreateValidator(node.ChanID, v)
-
-	return nil
+	cancel()
 }
