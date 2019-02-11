@@ -3,61 +3,22 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	qbasetypes "github.com/QOSGroup/qbase/types"
-	"github.com/QOSGroup/qmoon/db"
-	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/types"
-	"github.com/QOSGroup/qmoon/utils"
-	"github.com/tendermint/go-amino"
+	"github.com/QOSGroup/qmoon/models"
+	amino "github.com/tendermint/go-amino"
 )
 
 type Node struct {
-	mnt   *model.Node
-	mntrs []*model.NodeRoute
-
-	Name      string       `json:"name"`    // name
-	BaseURL   string       `json:"baseUrl"` // base_url
-	SecretKey string       `json:"-"`       // secret_key
-	Routers   []*NodeRoute `json:"routers"`
-	ChanID    string       `json:"chanId"`
-	NodeType  string       `json:"-"`
-}
-
-type NodeRoute struct {
-	mntr   *model.NodeRoute
-	Route  string `json:"route"`  // route
-	Hidden bool   `json:"hidden"` // hidden
-}
-
-func covertToNode(mnt *model.Node) *Node {
-	nmtrs, _ := model.NodeRoutesByNodeID(db.Db, utils.NullInt64(mnt.ID))
-	var routers []*NodeRoute
-	for _, v := range nmtrs {
-		routers = append(routers, covertToNodeRoute(v))
-	}
-	return &Node{
-		mnt:       mnt,
-		mntrs:     nmtrs,
-		Name:      mnt.Name.String,
-		BaseURL:   mnt.BaseURL.String,
-		SecretKey: mnt.SecretKey.String,
-		ChanID:    mnt.ChainID.String,
-		NodeType:  mnt.NodeType.String,
-		Routers:   routers,
-	}
-}
-
-func covertToNodeRoute(mntr *model.NodeRoute) *NodeRoute {
-	return &NodeRoute{
-		mntr:   mntr,
-		Route:  mntr.Route.String,
-		Hidden: mntr.Hidden.Bool,
-	}
+	Name      string `json:"name"`    // name
+	BaseURL   string `json:"baseUrl"` // base_url
+	SecretKey string `json:"-"`       // secret_key
+	ChanID    string `json:"chanId"`
+	NodeType  string `json:"nodeType"`
 }
 
 func (n Node) AppState(cdc *amino.Codec) (*qbasetypes.GenesisState, error) {
@@ -76,109 +37,67 @@ func (n Node) AppState(cdc *amino.Codec) (*qbasetypes.GenesisState, error) {
 	return &gs, nil
 }
 
+func covertToNode(mnt *models.Node) *Node {
+	return &Node{
+		Name:      mnt.Name,
+		BaseURL:   mnt.BaseUrl,
+		SecretKey: mnt.SecretKey,
+		ChanID:    mnt.ChainId,
+		NodeType:  mnt.NodeType,
+	}
+}
+
 func AllNodes() ([]*Node, error) {
+	ns, err := models.Nodes()
+
+	if err != nil {
+		return nil, err
+	}
+
 	var res []*Node
-	var offset, limit int64 = 0, 50
-	for {
-		nts, err := model.NodeFilter(db.Db, "", "", offset, limit)
-		if err != nil {
-			break
-		}
-
-		if len(nts) == 0 {
-			break
-		}
-
-		for _, v := range nts {
-			res = append(res, covertToNode(v))
-		}
-		offset += limit
+	for _, v := range ns {
+		res = append(res, covertToNode(v))
 	}
 
 	return res, nil
 }
 
-func DefaultRoute(nodeID int64) []NodeRoute {
-	var rs []NodeRoute
-	rs = append(rs, *covertToNodeRoute(&model.NodeRoute{
-		NodeID: utils.NullInt64(nodeID),
-		Route:  utils.NullString(types.ExplorerRouteBlock.String()),
-		Hidden: utils.NullBool(false),
-	}))
-
-	rs = append(rs, *covertToNodeRoute(&model.NodeRoute{
-		NodeID: utils.NullInt64(nodeID),
-		Route:  utils.NullString(types.ExplorerRouteValidtor.String()),
-		Hidden: utils.NullBool(false),
-	}))
-
-	rs = append(rs, *covertToNodeRoute(&model.NodeRoute{
-		NodeID: utils.NullInt64(nodeID),
-		Route:  utils.NullString(types.ExplorerRouteNode.String()),
-		Hidden: utils.NullBool(false),
-	}))
-
-	return rs
-}
-
-func CreateNode(name, baseURL, nodeType, secretKey string, routes []NodeRoute) error {
+func CreateNode(name, baseURL, nodeType, secretKey string) error {
 	if strings.HasSuffix(baseURL, "/") {
 		baseURL = baseURL[:len(baseURL)-1]
 	}
 
-	g, err := AddGenesis(baseURL)
+	tmc := lib.TendermintClient(baseURL)
+	genesis, err := tmc.Genesis()
+	if err != nil {
+		return fmt.Errorf("retrieve node genesis err:%s", err)
+	}
+
+	if _, err := models.CreateNode(name, baseURL, nodeType, secretKey, genesis.Genesis.ChainID); err != nil {
+		return err
+	}
+
+	d, err := json.Marshal(genesis)
 	if err != nil {
 		return err
 	}
 
-	mnt := &model.Node{}
-	mnt.Name = utils.NullString(name)
-	mnt.BaseURL = utils.NullString(baseURL)
-	mnt.SecretKey = utils.NullString(secretKey)
-	mnt.CreatedAt = utils.NullTime(time.Now())
-	mnt.GenesisID = utils.NullInt64(g.ID)
-	mnt.ChainID = utils.NullString(g.ChainID.String)
-	mnt.NodeType = utils.NullString(nodeType)
-	if err := mnt.Insert(db.Db); err != nil {
+	if err := models.CreateGenesis(genesis.Genesis.ChainID, genesis.Genesis.GenesisTime, string(d)); err != nil {
 		return err
-	}
-
-	if routes == nil && len(routes) == 0 {
-		routes = DefaultRoute(mnt.ID)
-	}
-
-	for _, v := range routes {
-		mntr := &model.NodeRoute{}
-		mntr.NodeID = utils.NullInt64(mnt.ID)
-		mntr.Route = utils.NullString(v.Route)
-		mntr.Hidden = utils.NullBool(v.Hidden)
-
-		err := mntr.Insert(db.Db)
-		if err != nil {
-			mnt.Delete(db.Db)
-			return err
-		}
 	}
 
 	return nil
 }
 
 func GetNodeByName(name string) (*Node, error) {
-	mnt, err := model.NodeByName(db.Db, utils.NullString(name))
+	mn, err := models.RetrieveNodeByName(name)
 	if err != nil {
 		return nil, err
 	}
 
-	return covertToNode(mnt), nil
+	return covertToNode(mn), nil
 }
 
 func DeleteNodeByName(name string) error {
-	mnt, err := model.NodeByName(db.Db, utils.NullString(name))
-	if err != nil {
-		return err
-	}
-
-	err = mnt.Delete(db.Db)
-
-	return nil
+	return models.DeleteNodeByName(name)
 }

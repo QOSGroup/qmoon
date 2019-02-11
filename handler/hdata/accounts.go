@@ -24,14 +24,14 @@ func AccountQueryGinRegister(r *gin.Engine) {
 
 func accountQueryGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		nt, err := getNodeFromUrl(c)
+		node, err := GetNodeFromUrl(c)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 			return
 		}
 
 		address := c.Param("address")
-		ctx := lib.NewQstarsClient(nt.BaseURL)
+		ctx := lib.NewQstarsClient(node.BaseURL)
 		result, err := ctx.QueryAccount(address)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))

@@ -20,7 +20,6 @@ var schemaMap map[string][]*schema
 
 func init() {
 	schemaMap = make(map[string][]*schema)
-	schemaMap["postgres"] = postgres
 }
 
 func getSchemasByDriver(driveName string) ([]*schema, error) {

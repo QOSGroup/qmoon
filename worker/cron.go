@@ -6,15 +6,18 @@ import (
 	"github.com/robfig/cron"
 )
 
-//func Start(quit chan os.Signal) {
 func Start() {
 	c := cron.New()
 
-	c.AddFunc("@every 1s", SyncAllConsensusState) // 每1秒
-	c.AddFunc("@every 3s", SyncAllNodeValidator)  // 每3秒
-	c.AddFunc("@every 5s", SyncAllNodeBlock)      // 每5秒
-	c.AddFunc("@every 1m", SyncPeersLoop)         // 每分钟
-	//c.AddFunc("1 1 3 * * *", func() {})  // 每天早上03:01:01
+	//c.AddFunc("@every 5m", SyncAllConsensusState) // 每5分
+	c.AddFunc("@every 3s", SyncAllConsensusState) // 每5分
+
+	//c.AddFunc("@every 5m", SyncPeersLoop)         // 每5分
+	c.AddFunc("@every 3s", SyncPeersLoop) // 每5分
+
+	//c.AddFunc("@every 5m", SyncAllNodeValidator) // 每5分
+	c.AddFunc("@every 3s", SyncAllNodeValidator) // 每3秒
+	c.AddFunc("@every 5s", SyncAllNodeBlock)     // 每5秒
 
 	c.Start()
 }

@@ -27,9 +27,9 @@ func AccountGinRegister(r *gin.Engine) {
 
 func listAccountsGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var offset, limit int64 = 0, 20
-		offset = c.GetInt64("offset")
-		limit = c.GetInt64("limit")
+		var offset, limit = 0, 20
+		offset = c.GetInt("offset")
+		limit = c.GetInt("limit")
 		if limit == 0 {
 			limit = 20
 		}
@@ -95,28 +95,17 @@ func updateAccountGin() gin.HandlerFunc {
 			return
 		}
 
-		acc, err := account.RetrieveAccountByID(id)
+		err = account.UpdateAccountProfile(id, &account.Option{
+			Avatar:      reqObj.Avatar,
+			Name:        reqObj.Name,
+			Description: reqObj.Description,
+		})
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
 
-		opt, err := account.NewOption(account.SetAvatar(
-			reqObj.Avatar),
-			account.SetName(reqObj.Name),
-			account.SetDescription(reqObj.Description),
-		)
-		if err != nil {
-			c.JSON(http.StatusOK, types.RPCServerError("", err))
-			return
-		}
-		err = acc.UpdateProfile(opt)
-		if err != nil {
-			c.JSON(http.StatusOK, types.RPCServerError("", err))
-			return
-		}
-
-		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", acc))
+		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", nil))
 	}
 }
 

@@ -25,22 +25,22 @@ func SequenceQueryGinRegister(r *gin.Engine) {
 
 func sequenceQueryGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		nt, err := getNodeFromUrl(c)
+		node, err := GetNodeFromUrl(c)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 			return
 		}
 
-		gs, err := nt.AppState(lib.Cdc)
+		gs, err := node.AppState(lib.Cdc)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return
 		}
 
-		ctx := lib.NewQstarsClient(nt.BaseURL)
+		ctx := lib.NewQstarsClient(node.BaseURL)
 		var result types.ResultSequence
 		for _, v := range gs.QCPs {
-			log.Printf("sequenceQuery url:%s, chainID:%s", nt.BaseURL, v.Name)
+			log.Printf("sequenceQuery url:%s, chainID:%s", node.BaseURL, v.Name)
 			in, _ := ctx.SequenctIn(v.Name)
 			out, _ := ctx.SequenctOut(v.Name)
 			result.Apps = append(result.Apps, &types.Sequence{Name: v.Name, In: in, Out: out})

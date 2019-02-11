@@ -17,15 +17,15 @@ func GinRegister(r *gin.Engine) {
 	}
 }
 
-func getNodeFromUrl(c *gin.Context) (*service.Node, error) {
+func GetNodeFromUrl(c *gin.Context) (*service.Node, error) {
 	nodeName := c.Param("nodeName")
 	if nodeName == "" {
 		return nil, errors.New("invalid nodeName")
 	}
-	nt, err := service.GetNodeByName(nodeName)
+	node, err := service.GetNodeByName(nodeName)
 	if err != nil {
 		return nil, errors.New("nodeName not found")
 	}
 
-	return nt, nil
+	return node, nil
 }

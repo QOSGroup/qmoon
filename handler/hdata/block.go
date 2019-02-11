@@ -8,9 +8,6 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/service/block"
-	"github.com/QOSGroup/qmoon/service/tx"
-	"github.com/QOSGroup/qmoon/service/validator"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -28,7 +25,7 @@ func BlockGinRegister(r *gin.Engine) {
 
 func blockGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		nt, err := getNodeFromUrl(c)
+		node, err := GetNodeFromUrl(c)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 			return
@@ -42,22 +39,22 @@ func blockGin() gin.HandlerFunc {
 
 		var b *types.ResultBlockBase
 		if d == 0 {
-			b, err = block.Latest(nt.ChanID)
+			b, err = node.LatestBlock()
 			if err != nil {
 				c.JSON(http.StatusOK, types.RPCServerError("", err))
 				return
 			}
 
 		} else {
-			b, err = block.Retrieve(nt.ChanID, d)
+			b, err = node.RetrieveBlock(d)
 			if err != nil {
 				c.JSON(http.StatusOK, types.RPCServerError("", err))
 				return
 			}
 		}
 
-		ts, _ := tx.List(nt.ChanID, b.Height, b.Height)
-		vs, _ := validator.ListBlockValidatorByHeight(nt.ChanID, b.Height)
+		ts, _ := node.Txs(b.Height, b.Height)
+		vs, _ := node.BlockValidatorsByHeight(b.Height)
 
 		resp := &types.ResultBlock{}
 		resp.Block = b

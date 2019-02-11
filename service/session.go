@@ -6,20 +6,20 @@ import (
 	"errors"
 	"time"
 
-	"github.com/QOSGroup/qmoon/service/account"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 )
 
 type session struct {
 	Token    string    `json:"token"`
 	ExpireAt time.Time `json:"expireAt"`
-	Status   int64     `json:"status"` // 用户状态
+	Status   int       `json:"status"` // 用户状态
 	Name     string    `json:"name"`   // name
 	Avatar   string    `json:"avatar"` // avatar
 }
 
 func Login(mail, password string) (*session, error) {
-	acc, err := account.RetrieveAccountByMail(mail)
+	acc, err := models.RetrieveAccountByMail(mail)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func Login(mail, password string) (*session, error) {
 
 	// 一个月过期时间
 	expire := time.Hour * 24 * 30
-	t, err := acc.CreateSession(int64(types.LoginWeb), expire)
+	t, err := acc.CreateSession(int(types.LoginWeb), expire)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func Login(mail, password string) (*session, error) {
 }
 
 func Logout(uid int64) error {
-	acc, err := account.RetrieveAccountByID(uid)
+	acc, err := models.RetrieveAccountByID(uid)
 	if err != nil {
 		return err
 	}
@@ -54,12 +54,17 @@ func Logout(uid int64) error {
 	return acc.DeleteSession()
 }
 
-func CheckSession(token string) (*account.Account, error) {
-	t, err := account.RetrieveToken(token)
+func CheckSession(token string) (*models.Account, error) {
+	ls, err := models.LoginStatusByLoginStatusByToken(token)
 	if err != nil {
 		return nil, err
 	}
-	acc, err := t.Account()
+
+	if ls.ExpiredAtUnix <= time.Now().Unix() {
+		return nil, errors.New("token expired")
+	}
+
+	acc, err := ls.Account()
 	if err != nil {
 		return nil, err
 	}

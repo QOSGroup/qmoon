@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	cfg "github.com/QOSGroup/qmoon/config"
-	"github.com/QOSGroup/qmoon/db/model"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -55,7 +55,7 @@ func registerFlagsHttpServer(cmd *cobra.Command) {
 // RootCmd moon主命令
 var RootCmd = &cobra.Command{
 	Use:   "qmoon",
-	Short: "qmoon server",
+	Short: "qmoon cli",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 		if cmd.Name() == VersionCmd.Name() {
 			return nil
@@ -88,7 +88,10 @@ var RootCmd = &cobra.Command{
 		if config.LogLevel == "debug" {
 			logrus.SetLevel(logrus.DebugLevel)
 		}
-		model.XOLog = logrus.Debugf
+
+		if err := models.InitDb(config.DB); err != nil {
+			return err
+		}
 
 		//logger.Info("rootCmd", "config.BaseConfig", config.BaseConfig,
 		//	"config.HttpServer", config.HttpServer, "config.DB", config.DB)

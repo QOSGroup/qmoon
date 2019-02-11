@@ -3,22 +3,17 @@
 package commands
 
 import (
-	"database/sql"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 
-	"github.com/QOSGroup/qmoon/db"
-	"github.com/QOSGroup/qmoon/db/migrations"
 	"github.com/QOSGroup/qmoon/handler"
 	"github.com/QOSGroup/qmoon/handler/hadmin"
 	"github.com/QOSGroup/qmoon/handler/hdata"
-	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/static"
 	"github.com/QOSGroup/qmoon/worker"
-	"github.com/elazarl/go-bindata-assetfs"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/common"
@@ -34,30 +29,14 @@ var ServerCmd = &cobra.Command{
 var (
 	explorer      string
 	explorerLaddr string
-	syncNode      bool
 )
 
 func init() {
 	registerFlagsHttpServer(ServerCmd)
 	registerFlagsDb(ServerCmd)
 
-	ServerCmd.PersistentFlags().BoolVar(&syncNode, "syncNode", false, "同步节点")
 	ServerCmd.PersistentFlags().StringVar(&explorer, "with-explorer", "", "the dir of explorer")
 	ServerCmd.PersistentFlags().StringVarP(&explorerLaddr, "explorerLaddr", "", "0.0.0.0:9528", "address of explorer listening")
-}
-
-func checkDb(db *sql.DB) bool {
-	needUp, err := migrations.NeedMigration(config.DB.DriverName, db)
-	if err != nil {
-		panic(err)
-	}
-	if needUp {
-		fmt.Println("数据库需要升级")
-		fmt.Println("可以执行 qmoon migration up")
-		return true
-	}
-
-	return false
 }
 
 func initRouter(r *gin.Engine) {
@@ -94,7 +73,7 @@ func initRouter(r *gin.Engine) {
 
 	hdata.GinRegister(r)
 
-	plugins.RegisterGin(r)
+	//plugins.RegisterGin(r)
 }
 
 func runStaticServer(laddr, dir string) {
@@ -109,22 +88,7 @@ func server(cmd *cobra.Command, args []string) error {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, os.Kill)
 
-	err := db.InitDb(config.DB, logger)
-	if err != nil {
-		return err
-	}
-
-	if err := plugins.DbUp(config.DB.DriverName, db.Db); err != nil {
-		return err
-	}
-
-	if ok := checkDb(db.Db); ok {
-		return nil
-	}
-
-	if syncNode {
-		worker.Start()
-	}
+	worker.Start()
 
 	if explorer != "" {
 		go func() {

@@ -9,7 +9,6 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/service/block"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -42,7 +41,7 @@ type blockDurationResp struct {
 
 func blockDurationGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		nt, err := getNodeFromUrl(c)
+		node, err := GetNodeFromUrl(c)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 			return
@@ -61,7 +60,7 @@ func blockDurationGin() gin.HandlerFunc {
 			minHeight = 1
 		}
 
-		lb, err := block.Latest(nt.ChanID)
+		lb, err := node.LatestBlock()
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
@@ -77,7 +76,7 @@ func blockDurationGin() gin.HandlerFunc {
 			minHeight = 1
 		}
 
-		bs, err := block.Search(nt.ChanID, minHeight, maxHeight)
+		bs, err := node.Blocks(minHeight, maxHeight)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
