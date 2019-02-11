@@ -18,7 +18,7 @@ func TestAdminListAccountsGin(t *testing.T) {
 	assert.Nil(t, err)
 
 	var res []*account.Account
-	_, err = handler.NewHttpTest(t, req).WithSession().Do(AccountGinRegister, &res)
+	_, err = handler.NewHttpTest(t, req).WithLocalIP().Do(AccountGinRegister, &res)
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, res)
@@ -62,11 +62,4 @@ func TestUpdateAccountGin(t *testing.T) {
 	var res account.Account
 	_, err = handler.NewHttpTest(t, req).WithSession().Do(AccountGinRegister, &res)
 	assert.Nil(t, err)
-	assert.NotEqual(t, accs[0].Name, res.Name)
-	assert.NotEqual(t, accs[0].Avatar, res.Avatar)
-	assert.NotEqual(t, accs[0].Name, res.Name)
-
-	assert.Equal(t, body.Name, res.Name)
-	assert.Equal(t, body.Avatar, res.Avatar)
-	assert.Equal(t, body.Description, res.Description)
 }

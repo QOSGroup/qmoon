@@ -5,12 +5,13 @@ package types
 type NodeType string
 
 const (
-	NodeTypeQOS NodeType = "QOS"
-	NodeTypeQSC NodeType = "QSC"
+	NodeTypeQOS    NodeType = "QOS"
+	NodeTypeQSC    NodeType = "QSC"
+	NodeTypeCOSMOS NodeType = "COSMOS"
 )
 
 func CheckNodeType(nodeType NodeType) bool {
-	return nodeType == NodeTypeQOS || nodeType == NodeTypeQSC
+	return nodeType == NodeTypeQOS || nodeType == NodeTypeQSC || nodeType == NodeTypeCOSMOS
 }
 
 type NodeTypeRouter struct {

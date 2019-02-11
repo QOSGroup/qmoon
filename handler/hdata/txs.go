@@ -8,7 +8,6 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/service/tx"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -26,7 +25,7 @@ func TxsGinRegister(r *gin.Engine) {
 
 func txsGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		nt, err := getNodeFromUrl(c)
+		node, err := GetNodeFromUrl(c)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 			return
@@ -39,7 +38,7 @@ func txsGin() gin.HandlerFunc {
 		minHeightStr := c.Query("minHeight")
 		minHeight, _ = strconv.ParseInt(minHeightStr, 10, 64)
 
-		ts, err := tx.List(nt.ChanID, minHeight, maxHeight)
+		ts, err := node.Txs(minHeight, maxHeight)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

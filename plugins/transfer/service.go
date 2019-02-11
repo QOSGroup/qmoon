@@ -3,12 +3,9 @@
 package transfer
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
-	"github.com/QOSGroup/qmoon/db"
-	"github.com/QOSGroup/qmoon/plugins/transfer/model"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 )
 
@@ -25,18 +22,17 @@ type TxTransfer struct {
 	Time     time.Time    `json:"time"` // time
 }
 
-func converToTxTransfer(mtt model.TxTransfer) TxTransfer {
-	return TxTransfer{
-		ID:       mtt.ID,
-		ChainID:  mtt.ChainID.String,
-		Height:   mtt.Height.Int64,
-		Hash:     mtt.Hash.String,
-		Address:  mtt.Address.String,
-		Coin:     mtt.Coin.String,
-		Amount:   mtt.Amount.String,
-		Type:     TransferType(mtt.Type.Int64),
-		TxStatus: types.TxStatus(mtt.TxStatus.Int64).String(),
-		Time:     mtt.Time.Time,
+func converToTxTransfer(mtt models.TxTransfer) *TxTransfer {
+	return &TxTransfer{
+		ID:       mtt.Id,
+		Height:   mtt.Height,
+		Hash:     mtt.Hash,
+		Address:  mtt.Address,
+		Coin:     mtt.Coin,
+		Amount:   mtt.Amount,
+		Type:     TransferType(mtt.Type),
+		TxStatus: types.TxStatus(mtt.TxStatus).String(),
+		Time:     mtt.Time,
 	}
 }
 
@@ -44,20 +40,18 @@ type SearchOpt struct {
 	Coin string
 }
 
-func ListByAddress(address string, offset, limint int64, opt *SearchOpt) ([]TxTransfer, error) {
-	var res []TxTransfer
-
-	var wheres []string
-	wheres = append(wheres, fmt.Sprintf(" %s = '%s' ", "address", address))
-	if opt.Coin != "" {
-		wheres = append(wheres, fmt.Sprintf(" %s = '%s' ", "coin", opt.Coin))
-	}
-
-	mtts, err := model.TxTransferFilter(db.Db, strings.Join(wheres, " and "), " order by time desc ", offset, limint)
+func ListByAddress(chainId, address string, offset, limint int, opt *SearchOpt) ([]*TxTransfer, error) {
+	mtts, err := models.TxTransfers(chainId, &models.TxTransferOption{
+		Address: address,
+		Coin:    opt.Coin,
+		Offset:  offset,
+		Limit:   limint,
+	})
 	if err != nil {
 		return nil, err
 	}
 
+	var res []*TxTransfer
 	for _, mtt := range mtts {
 		res = append(res, converToTxTransfer(*mtt))
 	}

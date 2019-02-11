@@ -8,6 +8,7 @@ import (
 
 	"github.com/QOSGroup/qbase/store"
 	"github.com/QOSGroup/qmoon/types"
+	"github.com/QOSGroup/qmoon/utils"
 	qostypes "github.com/QOSGroup/qos/types"
 	"github.com/tendermint/tendermint/rpc/client"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -176,7 +177,7 @@ func parseVote(chainID string, v *tmtypes.Vote) *types.BlockValidator {
 		ValidatorIndex:   int64(v.ValidatorIndex),
 		Round:            int64(v.Round),
 		Type:             int64(v.Type),
-		Signature:        string(v.Signature),
+		Signature:        utils.Base64En(v.Signature),
 		Timestamp:        v.Timestamp,
 	}
 }

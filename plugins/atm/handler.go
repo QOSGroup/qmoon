@@ -5,6 +5,7 @@ package atm
 import (
 	"net/http"
 
+	"github.com/QOSGroup/qmoon/handler/hdata"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
@@ -20,24 +21,28 @@ func AccountWithdrawGinRegister(r *gin.Engine) {
 
 func TransferGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		chainID := c.Param("nodeName")
+		node, err := hdata.GetNodeFromUrl(c)
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
+			return
+		}
 		address := c.Param("address")
 
 		ip := c.ClientIP()
 		logrus.WithField("model", "atm").WithField("ip", ip).Debug()
 
-		if err := ipCheck(ip, chainID); err != nil {
+		if err := ipCheck(ip, node.ChanID); err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return
 		}
 
-		res, err := Withdraw(address, chainID)
+		res, err := Withdraw(address, node.ChanID)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return
 		}
 
-		ipWithdraw(ip, chainID)
+		ipWithdraw(ip, node.ChanID)
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", res))
 	}

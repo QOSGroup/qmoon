@@ -116,15 +116,15 @@ func proxyGin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 			return
 		}
-		nt, err := service.GetNodeByName(nodeName)
+		node, err := service.GetNodeByName(nodeName)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInvalidParamsError("", errors.New("nodeName not found")))
 			return
 		}
 		us := strings.Split(c.Request.URL.String(), "/")
 		log.Printf("us:%+v, l:%d", us, len(us))
-		log.Printf("u:%s", nt.BaseURL+"/"+strings.Join(us[4:], "/"))
-		resp, err := http.Get(nt.BaseURL + "/" + strings.Join(us[4:], "/"))
+		log.Printf("u:%s", node.BaseURL+"/"+strings.Join(us[4:], "/"))
+		resp, err := http.Get(node.BaseURL + "/" + strings.Join(us[4:], "/"))
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

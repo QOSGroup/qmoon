@@ -7,7 +7,6 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/service/validator"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -25,13 +24,13 @@ func ValidatorsGinRegister(r *gin.Engine) {
 
 func validatorsGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		nt, err := getNodeFromUrl(c)
+		node, err := GetNodeFromUrl(c)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
 			return
 		}
 
-		vs, err := validator.ListValidatorByChain(nt.ChanID)
+		vs, err := node.Validators()
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

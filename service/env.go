@@ -5,8 +5,6 @@ package service
 import (
 	"errors"
 	"os"
-
-	"github.com/QOSGroup/qmoon/plugins"
 )
 
 type Env struct {
@@ -30,10 +28,6 @@ func GetEnv() Env {
 
 func Doctor() error {
 	if err := CheckEnv(); err != nil {
-		return err
-	}
-
-	if err := plugins.Doctor(); err != nil {
 		return err
 	}
 

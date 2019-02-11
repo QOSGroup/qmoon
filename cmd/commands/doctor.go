@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/QOSGroup/qmoon/db"
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -44,10 +43,6 @@ func doctor(cmd *cobra.Command, args []string) error {
 		Info()
 
 	var err error
-	err = db.InitDb(config.DB, logger)
-	if err != nil {
-		log.Printf("Check db fail err:%s", err.Error())
-	}
 	//
 	//err = service.Doctor()
 	//if err != nil {

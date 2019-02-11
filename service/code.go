@@ -3,15 +3,12 @@
 package service
 
 import (
-	"database/sql"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/QOSGroup/qmoon/db"
-	"github.com/QOSGroup/qmoon/db/model"
 	"github.com/QOSGroup/qmoon/lib/mail"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/utils"
 )
 
@@ -20,20 +17,20 @@ const VerifyCodeDuration = time.Minute
 
 // CheckCode 验证码校验
 func CheckCode(email, code string) bool {
-	vc, err := model.VerifyCodeByEmail(db.Db, utils.NullString(email))
+	vc, err := models.VerifyCodeByEmail(email)
 	if err != nil {
 		return false
 	}
 
 	now := time.Now()
 
-	if vc.CreatedAt.Time.Add(VerifyCodeExpired).Before(now) {
+	if vc.CreatedAt.Add(VerifyCodeExpired).Before(now) {
 		return false
 	}
 
-	vc.Delete(db.Db)
+	vc.Delete()
 
-	return vc.Code.String == code
+	return vc.Code == code
 }
 
 func mailMsg(from string, to []string, code string) []byte {
@@ -55,33 +52,10 @@ func mailMsg(from string, to []string, code string) []byte {
 
 // SendCode 发送短信验证码
 func SendCode(mailSmtpServer, mailUser, mailPassword, email string) error {
-	now := time.Now()
 	code := utils.RandmonCode(6)
-
-	vc, err := model.VerifyCodeByEmail(db.Db, utils.NullString(email))
+	_, err := models.CreateVerifyCode(email, code)
 	if err != nil {
-		if err != sql.ErrNoRows {
-			return err
-		}
-		vc = &model.VerifyCode{}
-		vc.Email = utils.NullString(email)
-		vc.Code = utils.NullString(code)
-		vc.CreatedAt = utils.NullTime(now)
-
-		if err := vc.Insert(db.Db); err != nil {
-			return err
-		}
-	} else {
-		if vc.CreatedAt.Time.Add(VerifyCodeDuration).After(now) {
-			return errors.New("验证请求太频繁，请稍后再试")
-		}
-		vc.Email = utils.NullString(email)
-		vc.Code = utils.NullString(code)
-		vc.CreatedAt = utils.NullTime(now)
-
-		if err := vc.Update(db.Db); err != nil {
-			return err
-		}
+		return err
 	}
 
 	msg := mailMsg(mailUser, []string{email}, code)

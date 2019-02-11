@@ -3,37 +3,32 @@
 package service
 
 import (
-	"database/sql"
 	"log"
-	"time"
 
-	"github.com/QOSGroup/qmoon/db"
-	"github.com/QOSGroup/qmoon/db/model"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"github.com/QOSGroup/qmoon/utils"
 	tmtypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
-func convertToPeer(mp *model.Peer) *types.ResultPeer {
+func convertToPeer(mp *models.Peer) *types.ResultPeer {
 	return &types.ResultPeer{
-		Moniker:    mp.Moniker.String,
+		Moniker:    mp.Moniker,
 		ID:         mp.ID,
-		PeerID:     mp.PeerID.String,
-		ListenAddr: mp.ListenAddr.String,
-		Network:    mp.Network.String,
-		Version:    mp.Version.String,
-		Channels:   mp.Channels.String,
-		SendStart:  types.ResultTime(mp.SendStart.Time),
-		RecvStart:  types.ResultTime(mp.RecvStart.Time),
-		CreateAt:   types.ResultTime(mp.CreatedAt.Time),
+		PeerID:     mp.PeerID,
+		ListenAddr: mp.ListenAddr,
+		Network:    mp.Network,
+		Version:    mp.Version,
+		Channels:   mp.Channels,
+		SendStart:  types.ResultTime(mp.SendStart),
+		RecvStart:  types.ResultTime(mp.RecvStart),
 	}
 }
 
-// ListPeers 查询所有peer
-func ListPeers(chainID string) (*types.ResultPeers, error) {
+// Peers 查询所有peer
+func (n Node) Peers() (*types.ResultPeers, error) {
 	var result types.ResultPeers
 
-	mps, err := model.PeersByChainID(db.Db, utils.NullString(chainID))
+	mps, err := models.Peers(n.ChanID, nil)
 	if err == nil {
 		for _, v := range mps {
 			result.NPeers++
@@ -44,39 +39,21 @@ func ListPeers(chainID string) (*types.ResultPeers, error) {
 	return &result, nil
 }
 
-func RetrieveOrInsert(chainID string, tmp tmtypes.Peer) (*model.Peer, error) {
-	p, err := model.PeerByPeerID(db.Db, utils.NullString(string(tmp.ID)))
-	if err != nil {
-		if err == sql.ErrNoRows {
-			p = &model.Peer{
-				ChainID:    utils.NullString(chainID),
-				Moniker:    utils.NullString(tmp.Moniker),
-				PeerID:     utils.NullString(string(tmp.ID)),
-				ListenAddr: utils.NullString(tmp.ListenAddr),
-				Network:    utils.NullString(tmp.Network),
-				Version:    utils.NullString(tmp.Version),
-				Channels:   utils.NullString(tmp.Channels.String()),
-				SendStart:  utils.NullTime(tmp.ConnectionStatus.SendMonitor.Start),
-				RecvStart:  utils.NullTime(tmp.ConnectionStatus.RecvMonitor.Start),
-				CreatedAt:  utils.NullTime(time.Now()),
-			}
-			err = p.Insert(db.Db)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
-	}
-
-	return p, nil
-}
-
-func SavePeers(chainID string, peers []tmtypes.Peer) error {
+func (n Node) CreatePeers(peers []tmtypes.Peer) error {
 	for _, v := range peers {
-		_, err := RetrieveOrInsert(chainID, v)
-		if err != nil {
-			log.Printf("RetrieveOrInsert p:%+v, err:%s", v, err.Error())
+		p := &models.Peer{
+			Moniker:    v.Moniker,
+			PeerID:     string(v.ID),
+			ListenAddr: v.ListenAddr,
+			Network:    v.Network,
+			Version:    v.Version,
+			Channels:   v.Channels.String(),
+			SendStart:  v.ConnectionStatus.SendMonitor.Start,
+			RecvStart:  v.ConnectionStatus.RecvMonitor.Start,
+		}
+
+		if err := p.Insert(n.ChanID); err != nil {
+			log.Printf("CreatePeers p:%+v, err:%s", v, err.Error())
 		}
 	}
 

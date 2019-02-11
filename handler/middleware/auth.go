@@ -6,8 +6,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/service"
-	"github.com/QOSGroup/qmoon/service/account"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -41,7 +41,7 @@ func ApiAuthGin() func(c *gin.Context) {
 			return
 		}
 
-		app, err := account.AppBySecretKey(a)
+		app, err := models.AppBySecretKey(a)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusOK, types.RPCForbiddenError("", errors.New("invalid Authorization")))
 			return
@@ -58,13 +58,13 @@ func ApiAuthGin() func(c *gin.Context) {
 	}
 }
 
-func GetUserFromRequest(c *gin.Context) (*account.Account, error) {
+func GetUserFromRequest(c *gin.Context) (*models.Account, error) {
 	d, ok := c.Get(types.AuthUserKey)
 	if !ok {
 		return nil, errors.New("服务异常")
 	}
 
-	acc, ok := d.(*account.Account)
+	acc, ok := d.(*models.Account)
 	if !ok {
 		return nil, errors.New("服务异常")
 	}
@@ -72,13 +72,13 @@ func GetUserFromRequest(c *gin.Context) (*account.Account, error) {
 	return acc, nil
 }
 
-func GetAppFromRequest(c *gin.Context) (*account.App, error) {
+func GetAppFromRequest(c *gin.Context) (*models.App, error) {
 	d, ok := c.Get(types.AuthAppKey)
 	if !ok {
 		return nil, errors.New("服务异常")
 	}
 
-	app, ok := d.(*account.App)
+	app, ok := d.(*models.App)
 	if !ok {
 		return nil, errors.New("服务异常")
 	}
