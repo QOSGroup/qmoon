@@ -13,12 +13,33 @@ import (
 	amino "github.com/tendermint/go-amino"
 )
 
+type Route struct {
+	Route  string `json:"route"`
+	Hidden bool   `json:"hidden"`
+}
+
+var defaultRoute = []Route{
+	{
+		Route:  "ResultBlockBase",
+		Hidden: false,
+	},
+	{
+		Route:  "Validtor",
+		Hidden: false,
+	},
+	{
+		Route:  "Node",
+		Hidden: false,
+	},
+}
+
 type Node struct {
-	Name      string `json:"name"`    // name
-	BaseURL   string `json:"baseUrl"` // base_url
-	SecretKey string `json:"-"`       // secret_key
-	ChanID    string `json:"chanId"`
-	NodeType  string `json:"nodeType"`
+	Name      string  `json:"name"`    // name
+	BaseURL   string  `json:"baseUrl"` // base_url
+	SecretKey string  `json:"-"`       // secret_key
+	ChanID    string  `json:"chanId"`
+	NodeType  string  `json:"nodeType"`
+	Routers   []Route `json:"routers"`
 }
 
 func (n Node) AppState(cdc *amino.Codec) (*qbasetypes.GenesisState, error) {
@@ -44,6 +65,7 @@ func covertToNode(mnt *models.Node) *Node {
 		SecretKey: mnt.SecretKey,
 		ChanID:    mnt.ChainId,
 		NodeType:  mnt.NodeType,
+		Routers:   defaultRoute,
 	}
 }
 
