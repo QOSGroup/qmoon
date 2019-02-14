@@ -11,8 +11,8 @@ import (
 	"github.com/QOSGroup/qmoon/service/syncer"
 )
 
-// SyncPeersLoop 同步peer节点信息
-func SyncPeersLoop() {
+// SyncAllNodePeer 同步peer节点信息
+func SyncAllNodePeer() {
 	wg := sync.WaitGroup{}
 
 	nodes, err := service.AllNodes()
@@ -32,7 +32,7 @@ func SyncPeersLoop() {
 		wg.Add(1)
 		go func(node *service.Node) {
 			defer wg.Done()
-			syncer.NewSyncer(v).Peer(ctx)
+			syncer.NewSyncer(node).Peer(ctx)
 		}(v)
 	}
 

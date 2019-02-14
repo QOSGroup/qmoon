@@ -13,7 +13,7 @@ import (
 
 var syncConsensusStateIsRunning bool
 
-func SyncAllConsensusState() {
+func SyncAllNodeConsensusState() {
 	if syncConsensusStateIsRunning {
 		return
 	}
@@ -42,7 +42,7 @@ func SyncAllConsensusState() {
 		wg.Add(1)
 		go func(node *service.Node) {
 			defer wg.Done()
-			syncer.NewSyncer(v).ConsensusState(ctx)
+			syncer.NewSyncer(node).ConsensusState(ctx)
 		}(v)
 	}
 

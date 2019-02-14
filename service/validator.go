@@ -7,14 +7,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	qostypes "github.com/QOSGroup/qos/types"
 )
 
-func convertToValidator(bv *models.Validator) *types.Validator {
+func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validator {
 	statusStr := "Active"
 	if bv.Status != 0 {
 		statusStr = "Inactive"
@@ -36,11 +35,17 @@ func convertToValidator(bv *models.Validator) *types.Validator {
 		InactiveTime:     bv.InactiveTime,
 		InactiveHeight:   bv.InactiveHeight,
 		BondHeight:       bv.BondHeight,
+		PrecommitNum:     bv.PrecommitNum,
+		Uptime:           fmt.Sprintf("%.2f%%", float64(bv.PrecommitNum*10000/(latestHeight-bv.FirstBlockHeight))/100.00),
 	}
 }
 
 // Validators 查询链所有的validator
 func (n Node) Validators() (types.Validators, error) {
+	latest, err := n.LatestBlock()
+	if err != nil {
+		return nil, err
+	}
 	mvs, err := models.Validators(n.ChanID)
 	if err != nil {
 		return nil, err
@@ -52,7 +57,7 @@ func (n Node) Validators() (types.Validators, error) {
 		if int8(v.Status) == types.Active {
 			totoal += v.VotingPower
 		}
-		res = append(res, *convertToValidator(v))
+		res = append(res, *convertToValidator(v, latest.Height))
 	}
 
 	for i := 0; i < len(res); i++ {
@@ -80,21 +85,27 @@ func (n Node) retrieveValidator(address string) (*models.Validator, error) {
 
 // RetrieveValidator 单个查询
 func (n Node) RetrieveValidator(address string) (*types.Validator, error) {
+	latest, err := n.LatestBlock()
+	if err != nil {
+		return nil, err
+	}
+
 	mv, err := n.retrieveValidator(address)
 	if err != nil {
 		return nil, err
 	}
 
-	return convertToValidator(mv), nil
+	return convertToValidator(mv, latest.Height), nil
 }
 
-func (n Node) UpdateValidatorFirstBlock(address string, height int64, t time.Time) error {
+func (n Node) UpdateValidatorBlock(address string, height int64, t time.Time) error {
 	mv, err := n.retrieveValidator(address)
 	if err != nil {
 		mv = &models.Validator{
 			Address:          address,
 			FirstBlockHeight: height,
 			FirstBlockTime:   t,
+			PrecommitNum:     1,
 		}
 
 		if err := mv.Insert(n.ChanID); err != nil {
@@ -104,9 +115,13 @@ func (n Node) UpdateValidatorFirstBlock(address string, height int64, t time.Tim
 		if mv.FirstBlockHeight == 0 {
 			mv.FirstBlockHeight = height
 			mv.FirstBlockTime = t
-			if err := mv.Update(n.ChanID); err != nil {
-				return err
-			}
+			mv.PrecommitNum = 1
+		} else {
+			mv.PrecommitNum = mv.PrecommitNum + 1
+		}
+
+		if err := mv.Update(n.ChanID); err != nil {
+			return err
 		}
 	}
 
@@ -169,17 +184,4 @@ func (n Node) CreateValidator(vl types.Validator) error {
 	}
 
 	return nil
-}
-
-// GetQOSValidator 同步最新的validator状态
-func (n Node) GetQOSValidator(cli *lib.TmClient, height int64, nodeType types.NodeType) ([]types.Validator, error) {
-	var result []types.Validator
-	var err error
-	if nodeType == types.NodeTypeQOS {
-		result, err = cli.QOSValidator(height)
-	} else {
-		result, err = cli.Validator(height)
-	}
-
-	return result, err
 }
