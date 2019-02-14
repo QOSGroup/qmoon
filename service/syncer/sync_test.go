@@ -16,9 +16,9 @@ func TestSyncBlockV2(t *testing.T) {
 	context.TODO()
 	//ctx, cancel := context.WithCancel(context.Background())
 	//ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Second*5))
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Second*1))
 	go s.Block(ctx)
 
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 3)
 	cancel()
 }
