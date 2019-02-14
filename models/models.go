@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -209,6 +208,7 @@ func databaseExist(db *sql.DB, dbName string) (bool, error) {
 	var count int
 	err := db.QueryRow(s).Scan(&count)
 
+	//fmt.Printf("databaseExist:%v, err:%v\n", count == 1, err)
 	if err != nil {
 		return false, err
 	}
@@ -222,6 +222,7 @@ func createDatabase(db *sql.DB, dbName string) error {
 
 	_, err := db.Query(s)
 
+	//fmt.Printf("createDatabase:%v, err:%v\n", dbName, err)
 	return err
 }
 
@@ -237,8 +238,9 @@ func dropDatabase(db *sql.DB, dbName string) error {
 	}
 
 	s := fmt.Sprintf("drop database %s;", dbName)
-	log.Print(s)
 	_, err = db.Query(s)
+
+	//fmt.Printf("dropDatabase:%v, err:%v\n", dbName, err)
 
 	return err
 }
@@ -271,7 +273,7 @@ func NewTestEngine(cfg *config.DBConfig) (*testEngine, error) {
 	}
 	te.db = db
 
-	dbCfg.Name = cfg.Database
+	dbCfg.Name = cfg.Database + fmt.Sprintf("%d", time.Now().UnixNano())
 	exist, err := databaseExist(te.db, dbCfg.Name)
 	if err != nil {
 		return nil, err
