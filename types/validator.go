@@ -35,6 +35,8 @@ type Validator struct {
 	InactiveHeight   int64                 `json:"inactiveHeight"`
 	BondHeight       int64                 `json:"bondHeight"`
 	Percent          string                `json:"percent"`
+	PrecommitNum     int64                 `json:"precommitNum"`
+	Uptime           string                `json:"uptime"`
 }
 
 type Validators []Validator

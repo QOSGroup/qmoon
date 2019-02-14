@@ -26,21 +26,30 @@ type Validator struct {
 	InactiveTimeUnix   int64
 	InactiveHeight     int64 `xorm:"BIGINT"`
 	BondHeight         int64 `xorm:"BIGINT"`
+	PrecommitNum       int64
 }
 
 func (val *Validator) BeforeInsert() {
-	val.FirstBlockTimeUnix = val.FirstBlockTime.Unix()
-	val.InactiveTimeUnix = val.InactiveTime.Unix()
+	if !val.FirstBlockTime.IsZero() {
+		val.FirstBlockTimeUnix = val.FirstBlockTime.Unix()
+	}
+	if !val.InactiveTime.IsZero() {
+		val.InactiveTimeUnix = val.InactiveTime.Unix()
+	}
 }
 
 func (val *Validator) BeforeUpdate() {
-	val.FirstBlockTimeUnix = val.FirstBlockTime.Unix()
-	val.InactiveTimeUnix = val.InactiveTime.Unix()
+	if !val.FirstBlockTime.IsZero() {
+		val.FirstBlockTimeUnix = val.FirstBlockTime.Unix()
+	}
+	if !val.InactiveTime.IsZero() {
+		val.InactiveTimeUnix = val.InactiveTime.Unix()
+	}
 }
 
 func (val *Validator) AfterSet(colName string, _ xorm.Cell) {
 	switch colName {
-	case "first_block_unix":
+	case "first_block_time_unix":
 		val.FirstBlockTime = time.Unix(val.FirstBlockTimeUnix, 0).Local()
 	case "inactive_time_unix":
 		val.InactiveTime = time.Unix(val.InactiveTimeUnix, 0).Local()

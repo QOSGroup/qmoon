@@ -11,6 +11,7 @@ import (
 	"github.com/QOSGroup/qmoon/handler"
 	"github.com/QOSGroup/qmoon/handler/hadmin"
 	"github.com/QOSGroup/qmoon/handler/hdata"
+	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/static"
 	"github.com/QOSGroup/qmoon/worker"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
@@ -73,7 +74,7 @@ func initRouter(r *gin.Engine) {
 
 	hdata.GinRegister(r)
 
-	//plugins.RegisterGin(r)
+	plugins.RegisterGin(r)
 }
 
 func runStaticServer(laddr, dir string) {
