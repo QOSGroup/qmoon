@@ -42,7 +42,7 @@ func SyncAllNodeValidator() {
 		wg.Add(1)
 		go func(node *service.Node) {
 			defer wg.Done()
-			syncer.NewSyncer(v).Validator(ctx)
+			syncer.NewSyncer(node).Validator(ctx)
 		}(v)
 	}
 

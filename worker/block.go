@@ -37,12 +37,12 @@ func SyncAllNodeBlock() {
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*4)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*1)
 	for _, v := range needSync {
 		wg.Add(1)
 		go func(node *service.Node) {
 			defer wg.Done()
-			syncer.NewSyncer(v).Block(ctx)
+			syncer.NewSyncer(node).Block(ctx)
 		}(v)
 	}
 

@@ -116,8 +116,8 @@ func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
 	}
 
 	for _, v := range vars {
-		if err := n.UpdateValidatorFirstBlock(v.ValidatorAddress, v.Height, v.Timestamp); err != nil {
-			log.Printf("UpdateValidatorFirstBlock err:%v", err.Error())
+		if err := n.UpdateValidatorBlock(v.ValidatorAddress, v.Height, v.Timestamp); err != nil {
+			log.Printf("UpdateValidatorBlock err:%v", err.Error())
 		}
 
 		if err := n.saveBlockValidator(v); err != nil {
