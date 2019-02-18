@@ -14,6 +14,7 @@ import (
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -136,14 +137,19 @@ func (s COSMOS) ValidatorLoop(ctx context.Context) error {
 		return nil
 	}
 	defer s.Unlock(LockTypeValidator)
+	var height int64 = 1
 
 	for {
 		time.Sleep(SyncValidator)
+		latest, err := s.node.LatestBlock()
+		if err == nil && latest != nil {
+			height = latest.Height + 1
+		}
 		select {
 		case <-ctx.Done():
 			return nil
 		default:
-			vals, err := s.tmcli.Validator(0)
+			vals, err := s.tmcli.Validator(height)
 			if err != nil {
 				return err
 			}
@@ -151,6 +157,7 @@ func (s COSMOS) ValidatorLoop(ctx context.Context) error {
 			for _, val := range vals {
 				s.node.CreateValidator(val)
 			}
+			metric.ValidatorVotingPower(vals)
 
 			valMap := make(map[string]types.Validator)
 			for _, v := range vals {
