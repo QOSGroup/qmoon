@@ -1,10 +1,11 @@
 module github.com/QOSGroup/qmoon
 
 require (
-	github.com/QOSGroup/kepler v0.0.0-20181213103916-3ca96737c8d5
-	github.com/QOSGroup/qbase v0.0.9
-	github.com/QOSGroup/qos v0.0.3
-	github.com/QOSGroup/qstars v0.4.1
+	github.com/QOSGroup/kepler v0.5.1-0.20190104094056-251fcf63614d
+	github.com/QOSGroup/qbase v0.0.10
+	github.com/QOSGroup/qos v0.0.4-0.20190108073207-1fc21c111f3a
+	github.com/QOSGroup/qstars v0.4.2-0.20190218090549-56b3698e3dbc
+	github.com/btcsuite/btcd v0.0.0-20181013004428-67e573d211ac // indirect
 	github.com/didip/tollbooth v4.0.0+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.0
 	github.com/gin-contrib/sse v0.0.0-20190125020943-a7658810eb74 // indirect
@@ -22,14 +23,15 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/pkg/errors v0.8.0
+	github.com/pkg/errors v0.8.1
 	github.com/robfig/cron v0.0.0-20180505203441-b41be1df6967
-	github.com/sirupsen/logrus v1.1.1
+	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.3
-	github.com/spf13/viper v1.2.1
-	github.com/stretchr/testify v1.2.2
-	github.com/tendermint/go-amino v0.12.0
-	github.com/tendermint/tendermint v0.23.1
+	github.com/spf13/viper v1.3.1
+	github.com/stretchr/testify v1.3.0
+	github.com/tendermint/btcd v0.1.1 // indirect
+	github.com/tendermint/go-amino v0.14.1
+	github.com/tendermint/tendermint v0.27.4
 	github.com/tidwall/gjson v1.1.5
 	github.com/tidwall/match v1.0.1 // indirect
 	github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43 // indirect

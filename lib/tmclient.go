@@ -71,7 +71,6 @@ func convertQSCValidator(chainID string, val tmtypes.Validator) types.Validator 
 		Address:     val.Address.String(),
 		PubKeyValue: val.PubKey.Address().String(),
 		VotingPower: val.VotingPower,
-		Accum:       val.Accum,
 	}
 }
 
@@ -98,8 +97,8 @@ func (tc *TmClient) QOSValidator(height int64) ([]types.Validator, error) {
 	}
 
 	opt := client.ABCIQueryOptions{
-		Height:  height,
-		Trusted: true,
+		Height: height,
+		Prove:  true,
 	}
 	path := "/store/validator/subspace"
 	resp, err := tc.ABCIQueryWithOptions(path, validatorKey, opt)
@@ -113,7 +112,7 @@ func (tc *TmClient) QOSValidator(height int64) ([]types.Validator, error) {
 	}
 
 	var vKVPair []store.KVPair
-	if err := Cdc.UnmarshalBinary(valueBz, &vKVPair); err != nil {
+	if err := Cdc.UnmarshalBinaryBare(valueBz, &vKVPair); err != nil {
 		return nil, err
 	}
 	for _, kv := range vKVPair {

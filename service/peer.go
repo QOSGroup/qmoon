@@ -42,12 +42,12 @@ func (n Node) Peers() (*types.ResultPeers, error) {
 func (n Node) CreatePeers(peers []tmtypes.Peer) error {
 	for _, v := range peers {
 		p := &models.Peer{
-			Moniker:    v.Moniker,
-			PeerID:     string(v.ID),
-			ListenAddr: v.ListenAddr,
-			Network:    v.Network,
-			Version:    v.Version,
-			Channels:   v.Channels.String(),
+			Moniker:    v.NodeInfo.Moniker,
+			PeerID:     string(v.NodeInfo.ID()),
+			ListenAddr: v.NodeInfo.ListenAddr,
+			Network:    v.NodeInfo.Network,
+			Version:    v.NodeInfo.Version,
+			Channels:   v.NodeInfo.Channels.String(),
 			SendStart:  v.ConnectionStatus.SendMonitor.Start,
 			RecvStart:  v.ConnectionStatus.RecvMonitor.Start,
 		}

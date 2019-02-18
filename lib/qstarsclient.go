@@ -31,7 +31,7 @@ func NewQstarsClient(nodeURI string) *QstarsClient {
 	}
 	qc = &QstarsClient{}
 	cdc := MakeCodec()
-	qc.c = qstarscontext.NewCLIContext1(nodeURI).
+	qc.c = qstarscontext.NewCLIContext1(nodeURI, "", "").
 		WithCodec(cdc).
 		WithLogger(os.Stdout)
 	qc.cdc = cdc
