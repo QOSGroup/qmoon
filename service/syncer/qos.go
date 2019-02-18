@@ -16,6 +16,7 @@ import (
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/hashicorp/go-version"
@@ -218,9 +219,14 @@ func (s QOS) ValidatorLoop(ctx context.Context) error {
 		return nil
 	}
 	defer s.Unlock(LockTypeValidator)
+	var height int64 = 1
 
 	for {
 		time.Sleep(SyncValidator)
+		latest, err := s.node.LatestBlock()
+		if err == nil && latest != nil {
+			height = latest.Height + 1
+		}
 		select {
 		case <-ctx.Done():
 			return nil
@@ -228,9 +234,9 @@ func (s QOS) ValidatorLoop(ctx context.Context) error {
 			var vals []types.Validator
 			var err error
 			if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
-				vals, err = s.tmcli.QOSValidator(0)
+				vals, err = s.tmcli.QOSValidator(height)
 			} else {
-				vals, err = s.tmcli.QOSValidatorV0_0_4(0)
+				vals, err = s.tmcli.QOSValidatorV0_0_4(height)
 			}
 			if err != nil {
 				time.Sleep(time.Second)
@@ -240,6 +246,8 @@ func (s QOS) ValidatorLoop(ctx context.Context) error {
 			for _, val := range vals {
 				s.node.CreateValidator(val)
 			}
+
+			metric.ValidatorVotingPower(vals)
 
 			valMap := make(map[string]types.Validator)
 			for _, v := range vals {
