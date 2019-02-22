@@ -57,7 +57,7 @@ func RetrieveConsensusState(chainID string) (*ConsensusState, error) {
 	}
 
 	if !has {
-		return nil, errors.NotExist{Obj: "ConsensusState"}
+		return nil, errors.NotExist{Obj: "ConsensusStateLoop"}
 	}
 
 	return cs, nil

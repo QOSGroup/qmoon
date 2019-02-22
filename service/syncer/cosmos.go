@@ -4,20 +4,19 @@ package syncer
 
 import (
 	"context"
+	"encoding/hex"
+	"encoding/json"
 	"log"
+	"strings"
 	"time"
 
-	qbasetxs "github.com/QOSGroup/qbase/txs"
-	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
-	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
-	qosapprove "github.com/QOSGroup/qos/txs/approve"
-	"github.com/tidwall/gjson"
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type COSMOS struct {
@@ -25,10 +24,20 @@ type COSMOS struct {
 	tmcli *lib.TmClient
 }
 
-// Block 同步块
-func (s COSMOS) Block(ctx context.Context) error {
+func (s COSMOS) Block(b types.Block) error {
+	return s.block(&b)
+}
+func (s COSMOS) Validator(val types.Validators) error {
+	return nil
+}
+func (s COSMOS) ConsensusState(cs types.ResultConsensusState) error {
+	return nil
+}
+
+// BlockLoop 同步块
+func (s COSMOS) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {
-		log.Printf("[Sync] Block %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] BlockLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
 	defer s.Unlock(LockTypeBlock)
@@ -38,13 +47,20 @@ func (s COSMOS) Block(ctx context.Context) error {
 	if err == nil && latest != nil {
 		height = latest.Height + 1
 	}
+	log.Printf("[Sync] block start:%d", height)
 
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
 		default:
-			if err := s.block(height); err != nil {
+			b, err := s.tmcli.RetrieveBlock(&height)
+			if err != nil {
+				time.Sleep(time.Second)
+				continue
+			}
+
+			if err := s.block(b); err != nil {
 				time.Sleep(time.Second)
 				continue
 			}
@@ -56,111 +72,66 @@ func (s COSMOS) Block(ctx context.Context) error {
 }
 
 // block
-func (s COSMOS) block(height int64) error {
-	b, err := s.tmcli.RetrieveBlock(&height)
+func (s COSMOS) block(b *types.Block) error {
+	err := s.node.CreateBlock(b)
 	if err != nil {
 		return err
 	}
 
-	err = s.node.CreateBlock(b)
-	if err != nil {
-		return err
-	}
-
-	err = s.tx(b)
-	// TODO delete block
-
-	err = s.node.SaveBlockValidator(b.Precommits)
-	// TODO delete block and tx
+	s.tx(b)
+	s.node.SaveBlockValidator(b.Precommits)
 
 	return nil
 }
 
 func (s COSMOS) tx(b *types.Block) error {
-	cdc := lib.COSMOSCdc
-
-	for k, v := range b.Txs {
-		qbasetx, err := qbasetypes.DecoderTx(cdc, v)
-		if err != nil {
-			return err
-		}
-
-		mt := &models.Tx{}
-		mt.Height = b.Header.Height
-		mt.Index = int64(k)
-		mt.OriginTx = utils.Base64En(v)
-		mt.Time = b.Header.Time
-		mt.TxStatus = int(s.tmcli.RetrieveTxResult(v))
-
-		if err := parseCOSMOSTx(b.Header, qbasetx, mt); err != nil {
-			return err
-		}
-
-		if err := mt.Insert(s.node.ChanID); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func parseCOSMOSTx(blockHeader types.BlockHeader, t qbasetypes.Tx, mt *models.Tx) error {
-	var std *qbasetxs.TxStd
-	switch implTx := t.(type) {
-	case *qbasetxs.TxStd:
-		std = implTx
-	case *qbasetxs.TxQcp:
-		mt.QcpFrom = implTx.From
-		mt.QcpTo = implTx.To
-		mt.QcpSequence = implTx.Sequence
-		mt.QcpTxindex = implTx.TxIndex
-		mt.QcpIsresult = implTx.IsResult
-		std = implTx.TxStd
-	default:
-		mt.TxType = t.Type()
+	if len(b.Txs) == 0 {
+		return nil
 	}
 
-	mt.Maxgas = std.MaxGas.Int64()
-
-	if err := parseCOSMOSITx(blockHeader, std.ITx, mt); err != nil {
-		return err
+	var txs []string
+	for _, v := range b.Txs {
+		txs = append(txs, utils.Base64En(v))
 	}
-
-	if mt.TxType == "Unknown" {
-		mt.TxType = t.Type()
-	}
-
-	return nil
-}
-
-func parseCOSMOSITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) error {
-	cdc := lib.COSMOSCdc
-	d, err := cdc.MarshalJSON(t)
+	txres, err := lib.NewCosmosCli("").Txs(txs)
 	if err != nil {
 		return err
 	}
-	mt.JsonTx = string(d)
 
-	switch t.(type) {
-	case *qosapprove.TxCancelApprove:
-		mt.TxType = "ApproveCancelTx"
-	default:
-		typeInJson := gjson.Get(string(d), "type")
-		if typeInJson.Exists() {
-			mt.TxType = typeInJson.String()
-		} else {
-			mt.TxType = "Unknown"
+	for k, v := range txres {
+		var txTypes []string
+		for _, tt := range v.Txs {
+			txTypes = append(txTypes, tt.Type)
+		}
+		hash := tmtypes.Tx(b.Txs[k]).Hash()
+		mt := &models.Tx{}
+		mt.Height = b.Header.Height
+		mt.Index = int64(k)
+		mt.Hash = strings.ToUpper(hex.EncodeToString(hash))
+		mt.TxType = strings.Join(txTypes, ";")
+		mt.OriginTx = txs[k]
+		if d, err := json.Marshal(v.Txs); err == nil {
+			mt.JsonTx = string(d)
+		}
+		mt.Time = b.Header.Time
+
+		txResult, err := s.tmcli.RetrieveTx(hash)
+		if err == nil {
+			mt.TxStatus = int(txResult.TxStatus)
+			mt.GasWanted = txResult.GasWanted
+			mt.GasUsed = txResult.GasUsed
+		}
+		if err := mt.Insert(s.node.ChanID); err != nil {
+			log.Printf("tx insert data:%+v, err:%v", mt, err.Error())
+			return err
 		}
 	}
-
-	name, err := plugins.Parse(blockHeader, t)
-	log.Printf("plugins.Parse name:%s, err:%v", name, err)
-
 	return nil
 }
 
-func (s COSMOS) Validator(ctx context.Context) error {
+func (s COSMOS) ValidatorLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeValidator) {
-		log.Printf("[Sync] Validator %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ValidatorLoop %v err, has been locked.", s.node.ChanID)
 
 		return nil
 	}
@@ -202,9 +173,9 @@ func (s COSMOS) Validator(ctx context.Context) error {
 	return nil
 }
 
-func (s COSMOS) ConsensusState(ctx context.Context) error {
+func (s COSMOS) ConsensusStateLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeConsensusState) {
-		log.Printf("[Sync] ConsensusState %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
 
 		return nil
 	}
@@ -229,9 +200,9 @@ func (s COSMOS) ConsensusState(ctx context.Context) error {
 	return nil
 }
 
-func (s COSMOS) Peer(ctx context.Context) error {
+func (s COSMOS) PeerLoop(ctx context.Context) error {
 	if !s.Lock(LockTypePeer) {
-		log.Printf("[Sync] Peer %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
 	defer s.Unlock(LockTypePeer)
@@ -264,7 +235,6 @@ func (s COSMOS) Lock(key string) bool {
 
 	qs, err := models.RetrieveQmoonStatusByKey(key)
 	if err != nil {
-		log.Printf("Sync Lock err:%v", err.Error())
 		if errors.IsNotExist(err) {
 			qs = &models.QmoonStatus{
 				Key:   key,
@@ -284,6 +254,7 @@ func (s COSMOS) Lock(key string) bool {
 
 	qs.Value = SyncLocked
 	if err := qs.Update(); err != nil {
+		log.Printf("Sync Lock %s err:%v", key, err.Error())
 		return false
 	}
 
@@ -301,7 +272,7 @@ func (s COSMOS) Unlock(key string) bool {
 	qs.Value = SyncUnlocked
 
 	if err := qs.Update(); err != nil {
-		log.Printf("Sync Unlock err:%v", err.Error())
+		log.Printf("Sync Unlock %s err:%v", key, err.Error())
 
 		return false
 	}

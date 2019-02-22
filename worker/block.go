@@ -42,7 +42,7 @@ func SyncAllNodeBlock() {
 		wg.Add(1)
 		go func(node *service.Node) {
 			defer wg.Done()
-			syncer.NewSyncer(node).Block(ctx)
+			syncer.NewSyncer(node).BlockLoop(ctx)
 		}(v)
 	}
 

@@ -34,7 +34,7 @@ type BlockHeader struct {
 
 type Block struct {
 	Header     BlockHeader
-	Txs        []Tx
+	Txs        [][]byte
 	Precommits []*BlockValidator
 }
 
@@ -49,4 +49,15 @@ type BlockValidator struct {
 	Timestamp        time.Time `json:"timestamp"`
 	VotingPower      int64     `json:"voting_power"` // voting_power
 	Accum            int64     `json:"accum"`        // accum
+}
+
+type Tx struct {
+	Data      []byte   `json:"data"`
+	Hash      []byte   `json:"hash"`
+	Height    int64    `json:"height"`
+	Index     uint32   `json:"index"`
+	Code      uint32   `json:"code"`
+	TxStatus  TxStatus `json:"txStatus"`
+	GasWanted int64    `json:"gasWanted"`
+	GasUsed   int64    `json:"gasUsed"`
 }

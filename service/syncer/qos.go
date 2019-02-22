@@ -30,10 +30,20 @@ type QOS struct {
 	tmcli *lib.TmClient
 }
 
-// Block 同步块
-func (s QOS) Block(ctx context.Context) error {
+func (s QOS) Block(b types.Block) error {
+	return s.block(&b)
+}
+func (s QOS) Validator(val types.Validators) error {
+	return nil
+}
+func (s QOS) ConsensusState(cs types.ResultConsensusState) error {
+	return nil
+}
+
+// BlockLoop 同步块
+func (s QOS) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {
-		log.Printf("[Sync] QOS Block %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] QOS BlockLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
 	defer s.Unlock(LockTypeBlock)
@@ -49,7 +59,12 @@ func (s QOS) Block(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		default:
-			if err := s.block(height); err != nil {
+			b, err := s.tmcli.RetrieveBlock(&height)
+			if err != nil {
+				return err
+			}
+
+			if err := s.block(b); err != nil {
 				time.Sleep(time.Second)
 				continue
 			}
@@ -61,13 +76,8 @@ func (s QOS) Block(ctx context.Context) error {
 }
 
 // block
-func (s QOS) block(height int64) error {
-	b, err := s.tmcli.RetrieveBlock(&height)
-	if err != nil {
-		return err
-	}
-
-	err = s.node.CreateBlock(b)
+func (s QOS) block(b *types.Block) error {
+	err := s.node.CreateBlock(b)
 	if err != nil {
 		return err
 	}
@@ -189,9 +199,9 @@ func parseQosITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) e
 	return nil
 }
 
-func (s QOS) Validator(ctx context.Context) error {
+func (s QOS) ValidatorLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeValidator) {
-		log.Printf("[Sync] Validator %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ValidatorLoop %v err, has been locked.", s.node.ChanID)
 
 		return nil
 	}
@@ -233,9 +243,9 @@ func (s QOS) Validator(ctx context.Context) error {
 	return nil
 }
 
-func (s QOS) ConsensusState(ctx context.Context) error {
+func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeConsensusState) {
-		log.Printf("[Sync] ConsensusState %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
 
 		return nil
 	}
@@ -260,9 +270,9 @@ func (s QOS) ConsensusState(ctx context.Context) error {
 	return nil
 }
 
-func (s QOS) Peer(ctx context.Context) error {
+func (s QOS) PeerLoop(ctx context.Context) error {
 	if !s.Lock(LockTypePeer) {
-		log.Printf("[Sync] Peer %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
 	defer s.Unlock(LockTypePeer)

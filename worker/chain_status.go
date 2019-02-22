@@ -42,7 +42,7 @@ func SyncAllNodeConsensusState() {
 		wg.Add(1)
 		go func(node *service.Node) {
 			defer wg.Done()
-			syncer.NewSyncer(node).ConsensusState(ctx)
+			syncer.NewSyncer(node).ConsensusStateLoop(ctx)
 		}(v)
 	}
 

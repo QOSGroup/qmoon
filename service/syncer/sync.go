@@ -33,10 +33,15 @@ const (
 
 // Syncer
 type Syncer interface {
-	Block(ctx context.Context) error
-	Validator(ctx context.Context) error
-	ConsensusState(ctx context.Context) error
-	Peer(ctx context.Context) error
+	Block(b types.Block) error
+	Validator(val types.Validators) error
+	ConsensusState(cs types.ResultConsensusState) error
+	//Peer(p types.ResultPeer) error
+
+	BlockLoop(ctx context.Context) error
+	ValidatorLoop(ctx context.Context) error
+	ConsensusStateLoop(ctx context.Context) error
+	PeerLoop(ctx context.Context) error
 
 	Lock(key string) bool
 	Unlock(key string) bool

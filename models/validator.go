@@ -96,7 +96,7 @@ func ValidatorByAddress(chainID, address string) (*Validator, error) {
 	}
 
 	if !has {
-		return nil, errors.NotExist{Obj: "Validator"}
+		return nil, errors.NotExist{Obj: "ValidatorLoop"}
 	}
 
 	return val, nil

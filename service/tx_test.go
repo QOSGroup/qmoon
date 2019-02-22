@@ -78,13 +78,13 @@ func testSend(t *testing.T) {
 }
 
 func TestSave(t *testing.T) {
-	//b, err := tmcli.NewClient(nil).Block.Retrieve(nil, nil)
+	//b, err := tmcli.NewClient(nil).BlockLoop.Retrieve(nil, nil)
 	//assert.Nil(t, err)
 	//err = Save(b)
 	//t.Logf("-----:%+v", err)
 	//assert.Nil(t, err)
 	//
-	//mt, err := model.TxesByChainIDHeight(db.Db, utils.NullString(b.Block.ChainID), utils.NullInt64(b.Block.Height))
+	//mt, err := model.TxesByChainIDHeight(db.Db, utils.NullString(b.BlockLoop.ChainID), utils.NullInt64(b.BlockLoop.Height))
 	//assert.Nil(t, err)
 	//assert.Equal(t, "TransferTx", mt[0].TxType.String)
 }

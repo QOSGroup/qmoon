@@ -8,12 +8,15 @@ import (
 )
 
 type Tx struct {
-	Id          int64     `xorm:"pk autoincr BIGINT"`
-	ChainId     string    `xorm:"-"`
-	Height      int64     `xorm:"index(txs_height_idx) unique(txs_height_index_idx) BIGINT"`
-	TxType      string    `xorm:"TEXT"`
-	Index       int64     `xorm:"unique(txs_height_index_idx) BIGINT"`
-	Maxgas      int64     `xorm:"BIGINT"`
+	Id          int64  `xorm:"pk autoincr BIGINT"`
+	ChainId     string `xorm:"-"`
+	Height      int64  `xorm:"index(txs_height_idx) unique(txs_height_index_idx) BIGINT"`
+	TxType      string `xorm:"TEXT"`
+	Index       int64  `xorm:"unique(txs_height_index_idx) BIGINT"`
+	Hash        string
+	Maxgas      int64 `xorm:"BIGINT"`
+	GasWanted   int64
+	GasUsed     int64
 	QcpFrom     string    `xorm:"TEXT"`
 	QcpTo       string    `xorm:"TEXT"`
 	QcpSequence int64     `xorm:"BIGINT"`

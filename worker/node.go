@@ -32,7 +32,7 @@ func SyncAllNodePeer() {
 		wg.Add(1)
 		go func(node *service.Node) {
 			defer wg.Done()
-			syncer.NewSyncer(node).Peer(ctx)
+			syncer.NewSyncer(node).PeerLoop(ctx)
 		}(v)
 	}
 

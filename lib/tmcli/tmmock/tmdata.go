@@ -3903,7 +3903,7 @@ var mockdata = map[string]string{
             "value": "8pfpbIxBBiu88hpxS3CeRpv7kClEjl8SwVgckDNBGlE="
           },
           "power": "850",
-          "name": "Staking Facilities Validator"
+          "name": "Staking Facilities ValidatorLoop"
         },
         {
           "pub_key": {
@@ -4079,7 +4079,7 @@ var mockdata = map[string]string{
             "value": "MfyCioP9/yGlqUcwnL/ENi23RKPBm1O1wum1DUUUYT8="
           },
           "power": "56",
-          "name": "Bity Validator"
+          "name": "Bity ValidatorLoop"
         },
         {
           "pub_key": {
@@ -4303,7 +4303,7 @@ var mockdata = map[string]string{
             "value": "UjTvuOew2EaooduJBiYmBWeF5ai0yFJG8uio5YXpJgg="
           },
           "power": "135",
-          "name": "P2P.ORG Validator"
+          "name": "P2P.ORG ValidatorLoop"
         },
         {
           "pub_key": {
@@ -4671,7 +4671,7 @@ var mockdata = map[string]string{
             "value": "P9RgE4RMQT/aHap2oICpwpgKeBAwxPUwuU9zIffKFNM="
           },
           "power": "1231",
-          "name": "Nylira Validator"
+          "name": "Nylira ValidatorLoop"
         },
         {
           "pub_key": {
@@ -4687,7 +4687,7 @@ var mockdata = map[string]string{
             "value": "DsTbM0AgHfhSUKvOGkxudDOY3ojYT6bifhpelqHs8+s="
           },
           "power": "100",
-          "name": "BFF-Validator-7000"
+          "name": "BFF-ValidatorLoop-7000"
         },
         {
           "pub_key": {
@@ -8635,7 +8635,7 @@ var mockdata = map[string]string{
             "address": "cosmosaccaddr1lhjta6nt0lewj05m8444tuyhalkrffgpm7njpp",
             "coins": [
               {
-                "denom": "BFF-Validator-7000Token",
+                "denom": "BFF-ValidatorLoop-7000Token",
                 "amount": "1000"
               },
               {
@@ -8740,7 +8740,7 @@ var mockdata = map[string]string{
               "tokens": "99",
               "delegator_shares": "110",
               "description": {
-                "moniker": "AT-Validator",
+                "moniker": "AT-ValidatorLoop",
                 "identity": "[do-not-modify]",
                 "website": "[do-not-modify]",
                 "details": "[do-not-modify]"
@@ -8868,7 +8868,7 @@ var mockdata = map[string]string{
                 "moniker": "sentinel.co",
                 "identity": "[do-not-modify]",
                 "website": "[do-not-modify]",
-                "details": "Sentinel Validator 1 on gaia-7005"
+                "details": "Sentinel ValidatorLoop 1 on gaia-7005"
               },
               "bond_height": "0",
               "bond_intra_tx_counter": 0,
@@ -8965,7 +8965,7 @@ var mockdata = map[string]string{
               "tokens": "850",
               "delegator_shares": "850",
               "description": {
-                "moniker": "Staking Facilities Validator",
+                "moniker": "Staking Facilities ValidatorLoop",
                 "identity": "6B0DF6793DE1FB1F",
                 "website": "http://stakingfacilities.com/cosmos",
                 "details": "Hello Cosmos"
@@ -9343,7 +9343,7 @@ var mockdata = map[string]string{
                 "moniker": "Mythos",
                 "identity": "2E9FDF34351A5112",
                 "website": "https://mythos.services/",
-                "details": "Validator run by Mythos"
+                "details": "ValidatorLoop run by Mythos"
               },
               "bond_height": "0",
               "bond_intra_tx_counter": 0,
@@ -9368,7 +9368,7 @@ var mockdata = map[string]string{
                 "moniker": "Cosmodator-7000",
                 "identity": "",
                 "website": "https://cosmodator.io",
-                "details": "Blockchain Cosmo Validator"
+                "details": "Blockchain Cosmo ValidatorLoop"
               },
               "bond_height": "0",
               "bond_intra_tx_counter": 0,
@@ -9915,7 +9915,7 @@ var mockdata = map[string]string{
               "tokens": "56",
               "delegator_shares": "56",
               "description": {
-                "moniker": "Bity Validator",
+                "moniker": "Bity ValidatorLoop",
                 "identity": "[do-not-modify]",
                 "website": "[do-not-modify]",
                 "details": "[do-not-modify]"
@@ -10043,7 +10043,7 @@ var mockdata = map[string]string{
                 "moniker": "Umbrella",
                 "identity": "A530AC4D75991FE2",
                 "website": "",
-                "details": "Umbrella Validator"
+                "details": "Umbrella ValidatorLoop"
               },
               "bond_height": "0",
               "bond_intra_tx_counter": 0,
@@ -10865,7 +10865,7 @@ var mockdata = map[string]string{
               "tokens": "135",
               "delegator_shares": "150",
               "description": {
-                "moniker": "P2P.ORG Validator",
+                "moniker": "P2P.ORG ValidatorLoop",
                 "identity": "",
                 "website": "",
                 "details": ""
@@ -12415,7 +12415,7 @@ var mockdata = map[string]string{
               "tokens": "18",
               "delegator_shares": "20",
               "description": {
-                "moniker": "0xMrManlu-Validator",
+                "moniker": "0xMrManlu-ValidatorLoop",
                 "identity": "[do-not-modify]",
                 "website": "[do-not-modify]",
                 "details": "[do-not-modify]"
@@ -12990,7 +12990,7 @@ var mockdata = map[string]string{
               "tokens": "1231",
               "delegator_shares": "1231",
               "description": {
-                "moniker": "Nylira Validator",
+                "moniker": "Nylira ValidatorLoop",
                 "identity": "6A0D65E29A4CBC8E",
                 "website": "https://nylira.net",
                 "details": "Peng Zhong \u003cCDO of Tendermint\u003e"
@@ -13040,7 +13040,7 @@ var mockdata = map[string]string{
               "tokens": "100",
               "delegator_shares": "100",
               "description": {
-                "moniker": "BFF-Validator-7000",
+                "moniker": "BFF-ValidatorLoop-7000",
                 "identity": "",
                 "website": "https://blockchain-friendly-family.io",
                 "details": "Friendly blockchain"
