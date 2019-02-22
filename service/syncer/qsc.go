@@ -30,10 +30,20 @@ type QSC struct {
 	tmcli *lib.TmClient
 }
 
-// Block 同步块
-func (s QSC) Block(ctx context.Context) error {
+func (s QSC) Block(b types.Block) error {
+	return s.block(&b)
+}
+func (s QSC) Validator(val types.Validators) error {
+	return nil
+}
+func (s QSC) ConsensusState(cs types.ResultConsensusState) error {
+	return nil
+}
+
+// BlockLoop 同步块
+func (s QSC) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {
-		log.Printf("[Sync] Block %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] BlockLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
 	defer s.Unlock(LockTypeBlock)
@@ -49,7 +59,13 @@ func (s QSC) Block(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		default:
-			if err := s.block(height); err != nil {
+			b, err := s.tmcli.RetrieveBlock(&height)
+			if err != nil {
+				time.Sleep(time.Second)
+				continue
+			}
+
+			if err := s.block(b); err != nil {
 				time.Sleep(time.Second)
 				continue
 			}
@@ -61,13 +77,8 @@ func (s QSC) Block(ctx context.Context) error {
 }
 
 // block
-func (s QSC) block(height int64) error {
-	b, err := s.tmcli.RetrieveBlock(&height)
-	if err != nil {
-		return err
-	}
-
-	err = s.node.CreateBlock(b)
+func (s QSC) block(b *types.Block) error {
+	err := s.node.CreateBlock(b)
 	if err != nil {
 		return err
 	}
@@ -189,9 +200,9 @@ func parseQscITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) e
 	return nil
 }
 
-func (s QSC) Validator(ctx context.Context) error {
+func (s QSC) ValidatorLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeValidator) {
-		log.Printf("[Sync] Validator %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ValidatorLoop %v err, has been locked.", s.node.ChanID)
 
 		return nil
 	}
@@ -233,9 +244,9 @@ func (s QSC) Validator(ctx context.Context) error {
 	return nil
 }
 
-func (s QSC) ConsensusState(ctx context.Context) error {
+func (s QSC) ConsensusStateLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeConsensusState) {
-		log.Printf("[Sync] ConsensusState %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
 
 		return nil
 	}
@@ -260,9 +271,9 @@ func (s QSC) ConsensusState(ctx context.Context) error {
 	return nil
 }
 
-func (s QSC) Peer(ctx context.Context) error {
+func (s QSC) PeerLoop(ctx context.Context) error {
 	if !s.Lock(LockTypePeer) {
-		log.Printf("[Sync] Peer %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
 	defer s.Unlock(LockTypePeer)

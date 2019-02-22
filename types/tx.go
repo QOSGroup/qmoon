@@ -2,8 +2,6 @@
 
 package types
 
-import "github.com/tendermint/tendermint/crypto/tmhash"
-
 type TxStatus int
 
 const (
@@ -29,8 +27,4 @@ func (ts TxStatus) String() string {
 	}
 }
 
-type Tx []byte
-
-func (t Tx) Hash() []byte {
-	return tmhash.Sum(t)
-}
+type TxByte []byte

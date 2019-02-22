@@ -4,6 +4,7 @@ package lib
 
 import (
 	"errors"
+	"log"
 	"sync"
 
 	"github.com/QOSGroup/qbase/store"
@@ -47,6 +48,29 @@ func (tc *TmClient) RetrieveTxResult(tx []byte) types.TxStatus {
 	} else {
 		return types.TxStatusFaild
 	}
+}
+
+func (tc *TmClient) RetrieveTx(txHash []byte) (*types.Tx, error) {
+	var result types.Tx
+	res, err := tc.Tx(txHash, true)
+	if err != nil {
+		log.Printf("TmClient err:%v", err)
+		return nil, err
+	}
+
+	result.Hash = res.Hash.Bytes()
+	result.Height = res.Height
+	result.Index = res.Index
+	result.Code = res.TxResult.Code
+	result.GasWanted = res.TxResult.GetGasWanted()
+	result.GasUsed = res.TxResult.GetGasUsed()
+	if res.TxResult.IsOK() {
+		result.TxStatus = types.TxStatusSuccess
+	} else {
+		result.TxStatus = types.TxStatusFaild
+	}
+
+	return &result, nil
 }
 
 func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator {
@@ -151,10 +175,9 @@ func (tc *TmClient) RetrieveBlock(height *int64) (*types.Block, error) {
 	}
 
 	result.Header = convertBlockHeader(block.BlockMeta.Header)
-	var txs []types.Tx
+	var txs [][]byte
 	for _, v := range block.Block.Txs {
-
-		txs = append(txs, []byte(v))
+		txs = append(txs, v)
 	}
 	result.Txs = txs
 
@@ -183,7 +206,7 @@ func parseVote(chainID string, v *tmtypes.Vote) *types.BlockValidator {
 	}
 }
 
-// Validator 同步最新的validator状态
+// ValidatorLoop 同步最新的validator状态
 func (tc *TmClient) Validator(height int64) ([]types.Validator, error) {
 	var result []types.Validator
 	if height <= 0 {

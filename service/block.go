@@ -9,7 +9,6 @@ import (
 
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"github.com/gin-gonic/gin/json"
 )
 
 func convertToBlock(mb *models.Block) *types.ResultBlockBase {
@@ -85,19 +84,6 @@ func (n Node) HasTxBlocks(minHeight, maxHeight int64) ([]*types.ResultBlockBase,
 }
 
 func (n Node) CreateBlock(b *types.Block) error {
-	d, err := json.Marshal(b)
-	if err != nil {
-		return err
-	}
-
-	tm := &models.TmBlock{
-		Height: b.Header.Height,
-		Data:   string(d),
-	}
-	if err := tm.Insert(n.ChanID); err != nil {
-		return err
-	}
-
 	block := &models.Block{}
 	block.Height = b.Header.Height
 	block.NumTxs = b.Header.NumTxs

@@ -26,18 +26,18 @@ func init() {
 
 func txParse(cmd *cobra.Command, args []string) error {
 	//tmc := lib.TendermintClient(nodeUrl)
-	//b, err := tmc.Block(&height)
+	//b, err := tmc.BlockLoop(&height)
 	//if err != nil {
 	//	return err
 	//}
 	//
-	//if b.Block.NumTxs == 0 {
+	//if b.BlockLoop.NumTxs == 0 {
 	//	fmt.Printf("没有交易\n")
 	//	return nil
 	//}
 	//
 	//cdc := lib.MakeCodec()
-	//for k, v := range b.Block.Data.Txs {
+	//for k, v := range b.BlockLoop.Data.Txs {
 	//	var tx cosmostypes.Msg
 	//	err := cdc.UnmarshalBinaryBare(v, &tx)
 	//	if err != nil {
