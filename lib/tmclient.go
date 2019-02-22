@@ -11,7 +11,6 @@ import (
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	qostypes "github.com/QOSGroup/qos/types"
-	"github.com/sirupsen/logrus"
 	"github.com/tendermint/tendermint/rpc/client"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
@@ -38,7 +37,6 @@ func (tc *TmClient) RetrieveTxResult(tx []byte) types.TxStatus {
 	txHash := tmtypes.Tx(tx).Hash()
 
 	res, err := tc.Tx(txHash, true)
-	logrus.Debugf("TmClient RetrieveTxResult tx:%v, res:%v, err:%v", txHash, res.TxResult.IsOK(), err)
 	if err != nil {
 		return types.TxStatusInit
 	}
