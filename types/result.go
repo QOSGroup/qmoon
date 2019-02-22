@@ -45,20 +45,17 @@ type ResultValidator struct {
 }
 
 type ResultTx struct {
-	ChainID     string          `json:"chain_id"`
-	Height      int64           `json:"height"`
-	Index       int64           `json:"index"`        // index
-	TxType      string          `json:"tx_type"`      // tx_type
-	Maxgas      int64           `json:"maxgas"`       // maxgas
-	QcpFrom     string          `json:"qcp_from"`     // qcp_from
-	QcpTo       string          `json:"qcp_to"`       // qcp_to
-	QcpSequence int64           `json:"qcp_sequence"` // qcp_sequence
-	QcpTxindex  int64           `json:"qcp_txindex"`  // qcp_txindex
-	QcpIsresult bool            `json:"qcp_isresult"` // qcp_isresult
-	TxStatus    string          `json:"txStatus"`
-	Data        json.RawMessage `json:"data"`       // data
-	Time        ResultTime      `json:"time"`       // time
-	CreatedAt   ResultTime      `json:"created_at"` // created_at
+	ChainID   string          `json:"chain_id"`
+	Hash      string          `json:"hash"`
+	Height    int64           `json:"height"`
+	Index     int64           `json:"index"`   // index
+	TxType    string          `json:"tx_type"` // tx_type
+	GasWanted int64           `json:"gas_wanted"`
+	GasUsed   int64           `json:"gas_used"`
+	TxStatus  string          `json:"tx_status"`
+	Data      json.RawMessage `json:"data"`       // data
+	Time      ResultTime      `json:"time"`       // time
+	CreatedAt ResultTime      `json:"created_at"` // created_at
 }
 
 // ResultBlockBase 块信息

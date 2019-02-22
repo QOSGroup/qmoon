@@ -11,19 +11,16 @@ import (
 
 func convertToTx(mt *models.Tx) *types.ResultTx {
 	return &types.ResultTx{
-		ChainID:     mt.ChainId,
-		Height:      mt.Height,
-		Index:       mt.Index,
-		TxType:      mt.TxType,
-		Maxgas:      mt.Maxgas,
-		QcpFrom:     mt.QcpFrom,
-		QcpTo:       mt.QcpTo,
-		QcpSequence: mt.QcpSequence,
-		QcpTxindex:  mt.QcpTxindex,
-		QcpIsresult: mt.QcpIsresult,
-		Data:        []byte(mt.JsonTx),
-		Time:        types.ResultTime(mt.Time),
-		TxStatus:    types.TxStatus(mt.TxStatus).String(),
+		ChainID:   mt.ChainId,
+		Hash:      mt.Hash,
+		Height:    mt.Height,
+		Index:     mt.Index,
+		TxType:    mt.TxType,
+		GasWanted: mt.GasWanted,
+		GasUsed:   mt.GasUsed,
+		Data:      []byte(mt.JsonTx),
+		Time:      types.ResultTime(mt.Time),
+		TxStatus:  types.TxStatus(mt.TxStatus).String(),
 	}
 }
 
