@@ -3,6 +3,8 @@
 package service
 
 import (
+	"strings"
+
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 )
@@ -61,6 +63,16 @@ func (n Node) Txs(minHeight, maxHeight int64) ([]*types.ResultTx, error) {
 // Search 交易查询
 func (n Node) Tx(height, index int64) (*types.ResultTx, error) {
 	mt, err := models.TxByHeightIndex(n.ChanID, height, index)
+	if err != nil {
+		return nil, err
+	}
+
+	return convertToTx(mt), err
+}
+
+// Search 交易查询
+func (n Node) TxByHash(hash string) (*types.ResultTx, error) {
+	mt, err := models.TxByHash(n.ChanID, strings.ToUpper(hash))
 	if err != nil {
 		return nil, err
 	}
