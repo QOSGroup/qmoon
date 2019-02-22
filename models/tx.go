@@ -106,3 +106,22 @@ func TxByHeightIndex(chainID string, height, index int64) (*Tx, error) {
 
 	return tx, nil
 }
+
+func TxByHash(chainID string, hash string) (*Tx, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+
+	tx := &Tx{Hash: hash}
+	has, err := x.Get(tx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !has {
+		return nil, errors.NotExist{Obj: "Tx"}
+	}
+
+	return tx, nil
+}
