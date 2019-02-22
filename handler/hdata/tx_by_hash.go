@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const txHashUrl = NodeProxy + "/tx/:hash"
+const txHashUrl = NodeProxy + "/txs/:hash"
 
 func init() {
 	hdataHander[txHashUrl] = TxHashGinRegister
