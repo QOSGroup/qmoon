@@ -10,7 +10,7 @@ import (
 	"github.com/QOSGroup/qbase/store"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
-	qostypes "github.com/QOSGroup/qos/types"
+	qostypes "github.com/QOSGroup/qos/module/eco/types"
 	"github.com/tendermint/tendermint/rpc/client"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
@@ -108,6 +108,47 @@ var (
 
 // QOSValidator 同步最新的validator状态
 func (tc *TmClient) QOSValidator(height int64) ([]types.Validator, error) {
+	var result []types.Validator
+	if height <= 0 {
+		height = 0
+	}
+
+	chainID, err := tc.ChainID()
+	if err != nil {
+		return nil, err
+	}
+
+	opt := client.ABCIQueryOptions{
+		Height: height,
+		Prove:  true,
+	}
+	path := "/store/validator/subspace"
+	resp, err := tc.ABCIQueryWithOptions(path, validatorKey, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	valueBz := resp.Response.GetValue()
+	if len(valueBz) == 0 {
+		return nil, errors.New("")
+	}
+
+	var vKVPair []store.KVPair
+	if err := Cdc.UnmarshalBinaryLengthPrefixed(valueBz, &vKVPair); err != nil {
+		return nil, err
+	}
+	for _, kv := range vKVPair {
+		var val qostypes.Validator
+		if err := Cdc.UnmarshalBinaryBare(kv.Value, &val); err == nil {
+			result = append(result, convertQOSValidator(chainID, val))
+		}
+	}
+
+	return result, nil
+}
+
+// QOSValidator 同步最新的validator状态
+func (tc *TmClient) QOSValidatorV0_0_4(height int64) ([]types.Validator, error) {
 	var result []types.Validator
 	if height <= 0 {
 		height = 0

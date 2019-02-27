@@ -5,7 +5,7 @@ package types
 import (
 	"time"
 
-	qostypes "github.com/QOSGroup/qos/types"
+	"github.com/QOSGroup/qos/module/eco/types"
 )
 
 const (
@@ -17,26 +17,26 @@ const (
 )
 
 type Validator struct {
-	Name             string                `json:"name"`
-	Owner            string                `json:"owner"`
-	ChainID          string                `json:"chain_id"`
-	Address          string                `json:"address"`
-	PubKeyType       string                `json:"pub_key_type"`
-	PubKeyValue      string                `json:"pub_key_value"`
-	VotingPower      int64                 `json:"voting_power"`
-	Accum            int64                 `json:"accum"`
-	FirstBlockHeight int64                 `json:"first_block_height"`
-	FirstBlockTime   time.Time             `json:"first_block_time"`
-	CreatedAt        time.Time             `json:"created_at"`
-	Status           int8                  `json:"status"`
-	StatusStr        string                `json:"statusStr"`
-	InactiveCode     qostypes.InactiveCode `json:"inactiveCode"`
-	InactiveTime     time.Time             `json:"inactiveTime"`
-	InactiveHeight   int64                 `json:"inactiveHeight"`
-	BondHeight       int64                 `json:"bondHeight"`
-	Percent          string                `json:"percent"`
-	PrecommitNum     int64                 `json:"precommitNum"`
-	Uptime           string                `json:"uptime"`
+	Name             string             `json:"name"`
+	Owner            string             `json:"owner"`
+	ChainID          string             `json:"chain_id"`
+	Address          string             `json:"address"`
+	PubKeyType       string             `json:"pub_key_type"`
+	PubKeyValue      string             `json:"pub_key_value"`
+	VotingPower      int64              `json:"voting_power"`
+	Accum            int64              `json:"accum"`
+	FirstBlockHeight int64              `json:"first_block_height"`
+	FirstBlockTime   time.Time          `json:"first_block_time"`
+	CreatedAt        time.Time          `json:"created_at"`
+	Status           int8               `json:"status"`
+	StatusStr        string             `json:"statusStr"`
+	InactiveCode     types.InactiveCode `json:"inactiveCode"`
+	InactiveTime     time.Time          `json:"inactiveTime"`
+	InactiveHeight   int64              `json:"inactiveHeight"`
+	BondHeight       int64              `json:"bondHeight"`
+	Percent          string             `json:"percent"`
+	PrecommitNum     int64              `json:"precommitNum"`
+	Uptime           string             `json:"uptime"`
 }
 
 type Validators []Validator

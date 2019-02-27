@@ -4,7 +4,9 @@ package syncer
 
 import (
 	"context"
+	"encoding/hex"
 	"log"
+	"strings"
 	"time"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
@@ -16,18 +18,24 @@ import (
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
-	qosapprove "github.com/QOSGroup/qos/txs/approve"
-	"github.com/QOSGroup/qos/txs/qsc"
-	"github.com/QOSGroup/qos/txs/staking"
-	"github.com/QOSGroup/qos/txs/transfer"
-	"github.com/QOSGroup/qstars/x/bank"
-	"github.com/QOSGroup/qstars/x/kvstore"
+	"github.com/hashicorp/go-version"
+	tmtypes "github.com/tendermint/tendermint/types"
 	"github.com/tidwall/gjson"
 )
 
 type QOS struct {
 	node  *service.Node
 	tmcli *lib.TmClient
+}
+
+var (
+	qos0_0_3 *version.Version
+	qos0_0_4 *version.Version
+)
+
+func init() {
+	qos0_0_3, _ = version.NewVersion("0.0.3")
+	qos0_0_4, _ = version.NewVersion("0.0.4")
 }
 
 func (s QOS) Block(b types.Block) error {
@@ -61,7 +69,8 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 		default:
 			b, err := s.tmcli.RetrieveBlock(&height)
 			if err != nil {
-				return err
+				time.Sleep(time.Second)
+				continue
 			}
 
 			if err := s.block(b); err != nil {
@@ -92,20 +101,27 @@ func (s QOS) block(b *types.Block) error {
 }
 
 func (s QOS) tx(b *types.Block) error {
-	cdc := lib.MakeCodec()
-
 	for k, v := range b.Txs {
-		qbasetx, err := qbasetypes.DecoderTx(cdc, v)
+		qbasetx, err := getQbaseTx(v)
 		if err != nil {
 			return err
 		}
 
+		hash := tmtypes.Tx(b.Txs[k]).Hash()
 		mt := &models.Tx{}
+		mt.Hash = strings.ToUpper(hex.EncodeToString(hash))
 		mt.Height = b.Header.Height
 		mt.Index = int64(k)
 		mt.OriginTx = utils.Base64En(v)
 		mt.Time = b.Header.Time
-		mt.TxStatus = int(s.tmcli.RetrieveTxResult(v))
+		mt.TxType = qbasetx.Type()
+
+		txResult, errtx := s.tmcli.RetrieveTx(hash)
+		if errtx == nil {
+			mt.TxStatus = int(txResult.TxStatus)
+			mt.GasWanted = txResult.GasWanted
+			mt.GasUsed = txResult.GasUsed
+		}
 
 		if err := parseQosTx(b.Header, qbasetx, mt); err != nil {
 			return err
@@ -114,8 +130,29 @@ func (s QOS) tx(b *types.Block) error {
 		if err := mt.Insert(s.node.ChanID); err != nil {
 			return err
 		}
+
 	}
 	return nil
+}
+
+func getQbaseTx(tx []byte) (*qbasetxs.TxStd, error) {
+	cdc := lib.MakeCodec()
+	qbasetx, err := qbasetypes.DecoderTx(cdc, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	var std *qbasetxs.TxStd
+	switch implTx := qbasetx.(type) {
+	case *qbasetxs.TxStd:
+		std = implTx
+	case *qbasetxs.TxQcp:
+		std = implTx.TxStd
+	default:
+		return nil, errors.New("未知交易")
+	}
+
+	return std, nil
 }
 
 func parseQosTx(blockHeader types.BlockHeader, t qbasetypes.Tx, mt *models.Tx) error {
@@ -153,44 +190,19 @@ func parseQosITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) e
 	if err != nil {
 		return err
 	}
-	mt.JsonTx = string(d)
 
-	switch t.(type) {
-	case *qosapprove.TxCancelApprove:
-		mt.TxType = "ApproveCancelTx"
-	case *qosapprove.TxCreateApprove:
-		mt.TxType = "ApproveCreateTx"
-	case *qosapprove.TxDecreaseApprove:
-		mt.TxType = "ApproveDecreaseTx"
-	case *qosapprove.TxIncreaseApprove:
-		mt.TxType = "ApproveIncreaseTx"
-	case *qosapprove.TxUseApprove:
-		mt.TxType = "ApproveUseTx"
-	case *staking.TxRevokeValidator:
-		mt.TxType = "TxRevokeValidator"
-	case *staking.TxCreateValidator:
-		mt.TxType = "TxCreateValidator"
-	case *staking.TxActiveValidator:
-		mt.TxType = "TxActiveValidator"
-	case *kvstore.KvstoreTx:
-		mt.TxType = "KvstoreTx"
-	case *qbasetxs.QcpTxResult:
-		mt.TxType = "QcpTxResult"
-	case *transfer.TxTransfer:
-		mt.TxType = "TransferTx"
-	case *qsc.TxCreateQSC:
-		mt.TxType = "TxCreateQSC"
-	case *qsc.TxIssueQSC:
-		mt.TxType = "TxIssueQsc"
-	case *bank.WrapperSendTx:
-		mt.TxType = "WrapperSendTx"
-	default:
-		typeInJson := gjson.Get(string(d), "type")
-		if typeInJson.Exists() {
-			mt.TxType = typeInJson.String()
-		} else {
-			mt.TxType = "Unknown"
-		}
+	valueInJson := gjson.Get(string(d), "value")
+	if valueInJson.Exists() {
+		mt.JsonTx = valueInJson.String()
+	} else {
+		mt.JsonTx = string(d)
+	}
+
+	typeInJson := gjson.Get(string(d), "type")
+	if typeInJson.Exists() {
+		mt.TxType = typeInJson.String()
+	} else {
+		mt.TxType = "Unknown"
 	}
 
 	name, err := plugins.Parse(blockHeader, t)
@@ -213,9 +225,17 @@ func (s QOS) ValidatorLoop(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		default:
-			vals, err := s.tmcli.QOSValidator(0)
+			var vals []types.Validator
+			var err error
+			if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
+				vals, err = s.tmcli.QOSValidator(0)
+			} else {
+				vals, err = s.tmcli.QOSValidatorV0_0_4(0)
+			}
+			log.Printf("QOSValidator:vals:%+v, err:%v", vals, err)
 			if err != nil {
-				return err
+				time.Sleep(time.Second)
+				continue
 			}
 
 			for _, val := range vals {

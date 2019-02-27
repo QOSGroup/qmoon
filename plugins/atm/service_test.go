@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/QOSGroup/qstars/x/bank"
+	"github.com/QOSGroup/qmoon/lib/qstarscli"
 	"github.com/stretchr/testify/assert"
 	"github.com/tendermint/go-amino"
 	tmltypes "github.com/tendermint/tendermint/rpc/lib/types"
@@ -43,7 +43,7 @@ func TestJson(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.True(t, tmresp.Error == nil)
-	var res bank.SendResult
+	var res qstarscli.SendResult
 	var cdc = amino.NewCodec()
 	err = cdc.UnmarshalJSON(tmresp.Result, &res)
 	assert.Nil(t, err)

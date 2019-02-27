@@ -92,10 +92,10 @@ type Client struct {
 
 	common service // Reuse a single struct instead of allocating one for each service on the heap.
 
-	NodeVersion     *nodeVersionService
-	Version         *versionService
-	Accounts        *accountsService
-	KV              *kvService
+	//NodeVersion     *nodeVersionService
+	//Version         *versionService
+	//Accounts        *accountsService
+	//KV              *kvService
 	TransferService *transferService
 }
 
@@ -117,10 +117,10 @@ func NewClient(opt *option) *Client {
 
 	c.common.client = c
 
-	c.NodeVersion = (*nodeVersionService)(&c.common)
-	c.Version = (*versionService)(&c.common)
-	c.Accounts = (*accountsService)(&c.common)
-	c.KV = (*kvService)(&c.common)
+	//c.NodeVersion = (*nodeVersionService)(&c.common)
+	//c.Version = (*versionService)(&c.common)
+	//c.Accounts = (*accountsService)(&c.common)
+	//c.KV = (*kvService)(&c.common)
 	c.TransferService = (*transferService)(&c.common)
 
 	return c

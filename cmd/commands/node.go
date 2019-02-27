@@ -43,9 +43,10 @@ var deleteNodeCmd = &cobra.Command{
 }
 
 var (
-	nodeName string
-	nodeUrl  string
-	nodeType string
+	nodeName    string
+	nodeUrl     string
+	nodeType    string
+	nodeVersion string
 )
 
 func init() {
@@ -53,6 +54,7 @@ func init() {
 	createNodeCmd.PersistentFlags().StringVar(&nodeUrl, "nodeUrl", "", "the url of node")
 	createNodeCmd.PersistentFlags().StringVar(&nodeType, "nodeType", "", fmt.Sprintf("节点类型:%s, %s, %s",
 		types.NodeTypeQOS, types.NodeTypeQSC, types.NodeTypeCOSMOS))
+	createNodeCmd.PersistentFlags().StringVar(&nodeVersion, "nodeVersion", "", "the version of node")
 
 	updateNodeCmd.PersistentFlags().StringVar(&nodeName, "nodeName", "", "the name of node")
 	updateNodeCmd.PersistentFlags().StringVar(&nodeUrl, "nodeUrl", "", "the url of node")
@@ -84,7 +86,7 @@ func createNode(cmd *cobra.Command, args []string) error {
 		return errors.New("nodeType 不支持")
 	}
 
-	if err := service.CreateNode(nodeName, nodeUrl, nodeType, ""); err != nil {
+	if err := service.CreateNode(nodeName, nodeUrl, nodeType, nodeVersion, ""); err != nil {
 		return err
 	}
 

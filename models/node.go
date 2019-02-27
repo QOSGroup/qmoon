@@ -8,15 +8,15 @@ import (
 )
 
 type Node struct {
-	Id        int64  `xorm:"pk autoincr BIGINT"`
-	Name      string `xorm:"unique VARCHAR(128)"`
-	BaseUrl   string `xorm:"TEXT"`
-	SecretKey string `xorm:"TEXT"`
-	ChainId   string `xorm:"TEXT"`
-	NodeType  string `xorm:"TEXT"`
+	Id          int64  `xorm:"pk autoincr BIGINT"`
+	Name        string `xorm:"unique VARCHAR(128)"`
+	BaseUrl     string `xorm:"TEXT"`
+	SecretKey   string `xorm:"TEXT"`
+	ChainId     string `xorm:"TEXT"`
+	NodeType    string `xorm:"TEXT"`
+	NodeVersion string `xorm:"TEXT"`
 
-	Version int `xorm:"version"`
-
+	Version       int       `xorm:"version"`
 	UpdatedAt     time.Time `xorm:"-"`
 	UpdatedAtUnix int64
 	CreatedAt     time.Time `xorm:"-"`
@@ -50,7 +50,7 @@ func (n *Node) Insert() error {
 	return nil
 }
 
-func CreateNode(name, baseURL, nodeType, secretKey, chainID string) (*Node, error) {
+func CreateNode(name, baseURL, nodeType, nodeVersion, secretKey, chainID string) (*Node, error) {
 	if err := newNode(name); err != nil {
 		return nil, err
 	}
@@ -59,6 +59,7 @@ func CreateNode(name, baseURL, nodeType, secretKey, chainID string) (*Node, erro
 	n.Name = name
 	n.BaseUrl = baseURL
 	n.SecretKey = secretKey
+	n.NodeVersion = nodeVersion
 	n.ChainId = chainID
 	n.NodeType = nodeType
 

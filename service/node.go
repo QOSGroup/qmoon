@@ -10,7 +10,8 @@ import (
 	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
-	amino "github.com/tendermint/go-amino"
+	"github.com/hashicorp/go-version"
+	"github.com/tendermint/go-amino"
 )
 
 type Route struct {
@@ -34,12 +35,13 @@ var defaultRoute = []Route{
 }
 
 type Node struct {
-	Name      string  `json:"name"`    // name
-	BaseURL   string  `json:"baseUrl"` // base_url
-	SecretKey string  `json:"-"`       // secret_key
-	ChanID    string  `json:"chanId"`
-	NodeType  string  `json:"nodeType"`
-	Routers   []Route `json:"routers"`
+	Name        string          `json:"name"`    // name
+	BaseURL     string          `json:"baseUrl"` // base_url
+	SecretKey   string          `json:"-"`       // secret_key
+	ChanID      string          `json:"chanId"`
+	NodeType    string          `json:"nodeType"`
+	NodeVersion version.Version `json:"nodeVersion"`
+	Routers     []Route         `json:"routers"`
 }
 
 func (n Node) AppState(cdc *amino.Codec) (*qbasetypes.GenesisState, error) {
@@ -59,13 +61,15 @@ func (n Node) AppState(cdc *amino.Codec) (*qbasetypes.GenesisState, error) {
 }
 
 func covertToNode(mnt *models.Node) *Node {
+	nv, _ := version.NewVersion(mnt.NodeVersion)
 	return &Node{
-		Name:      mnt.Name,
-		BaseURL:   mnt.BaseUrl,
-		SecretKey: mnt.SecretKey,
-		ChanID:    mnt.ChainId,
-		NodeType:  mnt.NodeType,
-		Routers:   defaultRoute,
+		Name:        mnt.Name,
+		BaseURL:     mnt.BaseUrl,
+		SecretKey:   mnt.SecretKey,
+		ChanID:      mnt.ChainId,
+		NodeType:    mnt.NodeType,
+		NodeVersion: *nv,
+		Routers:     defaultRoute,
 	}
 }
 
@@ -84,7 +88,7 @@ func AllNodes() ([]*Node, error) {
 	return res, nil
 }
 
-func CreateNode(name, baseURL, nodeType, secretKey string) error {
+func CreateNode(name, baseURL, nodeType, nodeVersion, secretKey string) error {
 	if strings.HasSuffix(baseURL, "/") {
 		baseURL = baseURL[:len(baseURL)-1]
 	}
@@ -95,7 +99,7 @@ func CreateNode(name, baseURL, nodeType, secretKey string) error {
 		return fmt.Errorf("retrieve node genesis err:%s", err)
 	}
 
-	if _, err := models.CreateNode(name, baseURL, nodeType, secretKey, genesis.Genesis.ChainID); err != nil {
+	if _, err := models.CreateNode(name, baseURL, nodeType, nodeVersion, secretKey, genesis.Genesis.ChainID); err != nil {
 		return err
 	}
 

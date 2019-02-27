@@ -37,7 +37,7 @@ func txParse(cmd *cobra.Command, args []string) error {
 	//}
 	//
 	//cdc := lib.MakeCodec()
-	//for k, v := range b.BlockLoop.Data.Txs {
+	//for k, v := range b.BlockLoop.Data.Tx {
 	//	var tx cosmostypes.Msg
 	//	err := cdc.UnmarshalBinaryBare(v, &tx)
 	//	if err != nil {

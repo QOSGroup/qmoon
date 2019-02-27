@@ -4,25 +4,19 @@ package syncer
 
 import (
 	"context"
+	"encoding/hex"
+	"encoding/json"
 	"log"
+	"strings"
 	"time"
 
-	qbasetxs "github.com/QOSGroup/qbase/txs"
-	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
-	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
-	qosapprove "github.com/QOSGroup/qos/txs/approve"
-	"github.com/QOSGroup/qos/txs/qsc"
-	"github.com/QOSGroup/qos/txs/staking"
-	"github.com/QOSGroup/qos/txs/transfer"
-	"github.com/QOSGroup/qstars/x/bank"
-	"github.com/QOSGroup/qstars/x/kvstore"
-	"github.com/tidwall/gjson"
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type QSC struct {
@@ -93,109 +87,43 @@ func (s QSC) block(b *types.Block) error {
 }
 
 func (s QSC) tx(b *types.Block) error {
-	cdc := lib.MakeCodec()
-
-	for k, v := range b.Txs {
-		qbasetx, err := qbasetypes.DecoderTx(cdc, v)
-		if err != nil {
-			return err
-		}
-
-		mt := &models.Tx{}
-		mt.Height = b.Header.Height
-		mt.Index = int64(k)
-		mt.OriginTx = utils.Base64En(v)
-		mt.Time = b.Header.Time
-		mt.TxStatus = int(s.tmcli.RetrieveTxResult(v))
-
-		if err := parseQscTx(b.Header, qbasetx, mt); err != nil {
-			return err
-		}
-
-		if err := mt.Insert(s.node.ChanID); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func parseQscTx(blockHeader types.BlockHeader, t qbasetypes.Tx, mt *models.Tx) error {
-	var std *qbasetxs.TxStd
-	switch implTx := t.(type) {
-	case *qbasetxs.TxStd:
-		std = implTx
-	case *qbasetxs.TxQcp:
-		mt.QcpFrom = implTx.From
-		mt.QcpTo = implTx.To
-		mt.QcpSequence = implTx.Sequence
-		mt.QcpTxindex = implTx.TxIndex
-		mt.QcpIsresult = implTx.IsResult
-		std = implTx.TxStd
-	default:
-		mt.TxType = t.Type()
+	if len(b.Txs) == 0 {
+		return nil
 	}
 
-	mt.Maxgas = std.MaxGas.Int64()
-
-	if err := parseQscITx(blockHeader, std.ITx, mt); err != nil {
-		return err
+	var txs []string
+	for _, v := range b.Txs {
+		txs = append(txs, utils.Base64En(v))
 	}
-
-	if mt.TxType == "Unknown" {
-		mt.TxType = t.Type()
-	}
-
-	return nil
-}
-
-func parseQscITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) error {
-	cdc := lib.MakeCodec()
-	d, err := cdc.MarshalJSON(t)
+	txres, err := lib.NewQstarsAgentCli("").Txs(txs)
 	if err != nil {
 		return err
 	}
-	mt.JsonTx = string(d)
 
-	switch t.(type) {
-	case *qosapprove.TxCancelApprove:
-		mt.TxType = "ApproveCancelTx"
-	case *qosapprove.TxCreateApprove:
-		mt.TxType = "ApproveCreateTx"
-	case *qosapprove.TxDecreaseApprove:
-		mt.TxType = "ApproveDecreaseTx"
-	case *qosapprove.TxIncreaseApprove:
-		mt.TxType = "ApproveIncreaseTx"
-	case *qosapprove.TxUseApprove:
-		mt.TxType = "ApproveUseTx"
-	case *staking.TxRevokeValidator:
-		mt.TxType = "TxRevokeValidator"
-	case *staking.TxCreateValidator:
-		mt.TxType = "TxCreateValidator"
-	case *staking.TxActiveValidator:
-		mt.TxType = "TxActiveValidator"
-	case *kvstore.KvstoreTx:
-		mt.TxType = "KvstoreTx"
-	case *qbasetxs.QcpTxResult:
-		mt.TxType = "QcpTxResult"
-	case *transfer.TxTransfer:
-		mt.TxType = "TransferTx"
-	case *qsc.TxCreateQSC:
-		mt.TxType = "TxCreateQSC"
-	case *qsc.TxIssueQSC:
-		mt.TxType = "TxIssueQsc"
-	case *bank.WrapperSendTx:
-		mt.TxType = "WrapperSendTx"
-	default:
-		typeInJson := gjson.Get(string(d), "type")
-		if typeInJson.Exists() {
-			mt.TxType = typeInJson.String()
-		} else {
-			mt.TxType = "Unknown"
+	for k, v := range txres {
+		hash := tmtypes.Tx(b.Txs[k]).Hash()
+		mt := &models.Tx{}
+		mt.Height = b.Header.Height
+		mt.Index = int64(k)
+		mt.Hash = strings.ToUpper(hex.EncodeToString(hash))
+		mt.TxType = v.Tx.Type
+		mt.OriginTx = txs[k]
+		if d, err := json.Marshal(v.Tx); err == nil {
+			mt.JsonTx = string(d)
+		}
+		mt.Time = b.Header.Time
+
+		txResult, err := s.tmcli.RetrieveTx(hash)
+		if err == nil {
+			mt.TxStatus = int(txResult.TxStatus)
+			mt.GasWanted = txResult.GasWanted
+			mt.GasUsed = txResult.GasUsed
+		}
+		if err := mt.Insert(s.node.ChanID); err != nil {
+			log.Printf("tx insert data:%+v, err:%v", mt, err.Error())
+			return err
 		}
 	}
-
-	name, err := plugins.Parse(blockHeader, t)
-	log.Printf("plugins.Parse name:%s, err:%v", name, err)
 
 	return nil
 }
@@ -216,7 +144,8 @@ func (s QSC) ValidatorLoop(ctx context.Context) error {
 		default:
 			vals, err := s.tmcli.Validator(0)
 			if err != nil {
-				return err
+				time.Sleep(time.Second)
+				continue
 			}
 
 			for _, val := range vals {
