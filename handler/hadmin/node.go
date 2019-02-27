@@ -24,10 +24,11 @@ func NodesGinRegister(r *gin.Engine) {
 }
 
 type createNodeQuery struct {
-	Name      string `json:"name"`
-	BaseURL   string `json:"baseUrl"`
-	NodeType  string `json:"nodeType"`
-	SecretKey string `json:"secretKey"`
+	Name        string `json:"name"`
+	BaseURL     string `json:"baseUrl"`
+	NodeType    string `json:"nodeType"`
+	NodeVersion string `json:"nodeVersion"`
+	SecretKey   string `json:"secretKey"`
 }
 
 func (q createNodeQuery) Validator() error {
@@ -59,7 +60,7 @@ func createNodeGin() gin.HandlerFunc {
 			return
 		}
 
-		err := service.CreateNode(reqObj.Name, reqObj.BaseURL, reqObj.NodeType, reqObj.SecretKey)
+		err := service.CreateNode(reqObj.Name, reqObj.BaseURL, reqObj.NodeType, reqObj.NodeVersion, reqObj.SecretKey)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

@@ -8,30 +8,25 @@ import (
 	"strings"
 )
 
-type Tx struct {
-	Type string          `json:"type"`
-	Data json.RawMessage `json:"data"`
-}
-
-type ResultCosmosTx struct {
+type ResultQstarsAgentTx struct {
 	Status int    `json:"status"`
-	Txs    []Tx   `json:"txs"`
+	Tx     Tx     `json:"txs"`
 	IsOK   bool   `json:"isOk"`
 	Err    string `json:"err"`
 }
 
-type CosmosCli struct {
+type QstarsAgentCli struct {
 	remote string
 }
 
-func NewCosmosCli(remote string) CosmosCli {
+func NewQstarsAgentCli(remote string) QstarsAgentCli {
 	if remote == "" {
-		remote = "http://localhost:19527"
+		remote = "http://localhost:19528"
 	}
-	return CosmosCli{remote: remote}
+	return QstarsAgentCli{remote: remote}
 }
 
-func (cc CosmosCli) Txs(txs []string) ([]ResultCosmosTx, error) {
+func (cc QstarsAgentCli) Txs(txs []string) ([]ResultQstarsAgentTx, error) {
 	body := struct {
 		Txs []string `json:"txs"`
 	}{
@@ -44,7 +39,7 @@ func (cc CosmosCli) Txs(txs []string) ([]ResultCosmosTx, error) {
 		return nil, err
 	}
 
-	var result []ResultCosmosTx
+	var result []ResultQstarsAgentTx
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return nil, err

@@ -10,7 +10,8 @@ import (
 	qbasetxs "github.com/QOSGroup/qbase/txs"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"github.com/QOSGroup/qos/txs/transfer"
+	"github.com/QOSGroup/qos/module/transfer"
+	transfertypes "github.com/QOSGroup/qos/module/transfer/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -89,7 +90,7 @@ type Transfer struct {
 	Time     time.Time
 }
 
-func saveTransItem(blockHeader types.BlockHeader, ut TransferType, item transfer.TransItem) error {
+func saveTransItem(blockHeader types.BlockHeader, ut TransferType, item transfertypes.TransItem) error {
 	if !item.QOS.IsZero() {
 		saveTx(blockHeader.ChainID, blockHeader.Height, blockHeader.DataHash, item.Address.String(),
 			"QOS", item.QOS.String(), ut, blockHeader.Time)

@@ -13,7 +13,7 @@ func TestTendermintClient(t *testing.T) {
 	//block, err := cli.RetrieveBlock(&height)
 	//assert.Nil(t, err)
 	//
-	//for _, v := range block.Txs {
+	//for _, v := range block.Tx {
 	//	txStatus := cli.RetrieveTxResult(v)
 	//	assert.Nil(t, err)
 	//	assert.Equal(t, types.TxStatusSuccess, txStatus)

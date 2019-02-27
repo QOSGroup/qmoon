@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,7 +21,15 @@ type TransferBody struct {
 	Gas           int64  `json:"-"`
 }
 
-func (s *transferService) Send(ctx context.Context, body *TransferBody) (*bank.SendResult, error) {
+type SendResult struct {
+	Hash   string `json:"hash"`
+	Error  string `json:"error"`
+	Code   string `json:"code"`
+	Result string `json:"result"`
+	Heigth string `json:"heigth"`
+}
+
+func (s *transferService) Send(ctx context.Context, body *TransferBody) (*SendResult, error) {
 	u := strings.Replace(transferURI, "{address}", body.Address, -1)
 	u, err := addOptions(u, nil)
 	if err != nil {
@@ -35,7 +42,7 @@ func (s *transferService) Send(ctx context.Context, body *TransferBody) (*bank.S
 		return nil, err
 	}
 
-	var res bank.SendResult
+	var res SendResult
 	resp, err := s.client.Do(ctx, req, &res)
 	logrus.WithField("module", "qstarscli").WithField("resp", resp).WithField("err", err).Debugln()
 	if err != nil {

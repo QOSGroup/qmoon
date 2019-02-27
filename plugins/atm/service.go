@@ -12,7 +12,6 @@ import (
 	"github.com/QOSGroup/qmoon/lib/qstarscli"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/utils"
-	"github.com/QOSGroup/qstars/x/bank"
 	"github.com/sirupsen/logrus"
 )
 
@@ -86,7 +85,7 @@ func check(addr, chainid string) error {
 	return nil
 }
 
-func Withdraw(addr, chainid string) (*bank.SendResult, error) {
+func Withdraw(addr, chainid string) (*qstarscli.SendResult, error) {
 	prikey := getBank()
 	if prikey == "" {
 		logrus.WithField("prikey", prikey).Warnf("invalid prikey")
@@ -120,7 +119,7 @@ func Withdraw(addr, chainid string) (*bank.SendResult, error) {
 	return sr, nil
 }
 
-func send(addr, chainid string, amount string) (*bank.SendResult, error) {
+func send(addr, chainid string, amount string) (*qstarscli.SendResult, error) {
 	opt, err := qstarscli.NewOption(qstarscli.SetOptionHost(os.Getenv("Qstars")))
 	if err != nil {
 		return nil, err

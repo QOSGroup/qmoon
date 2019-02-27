@@ -4,7 +4,7 @@ package version
 
 var (
 	// Version is the current version of Explorer
-	Version = "0.1.0"
+	Version = "0.2.0"
 
 	// GitCommit is the current HEAD set using ldflags.
 	GitCommit string
