@@ -232,7 +232,6 @@ func (s QOS) ValidatorLoop(ctx context.Context) error {
 			} else {
 				vals, err = s.tmcli.QOSValidatorV0_0_4(0)
 			}
-			log.Printf("QOSValidator:vals:%+v, err:%v", vals, err)
 			if err != nil {
 				time.Sleep(time.Second)
 				continue

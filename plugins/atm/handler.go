@@ -36,7 +36,7 @@ func TransferGin() gin.HandlerFunc {
 			return
 		}
 
-		res, err := Withdraw(address, node.ChanID)
+		res, err := Withdraw(address, node.ChanID, node.BaseURL)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return

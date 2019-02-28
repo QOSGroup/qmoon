@@ -27,17 +27,12 @@ var ServerCmd = &cobra.Command{
 	RunE:  server,
 }
 
-var (
-	explorer      string
-	explorerLaddr string
-)
+const FlagMaxGas = "max-gas"
 
 func init() {
 	registerFlagsHttpServer(ServerCmd)
 	registerFlagsDb(ServerCmd)
-
-	ServerCmd.PersistentFlags().StringVar(&explorer, "with-explorer", "", "the dir of explorer")
-	ServerCmd.PersistentFlags().StringVarP(&explorerLaddr, "explorerLaddr", "", "0.0.0.0:9528", "address of explorer listening")
+	ServerCmd.Flags().Int64(FlagMaxGas, 20000, "gas limit to set per tx")
 }
 
 func initRouter(r *gin.Engine) {
@@ -77,27 +72,12 @@ func initRouter(r *gin.Engine) {
 	plugins.RegisterGin(r)
 }
 
-func runStaticServer(laddr, dir string) {
-	s := gin.Default()
-	s.Static("/", dir)
-
-	s.Run(laddr)
-}
-
 func server(cmd *cobra.Command, args []string) error {
 	wg := sync.WaitGroup{}
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, os.Kill)
 
 	worker.Start()
-
-	if explorer != "" {
-		go func() {
-			wg.Add(1)
-			defer wg.Done()
-			runStaticServer(explorerLaddr, explorer)
-		}()
-	}
 
 	r := gin.Default()
 	initRouter(r)
