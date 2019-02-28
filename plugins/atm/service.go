@@ -3,6 +3,7 @@
 package atm
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"os"
@@ -12,8 +13,8 @@ import (
 
 	qbaseaccount "github.com/QOSGroup/qbase/client/account"
 	"github.com/QOSGroup/qbase/client/context"
-	qclitx "github.com/QOSGroup/qbase/client/tx"
 	"github.com/QOSGroup/qbase/txs"
+	"github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/utils"
@@ -21,11 +22,16 @@ import (
 	transtypes "github.com/QOSGroup/qos/module/transfer/types"
 	qostypes "github.com/QOSGroup/qos/types"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 const AtmIPLimit = 5
+
+var atmPrikey crypto.PrivKey
 
 func getAtmIPLimit() int64 {
 	limit := os.Getenv("ATM_IPLimit")
@@ -37,8 +43,24 @@ func getAtmIPLimit() int64 {
 	return AtmIPLimit
 }
 
-func getBank() string {
-	return os.Getenv("ATM_KEY")
+func getBank() (crypto.PrivKey, error) {
+	if atmPrikey != nil {
+		return atmPrikey, nil
+	}
+	var pri ed25519.PrivKeyEd25519
+	prikStr := strings.TrimSpace(os.Getenv("ATM_KEY"))
+	if prikStr == "" {
+		return pri, errors.New("atm ed25519 private key is empty")
+	}
+	privBytes, err := base64.StdEncoding.DecodeString(prikStr)
+	if err != nil {
+		return pri, err
+	}
+	copy(pri[:], privBytes)
+
+	atmPrikey = pri
+
+	return pri, nil
 }
 
 func getAmount() int64 {
@@ -96,19 +118,25 @@ func check(addr, chainid string) error {
 }
 
 func Withdraw(addr, chainid, nodeUrl string) (*ctypes.ResultBroadcastTxCommit, error) {
-	prikey := getBank()
-	if prikey == "" {
-		logrus.WithField("prikey", prikey).Warnf("invalid prikey")
+	pri, err := getBank()
+	if err != nil {
+		logrus.WithField("pri", pri).Warnf("invalid pri")
 		return nil, errors.New("服务异常")
 	}
+	acc := types.Address(pri.PubKey().Address().Bytes())
 
 	if err := check(addr, chainid); err != nil {
 		return nil, err
 	}
 
+	maxGas := viper.GetInt64("max-gas")
+	if maxGas < 0 {
+		return nil, errors.New("max-gas flag not correct")
+	}
+
 	coin := "qos"
 	amount := getAmount()
-	res, err := send(nodeUrl, fmt.Sprintf("%s,%d%s", getBank(), amount, coin),
+	res, err := send(nodeUrl, pri, maxGas, fmt.Sprintf("%s,%d%s", acc.String(), amount, coin),
 		fmt.Sprintf("%s,%d%s", addr, amount, coin))
 	logrus.Debugf("send:res:%+v,err:%v", res, err)
 	if err != nil {
@@ -130,14 +158,15 @@ func Withdraw(addr, chainid, nodeUrl string) (*ctypes.ResultBroadcastTxCommit, e
 	return res, nil
 }
 
-func send(remote, senderStr, receiverStr string) (*ctypes.ResultBroadcastTxCommit, error) {
+func send(remote string, pri crypto.PrivKey, maxGas int64, senderStr, receiverStr string) (
+	*ctypes.ResultBroadcastTxCommit, error) {
 	cdc := lib.Cdc
-
 	tmcli := client.NewHTTP(remote, "/websocket")
 	genesis, err := tmcli.Genesis()
 	if err != nil {
 		return nil, err
 	}
+
 	chainid := genesis.Genesis.ChainID
 	cliCtx := context.NewCLIContext().WithCodec(cdc).WithClient(client.NewHTTP(remote, "/websocket"))
 
@@ -145,16 +174,28 @@ func send(remote, senderStr, receiverStr string) (*ctypes.ResultBroadcastTxCommi
 	if err != nil {
 		return nil, err
 	}
+	txStd := txs.NewTxStd(tx, chainid, types.NewInt(maxGas))
 
-	signedTx, err := qclitx.BuildAndSignStdTx(cliCtx, tx, "", chainid)
+	nonce, err := getDefaultAccountNonce(cliCtx, tx.Senders[0].Address.Bytes())
+	if err != nil || nonce < 0 {
+		return nil, err
+	}
+	nonce = nonce + 1
+
+	sig, err := pri.Sign(txStd.BuildSignatureBytes(nonce, ""))
 	if err != nil {
 		return nil, err
 	}
+	txStd.Signature = append(txStd.Signature, txs.Signature{
+		Pubkey:    pri.PubKey(),
+		Signature: sig,
+		Nonce:     nonce,
+	})
 
-	return cliCtx.BroadcastTx(cdc.MustMarshalBinaryBare(signedTx))
+	return cliCtx.BroadcastTx(cdc.MustMarshalBinaryBare(txStd))
 }
 
-func transferBuilder(ctx context.CLIContext, senderStr, receiverStr string) (txs.ITx, error) {
+func transferBuilder(ctx context.CLIContext, senderStr, receiverStr string) (*txtransfer.TxTransfer, error) {
 	senders, err := parseTransItem(ctx, senderStr)
 	if err != nil {
 		return nil, err
@@ -165,7 +206,7 @@ func transferBuilder(ctx context.CLIContext, senderStr, receiverStr string) (txs
 		return nil, err
 	}
 
-	return txtransfer.TxTransfer{
+	return &txtransfer.TxTransfer{
 		Senders:   senders,
 		Receivers: receivers,
 	}, nil
@@ -201,4 +242,16 @@ func parseTransItem(cliCtx context.CLIContext, str string) (transtypes.TransItem
 	}
 
 	return items, nil
+}
+
+func getDefaultAccountNonce(ctx context.CLIContext, address []byte) (int64, error) {
+	if ctx.NonceNodeURI == "" {
+		return qbaseaccount.GetAccountNonce(ctx, address)
+	}
+
+	//NonceNodeURI不为空,使用NonceNodeURI查询account nonce值
+	rpc := lib.TendermintClient(ctx.NonceNodeURI)
+	newCtx := context.NewCLIContext().WithClient(rpc).WithCodec(ctx.Codec)
+
+	return qbaseaccount.GetAccountNonce(newCtx, address)
 }
