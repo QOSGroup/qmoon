@@ -7,12 +7,22 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/QOSGroup/qmoon/lib/qstarscli"
+	qbaseaccount "github.com/QOSGroup/qbase/client/account"
+	"github.com/QOSGroup/qbase/client/context"
+	qclitx "github.com/QOSGroup/qbase/client/tx"
+	"github.com/QOSGroup/qbase/txs"
+	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/utils"
+	txtransfer "github.com/QOSGroup/qos/module/transfer"
+	transtypes "github.com/QOSGroup/qos/module/transfer/types"
+	qostypes "github.com/QOSGroup/qos/types"
 	"github.com/sirupsen/logrus"
+	"github.com/tendermint/tendermint/rpc/client"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 const AtmIPLimit = 5
@@ -85,7 +95,7 @@ func check(addr, chainid string) error {
 	return nil
 }
 
-func Withdraw(addr, chainid string) (*qstarscli.SendResult, error) {
+func Withdraw(addr, chainid, nodeUrl string) (*ctypes.ResultBroadcastTxCommit, error) {
 	prikey := getBank()
 	if prikey == "" {
 		logrus.WithField("prikey", prikey).Warnf("invalid prikey")
@@ -98,48 +108,97 @@ func Withdraw(addr, chainid string) (*qstarscli.SendResult, error) {
 
 	coin := "qos"
 	amount := getAmount()
-	sr, err := send(addr, chainid, fmt.Sprintf("%d%s", amount, coin))
+	res, err := send(nodeUrl, fmt.Sprintf("%s,%d%s", getBank(), amount, coin),
+		fmt.Sprintf("%s,%d%s", addr, amount, coin))
+	logrus.Debugf("send:res:%+v,err:%v", res, err)
 	if err != nil {
 		return nil, err
 	}
 
 	ar := &models.AtmRecord{}
 	ar.Address = addr
-	ar.Chainid = chainid
 	ar.Coin = coin
 	ar.Amount = fmt.Sprintf("%d", amount)
 	ar.Createat = utils.DayStart(time.Now())
-	ar.Height = sr.Heigth
-	ar.Hash = sr.Hash
+	ar.Height = res.Height
+	ar.Hash = res.Hash.String()
 
 	if err := ar.Insert(chainid); err != nil {
 		return nil, err
 	}
 
-	return sr, nil
+	return res, nil
 }
 
-func send(addr, chainid string, amount string) (*qstarscli.SendResult, error) {
-	opt, err := qstarscli.NewOption(qstarscli.SetOptionHost(os.Getenv("Qstars")))
+func send(remote, senderStr, receiverStr string) (*ctypes.ResultBroadcastTxCommit, error) {
+	cdc := lib.Cdc
+
+	tmcli := client.NewHTTP(remote, "/websocket")
+	genesis, err := tmcli.Genesis()
+	if err != nil {
+		return nil, err
+	}
+	chainid := genesis.Genesis.ChainID
+	cliCtx := context.NewCLIContext().WithCodec(cdc).WithClient(client.NewHTTP(remote, "/websocket"))
+
+	tx, err := transferBuilder(cliCtx, senderStr, receiverStr)
 	if err != nil {
 		return nil, err
 	}
 
-	qcli := qstarscli.NewClient(opt)
-	sr, err := qcli.TransferService.Send(nil, &qstarscli.TransferBody{
-		Address:    addr,
-		Amount:     amount,
-		PirvateKey: getBank(),
-		ChainID:    chainid,
-	})
-
+	signedTx, err := qclitx.BuildAndSignStdTx(cliCtx, tx, "", chainid)
 	if err != nil {
 		return nil, err
 	}
 
-	if sr.Hash == "" {
-		return nil, errors.New(sr.Error)
+	return cliCtx.BroadcastTx(cdc.MustMarshalBinaryBare(signedTx))
+}
+
+func transferBuilder(ctx context.CLIContext, senderStr, receiverStr string) (txs.ITx, error) {
+	senders, err := parseTransItem(ctx, senderStr)
+	if err != nil {
+		return nil, err
 	}
 
-	return sr, nil
+	receivers, err := parseTransItem(ctx, receiverStr)
+	if err != nil {
+		return nil, err
+	}
+
+	return txtransfer.TxTransfer{
+		Senders:   senders,
+		Receivers: receivers,
+	}, nil
+}
+
+// parseTransItem  aadr,1qos,100aoe
+func parseTransItem(cliCtx context.CLIContext, str string) (transtypes.TransItems, error) {
+	items := make(transtypes.TransItems, 0)
+	tis := strings.Split(str, ";")
+	for _, ti := range tis {
+		if ti == "" {
+			continue
+		}
+
+		addrAndCoins := strings.Split(ti, ",")
+		if len(addrAndCoins) < 2 {
+			return nil, fmt.Errorf("`%s` not match rules", ti)
+		}
+
+		addr, err := qbaseaccount.GetAddrFromValue(cliCtx, addrAndCoins[0])
+		if err != nil {
+			return nil, err
+		}
+		qos, qscs, err := qostypes.ParseCoins(strings.Join(addrAndCoins[1:], ","))
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, transtypes.TransItem{
+			Address: addr,
+			QOS:     qos,
+			QSCs:    qscs,
+		})
+	}
+
+	return items, nil
 }

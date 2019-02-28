@@ -10,10 +10,9 @@ import (
 type AtmRecord struct {
 	Id       int64     `xorm:"pk autoincr BIGINT"`
 	Address  string    `xorm:"unique(atm_record_address_idx)"`
-	Chainid  string    `xorm:"-"`
 	Coin     string    `xorm:"TEXT"`
 	Amount   string    `xorm:"TEXT"`
-	Height   string    `xorm:"TEXT"`
+	Height   int64     `xorm:"BIGINT"`
 	Hash     string    `xorm:"TEXT"`
 	Createat time.Time `xorm:"unique(atm_record_address_idx)"`
 
