@@ -13,6 +13,7 @@ import (
 	"github.com/QOSGroup/qmoon/handler/hdata"
 	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/static"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/worker"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
@@ -27,12 +28,13 @@ var ServerCmd = &cobra.Command{
 	RunE:  server,
 }
 
-const FlagMaxGas = "max-gas"
-
 func init() {
 	registerFlagsHttpServer(ServerCmd)
 	registerFlagsDb(ServerCmd)
-	ServerCmd.Flags().Int64(FlagMaxGas, 20000, "gas limit to set per tx")
+	ServerCmd.Flags().Int64(types.FlagMaxGas, 20000, "gas limit to set per tx")
+	ServerCmd.Flags().String(types.FlagPrometheusPushName, "qmoon", "prometheus name")
+	ServerCmd.Flags().String(types.FlagPrometheusPushGateway, "http://localhost:9091", "prometheus pushgateway服务")
+	ServerCmd.Flags().String(types.FlagPrometheusServer, "http://localhost:9090", "prometheus服务")
 }
 
 func initRouter(r *gin.Engine) {
