@@ -42,6 +42,10 @@ func (n Node) BlockValidatorsByHeight(height int64) ([]*types.BlockValidator, er
 	return res, err
 }
 
+func (n Node) ConsensusAddress(addr string) string {
+	return types.ConsensusAddress(types.NodeType(n.NodeType), addr)
+}
+
 // ListBlockValidatorByAddress 查询
 func (n Node) BlockValidatorByAddress(address string, minHeight, maxHeight int64) ([]*types.BlockValidator, error) {
 	mbvs, err := models.BlockValidators(n.ChanID, &models.BlockValidatorOption{
