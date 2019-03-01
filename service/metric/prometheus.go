@@ -16,18 +16,13 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
 	"github.com/prometheus/common/model"
+	"github.com/spf13/viper"
 )
 
 var (
 	validatorVotingPower = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "validator_voting_power",
 	})
-)
-
-var (
-	pushName         = "qmoon"
-	pushGateway      = "http://192.168.1.183:9091"
-	prometheusServer = "http://192.168.1.183:9090"
 )
 
 const (
@@ -37,6 +32,9 @@ const (
 )
 
 func ValidatorVotingPower(vals []types.Validator) {
+	pushName := viper.GetString(types.FlagPrometheusPushName)
+	pushGateway := viper.GetString(types.FlagPrometheusPushGateway)
+
 	var totalPower int64
 	for _, v := range vals {
 		totalPower += v.VotingPower
@@ -83,6 +81,8 @@ func newQuery(prefix, chainid, addr string) string {
 }
 
 func QueryValidatorVotingPower(chainid, addr string) ([]types.ResultMatrix, error) {
+	prometheusServer := viper.GetString(types.FlagPrometheusServer)
+
 	cli, err := api.NewClient(api.Config{Address: prometheusServer})
 	if err != nil {
 		return nil, err
@@ -107,6 +107,8 @@ func QueryValidatorVotingPower(chainid, addr string) ([]types.ResultMatrix, erro
 }
 
 func QueryValidatorVotingPowerPercent(chainid, addr string) ([]types.ResultMatrix, error) {
+	prometheusServer := viper.GetString(types.FlagPrometheusServer)
+
 	cli, err := api.NewClient(api.Config{Address: prometheusServer})
 	if err != nil {
 		return nil, err
@@ -131,6 +133,8 @@ func QueryValidatorVotingPowerPercent(chainid, addr string) ([]types.ResultMatri
 }
 
 func QueryValidatorUptime(chainid, addr string) ([]types.ResultMatrix, error) {
+	prometheusServer := viper.GetString(types.FlagPrometheusServer)
+
 	cli, err := api.NewClient(api.Config{Address: prometheusServer})
 	if err != nil {
 		return nil, err
