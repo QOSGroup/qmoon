@@ -44,12 +44,34 @@ type ResultValidator struct {
 	Blocks    []*BlockValidator `json:"blocks"`
 }
 
+func TxCN(t string) string {
+	switch t {
+	//qos
+	case "qos/txs/TxTransfer":
+		return "转账"
+	//qsc
+
+	// cosmos
+	case "send":
+		return "转账"
+	case "delegate":
+		return "委托"
+	case "begin_unbonding":
+		return "终止委托"
+	case "withdraw_delegation_reward":
+		return "取回分红"
+	default:
+		return t
+	}
+}
+
 type ResultTx struct {
 	ChainID   string          `json:"chain_id"`
 	Hash      string          `json:"hash"`
 	Height    int64           `json:"height"`
 	Index     int64           `json:"index"`   // index
 	TxType    string          `json:"tx_type"` // tx_type
+	TxTypeCN  string          `json:"tx_type_cn"`
 	GasWanted int64           `json:"gas_wanted"`
 	GasUsed   int64           `json:"gas_used"`
 	TxStatus  string          `json:"tx_status"`
