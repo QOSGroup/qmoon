@@ -162,3 +162,8 @@ type ResultAccount struct {
 	Nonce   int64           `json:"nonce"`
 	Coins   types.BaseCoins `json:"coins"`
 }
+
+type ResultMatrix struct {
+	X string `json:"x"`
+	Y string `json:"y"`
+}

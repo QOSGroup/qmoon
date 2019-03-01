@@ -500,17 +500,10 @@
           },
           {
             "in": "query",
-            "name": "heightRange",
-            "required": false,
-            "type": "string",
-            "description": "高度区间(1-2)"
-          },
-          {
-            "in": "query",
             "name": "timeRange",
             "required": false,
             "type": "string",
-            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近30天"
+            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
           }
         ],
         "responses": {
@@ -525,40 +518,109 @@
                   "type": "object",
                   "properties": {
                     "result": {
-                      "type": "object",
-                      "properties": {
-                        "number": {
-                          "type": "integer",
-                          "description": "数量"
-                        },
-                        "list": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "height": {
-                                "type": "integer",
-                                "description": "高度"
-                              },
-                              "time": {
-                                "type": "string",
-                                "description": "时间"
-                              },
-                              "voting_power": {
-                                "type": "integer",
-                                "description": "投票权"
-                              },
-                              "percent": {
-                                "type": "string",
-                                "description": "投票权占比"
-                              },
-                              "uptime": {
-                                "type": "string",
-                                "description": "在线时比"
-                              }
-                            }
-                          }
-                        }
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Matrix"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/validators/{address}/votingPowerPercent": {
+      "get": {
+        "summary": "validator投票权重占比",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "validator"
+          },
+          {
+            "in": "query",
+            "name": "timeRange",
+            "required": false,
+            "type": "string",
+            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Matrix"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/validators/{address}/uptime": {
+      "get": {
+        "summary": "validator健康度",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "validator"
+          },
+          {
+            "in": "query",
+            "name": "timeRange",
+            "required": false,
+            "type": "string",
+            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Matrix"
                       }
                     }
                   }
@@ -1287,6 +1349,20 @@
         "data": {
           "type": "string",
           "description": "交易内容"
+        }
+      }
+    },
+    "Matrix": {
+      "type": "object",
+      "description": "矩阵统计",
+      "properties": {
+        "x": {
+          "type": "string",
+          "description": "横坐标"
+        },
+        "y": {
+          "type": "string",
+          "description": "纵坐标"
         }
       }
     }
