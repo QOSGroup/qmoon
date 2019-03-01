@@ -31,7 +31,7 @@ func validatorGin() gin.HandlerFunc {
 			return
 		}
 
-		address := c.Param("address")
+		address := lib.Bech32AddressToHex(c.Param("address"))
 		v, err := node.RetrieveValidator(address)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
