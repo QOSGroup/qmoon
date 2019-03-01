@@ -31,7 +31,7 @@ func validatorVotingPowerGin() gin.HandlerFunc {
 			return
 		}
 
-		address := c.Param("address")
+		address := lib.Bech32AddressToHex(c.Param("address"))
 		res, err := metric.QueryValidatorVotingPower(node.ChanID, address)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))

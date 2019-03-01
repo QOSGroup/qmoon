@@ -11,6 +11,8 @@ import (
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	qostypes "github.com/QOSGroup/qos/module/eco/types"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/libs/bech32"
 	"github.com/tendermint/tendermint/rpc/client"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
@@ -303,4 +305,14 @@ func (tc *tmClients) Get(remote string) *TmClient {
 
 func TendermintClient(remote string) *TmClient {
 	return tmcs.Get(remote)
+}
+
+func Bech32AddressToHex(addr string) string {
+	_, edPub, err := bech32.DecodeAndConvert(addr)
+	if err != nil {
+		return addr
+	}
+	var pubKey2 ed25519.PubKeyEd25519
+	Cdc.UnmarshalBinaryBare(edPub, &pubKey2)
+	return pubKey2.Address().String()
 }
