@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
-	"github.com/QOSGroup/qmoon/lib"
+	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -31,13 +31,12 @@ func accountQueryGin() gin.HandlerFunc {
 		}
 
 		address := c.Param("address")
-		ctx := lib.NewQstarsClient(node.BaseURL)
-		result, err := ctx.QueryAccount(address)
+		result, err := service.QueryAccount(node, address)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return
 		}
 
-		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", result))
+		c.JSON(http.StatusOK, types.RPCResponse{JSONRPC: "2.0", ID: "", Result: result})
 	}
 }

@@ -57,12 +57,12 @@ func (s COSMOS) BlockLoop(ctx context.Context) error {
 		default:
 			b, err := s.tmcli.RetrieveBlock(&height)
 			if err != nil {
-				time.Sleep(time.Second)
+				time.Sleep(time.Millisecond * 100)
 				continue
 			}
 
 			if err := s.block(b); err != nil {
-				time.Sleep(time.Second)
+				time.Sleep(time.Millisecond * 100)
 				continue
 			}
 			height += 1
@@ -151,7 +151,8 @@ func (s COSMOS) ValidatorLoop(ctx context.Context) error {
 		default:
 			vals, err := s.tmcli.Validator(height)
 			if err != nil {
-				return err
+				time.Sleep(time.Millisecond * 100)
+				continue
 			}
 
 			for _, val := range vals {
@@ -196,10 +197,12 @@ func (s COSMOS) ConsensusStateLoop(ctx context.Context) error {
 		default:
 			cs, err := s.tmcli.ConsensusState()
 			if err != nil {
-				return err
+				time.Sleep(time.Millisecond * 100)
+				continue
 			}
 			if err := s.node.UpdateConsensusState(cs); err != nil {
-				return err
+				time.Sleep(time.Millisecond * 100)
+				continue
 			}
 		}
 	}
@@ -222,12 +225,14 @@ func (s COSMOS) PeerLoop(ctx context.Context) error {
 		default:
 			b, err := s.tmcli.NetInfo()
 			if err != nil {
-				return err
+				time.Sleep(time.Millisecond * 100)
+				continue
 			}
 
 			if b != nil {
 				if err := s.node.CreatePeers(b.Peers); err != nil {
-					return err
+					time.Sleep(time.Millisecond * 100)
+					continue
 				}
 			}
 		}
