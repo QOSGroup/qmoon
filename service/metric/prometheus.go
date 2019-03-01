@@ -19,8 +19,9 @@ var (
 )
 
 var (
-	pushName    = "qmoon"
-	pushGateway = "http://192.168.1.183:9091"
+	pushName         = "qmoon"
+	pushGateway      = "http://192.168.1.183:9091"
+	prometheusServer = "http://192.168.1.183:9090"
 )
 
 func ValidatorVotingPower(vals []types.Validator) {

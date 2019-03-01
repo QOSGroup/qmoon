@@ -4,6 +4,10 @@ package types
 
 type NodeType string
 
+func (nt NodeType) String() string {
+	return string(nt)
+}
+
 const (
 	NodeTypeQOS    NodeType = "QOS"
 	NodeTypeQSC    NodeType = "QSC"
