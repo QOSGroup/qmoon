@@ -16,6 +16,7 @@ func convertToTx(mt *models.Tx) *types.ResultTx {
 		Height:    mt.Height,
 		Index:     mt.Index,
 		TxType:    mt.TxType,
+		TxTypeCN:  types.TxCN(mt.TxType),
 		GasWanted: mt.GasWanted,
 		GasUsed:   mt.GasUsed,
 		Data:      []byte(mt.JsonTx),

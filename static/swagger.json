@@ -946,6 +946,10 @@
           "type": "string",
           "description": "交易类型"
         },
+        "tx_type_cn": {
+          "type": "string",
+          "description": "交易类型中文"
+        },
         "maxgas": {
           "type": "integer",
           "description": "maxgas"
@@ -1271,6 +1275,10 @@
         "tx_type": {
           "type": "string",
           "description": "交易类型"
+        },
+        "tx_type_cn": {
+          "type": "string",
+          "description": "交易类型中文"
         },
         "time": {
           "type": "string",
