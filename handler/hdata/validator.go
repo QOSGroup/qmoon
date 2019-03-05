@@ -47,6 +47,8 @@ func validatorGin() gin.HandlerFunc {
 		bs, err := node.BlockValidatorByAddress(address, minHeight, maxHeight)
 
 		var result types.ResultValidator
+
+		v.ConsPubKey = lib.PubkeyToBech32Address(node.Bech32PrefixConsPub(), v.PubKeyType, v.PubKeyValue)
 		result.Validator = v
 		result.Blocks = bs
 

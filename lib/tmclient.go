@@ -4,6 +4,7 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"sync"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/tendermint/tendermint/libs/bech32"
 	"github.com/tendermint/tendermint/rpc/client"
 	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/tidwall/gjson"
 )
 
 type TmClient struct {
@@ -74,12 +76,21 @@ func (tc *TmClient) RetrieveTx(txHash []byte) (*types.Tx, error) {
 }
 
 func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator {
+	var pubKeyType, pubKeyValue string
+	d, err := Cdc.MarshalJSON(val.ValidatorPubKey)
+	if err == nil {
+		j := string(d)
+		pubKeyType = gjson.Get(j, "type").String()
+		pubKeyValue = gjson.Get(j, "value").String()
+	}
+
 	return types.Validator{
 		Name:           val.Name,
 		Owner:          val.Owner.String(),
 		ChainID:        chainID,
 		Address:        val.ValidatorPubKey.Address().String(),
-		PubKeyValue:    string(val.ValidatorPubKey.Bytes()),
+		PubKeyType:     pubKeyType,
+		PubKeyValue:    pubKeyValue,
 		VotingPower:    int64(val.BondTokens),
 		Status:         val.Status,
 		InactiveCode:   val.InactiveCode,
@@ -90,10 +101,19 @@ func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator
 }
 
 func convertQSCValidator(chainID string, val tmtypes.Validator) types.Validator {
+	var pubKeyType, pubKeyValue string
+	d, err := Cdc.MarshalJSON(val.PubKey)
+	if err == nil {
+		j := string(d)
+		pubKeyType = gjson.Get(j, "type").String()
+		pubKeyValue = gjson.Get(j, "value").String()
+	}
+
 	return types.Validator{
 		ChainID:     chainID,
 		Address:     val.Address.String(),
-		PubKeyValue: val.PubKey.Address().String(),
+		PubKeyType:  pubKeyType,
+		PubKeyValue: pubKeyValue,
 		VotingPower: val.VotingPower,
 	}
 }
@@ -315,4 +335,16 @@ func Bech32AddressToHex(addr string) string {
 	var pubKey2 ed25519.PubKeyEd25519
 	Cdc.UnmarshalBinaryBare(edPub, &pubKey2)
 	return pubKey2.Address().String()
+}
+
+func PubkeyToBech32Address(hrp string, t, val string) string {
+	caHex := fmt.Sprintf(`{"type": "%s","value": "%s"}`, t, val)
+	var pubkey ed25519.PubKeyEd25519
+	err := Cdc.UnmarshalJSON([]byte(caHex), &pubkey)
+	if err != nil {
+		return ""
+	}
+
+	bech32Pub, _ := bech32.ConvertAndEncode(hrp, pubkey.Bytes())
+	return bech32Pub
 }
