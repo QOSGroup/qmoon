@@ -28,3 +28,8 @@ func TestConsensusAddressToHex(t *testing.T) {
 
 	assert.Equal(t, "981560BCEABD99DA0F20464118628854E3C7555D", Bech32AddressToHex("981560BCEABD99DA0F20464118628854E3C7555D"))
 }
+
+func TestHexToBech32Address(t *testing.T) {
+	assert.Equal(t, "cosmosvalconspub1zcjduepqmqrghhgxs6q8t6h7hlvwygawht78surjg3e47jdjxkkx8pc5n3psylm6gl",
+		PubkeyToBech32Address("cosmosvalconspub", "tendermint/PubKeyEd25519", "2AaL3QaGgHXq/r/Y4iOuuvx4cHJEc19JsjWsY4cUnEM="))
+}

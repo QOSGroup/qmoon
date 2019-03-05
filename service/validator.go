@@ -23,6 +23,7 @@ func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 		Owner:            bv.Owner,
 		ChainID:          bv.ChainId,
 		Address:          bv.Address,
+		ConsPubKey:       "",
 		PubKeyType:       bv.PubKeyType,
 		PubKeyValue:      bv.PubKeyValue,
 		VotingPower:      bv.VotingPower,
@@ -152,8 +153,8 @@ func (n Node) CreateValidator(vl types.Validator) error {
 	if err != nil {
 		mv = &models.Validator{
 			Address:        address,
-			PubKeyType:     "",
-			PubKeyValue:    "",
+			PubKeyType:     vl.PubKeyType,
+			PubKeyValue:    vl.PubKeyValue,
 			VotingPower:    vl.VotingPower,
 			Accum:          vl.Accum,
 			Status:         int(vl.Status),
@@ -169,6 +170,8 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			return err
 		}
 	} else {
+		mv.PubKeyType = vl.PubKeyType
+		mv.PubKeyValue = vl.PubKeyValue
 		mv.VotingPower = vl.VotingPower
 		mv.Accum = vl.Accum
 		mv.Status = int(vl.Status)

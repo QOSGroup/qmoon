@@ -10,6 +10,7 @@ import (
 	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/hashicorp/go-version"
 	"github.com/tendermint/go-amino"
 )
@@ -126,4 +127,17 @@ func GetNodeByName(name string) (*Node, error) {
 
 func DeleteNodeByName(name string) error {
 	return models.DeleteNodeByName(name)
+}
+
+func (n Node) Bech32PrefixConsPub() string {
+	switch types.NodeType(n.NodeType) {
+	case types.NodeTypeQOS:
+		return ""
+	case types.NodeTypeQSC:
+		return ""
+	case types.NodeTypeCOSMOS:
+		return "cosmosvalconspub"
+	default:
+		return ""
+	}
 }
