@@ -16,6 +16,7 @@ type Tx struct {
 	Hash        string
 	Maxgas      int64 `xorm:"BIGINT"`
 	GasWanted   int64
+	Fee         string
 	GasUsed     int64
 	QcpFrom     string    `xorm:"TEXT"`
 	QcpTo       string    `xorm:"TEXT"`
@@ -59,6 +60,7 @@ func (t *Tx) Insert(chainID string) error {
 }
 
 type TxOption struct {
+	TxType        string
 	MinHeight     int64
 	MaxHeight     int64
 	Address       string
@@ -79,6 +81,10 @@ func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 
 	if opt.Address != "" {
 		sess = sess.Where("json_tx like ?", "%"+opt.Address+"%")
+	}
+
+	if opt.TxType != "" {
+		sess = sess.Where("tx_type like ?", "%"+opt.TxType+"%")
 	}
 
 	if opt.Limit > 0 {

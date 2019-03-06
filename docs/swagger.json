@@ -110,6 +110,12 @@
           },
           {
             "$ref": "#/parameters/maxHeightParam"
+          },
+          {
+            "$ref": "#/parameters/offsetParam"
+          },
+          {
+            "$ref": "#/parameters/limitParam"
           }
         ],
         "responses": {
@@ -218,6 +224,12 @@
           },
           {
             "$ref": "#/parameters/maxHeightParam"
+          },
+          {
+            "$ref": "#/parameters/offsetParam"
+          },
+          {
+            "$ref": "#/parameters/limitParam"
           }
         ],
         "responses": {
@@ -362,6 +374,64 @@
                           "items": {
                             "$ref": "#/definitions/Sequence"
                           }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/fee": {
+      "get": {
+        "summary": "fee查询",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "query",
+            "name": "tx",
+            "required": false,
+            "type": "string",
+            "description": "交易类型,如果没有填写交易类型，返回最后一个交易的fee(cosmos支持:send,delegate,begin_unbonding,withdraw_delegation_reward)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "tx": {
+                          "type": "string",
+                          "description": "交易类型"
+                        },
+                        "gasWanted": {
+                          "type": "integer",
+                          "description": "gasWanted"
+                        },
+                        "gasUsed": {
+                          "type": "integer",
+                          "description": "gasUsed"
+                        },
+                        "fee": {
+                          "type": "string",
+                          "description": "fee"
                         }
                       }
                     }
@@ -957,6 +1027,19 @@
           },
           {
             "$ref": "#/parameters/maxHeightParam"
+          },
+          {
+            "$ref": "#/parameters/offsetParam"
+          },
+          {
+            "$ref": "#/parameters/limitParam"
+          },
+          {
+            "in": "query",
+            "name": "tx",
+            "required": false,
+            "type": "string",
+            "description": "交易类型(cosmos支持:send,delegate,begin_unbonding,withdraw_delegation_reward)"
           }
         ],
         "responses": {

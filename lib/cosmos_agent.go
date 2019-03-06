@@ -16,6 +16,7 @@ type Tx struct {
 type ResultCosmosTx struct {
 	Status int    `json:"status"`
 	Txs    []Tx   `json:"txs"`
+	Fee    string `json:"fee"`
 	IsOK   bool   `json:"isOk"`
 	Err    string `json:"err"`
 }

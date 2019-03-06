@@ -122,11 +122,19 @@ func (s COSMOS) tx(b *types.Block) error {
 			mt.GasWanted = txResult.GasWanted
 			mt.GasUsed = txResult.GasUsed
 		}
+		mt.Fee = v.Fee
 		if err := mt.Insert(s.node.ChanID); err != nil {
 			log.Printf("tx insert data:%+v, err:%v", mt, err.Error())
 			return err
 		}
+
+		if v.Fee != "" {
+			if err := models.UpdateFee(b.Header.ChainID, txTypes[0], v.Fee, mt.GasWanted, mt.GasUsed); err != nil {
+				log.Printf("UpdateFee err:%s", err.Error())
+			}
+		}
 	}
+
 	return nil
 }
 
