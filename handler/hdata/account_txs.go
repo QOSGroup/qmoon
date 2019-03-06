@@ -39,7 +39,18 @@ func accountTxsGin() gin.HandlerFunc {
 		minHeightStr := c.Query("minHeight")
 		minHeight, _ = strconv.ParseInt(minHeightStr, 10, 64)
 
-		ts, err := node.TxsByAddress(address, minHeight, maxHeight)
+		offset, limit := 0, 20
+		tx := c.Query("tx")
+
+		if d, err := strconv.ParseInt(c.Query("offset"), 10, 64); err == nil {
+			offset = int(d)
+		}
+
+		if d, err := strconv.ParseInt(c.Query("limit"), 10, 64); err == nil {
+			limit = int(d)
+		}
+
+		ts, err := node.TxsByAddress(address, tx, minHeight, maxHeight, offset, limit)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

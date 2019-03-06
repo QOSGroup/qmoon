@@ -74,6 +74,7 @@ type ResultTx struct {
 	TxTypeCN  string          `json:"tx_type_cn"`
 	GasWanted int64           `json:"gas_wanted"`
 	GasUsed   int64           `json:"gas_used"`
+	Fee       string          `json:"fee"`
 	TxStatus  string          `json:"tx_status"`
 	Data      json.RawMessage `json:"data"`       // data
 	Time      ResultTime      `json:"time"`       // time
@@ -166,4 +167,11 @@ type ResultAccount struct {
 type ResultMatrix struct {
 	X string `json:"x"`
 	Y string `json:"y"`
+}
+
+type ResultFee struct {
+	Tx        string `json:"tx"`
+	Fee       string `json:"fee"`
+	GasWanted int64  `json:"gasWanted"`
+	GasUsed   int64  `json:"gasUsed"`
 }

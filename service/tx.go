@@ -19,6 +19,7 @@ func convertToTx(mt *models.Tx) *types.ResultTx {
 		TxTypeCN:  types.TxCN(mt.TxType),
 		GasWanted: mt.GasWanted,
 		GasUsed:   mt.GasUsed,
+		Fee:       mt.Fee,
 		Data:      []byte(mt.JsonTx),
 		Time:      types.ResultTime(mt.Time),
 		TxStatus:  types.TxStatus(mt.TxStatus).String(),
@@ -28,9 +29,10 @@ func convertToTx(mt *models.Tx) *types.ResultTx {
 const maxLimit = 20
 
 // TxsByAddress 交易查询
-func (n Node) TxsByAddress(address string, minHeight, maxHeight int64) ([]*types.ResultTx, error) {
+func (n Node) TxsByAddress(address string, tx string, minHeight, maxHeight int64, offset, limit int) ([]*types.ResultTx, error) {
 	mbs, err := models.Txs(n.ChanID, &models.TxOption{
-		MinHeight: minHeight, MaxHeight: maxHeight, Address: address, Offset: 0, Limit: maxLimit})
+		TxType:    tx,
+		MinHeight: minHeight, MaxHeight: maxHeight, Address: address, Offset: offset, Limit: limit})
 	if err != nil {
 		return nil, err
 	}
