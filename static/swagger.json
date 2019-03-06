@@ -481,11 +481,215 @@
         }
       }
     },
+    "/nodes/{chainId}/validators/votingPowers": {
+      "get": {
+        "summary": "validators投票权重",
+        "tags": [
+          "statistic"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "query",
+            "name": "timeRange",
+            "required": false,
+            "type": "string",
+            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "description": "总数"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "address": {
+                                "type": "string",
+                                "description": "地址"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "地址"
+                              },
+                              "list": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "#/definitions/Matrix"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/validators/votingPowerPercents": {
+      "get": {
+        "summary": "validators投票权重占比",
+        "tags": [
+          "statistic"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "query",
+            "name": "timeRange",
+            "required": false,
+            "type": "string",
+            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "description": "总数"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "address": {
+                                "type": "string",
+                                "description": "地址"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "地址"
+                              },
+                              "list": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "#/definitions/Matrix"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/validators/uptimes": {
+      "get": {
+        "summary": "validators健康度",
+        "tags": [
+          "statistic"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "query",
+            "name": "timeRange",
+            "required": false,
+            "type": "string",
+            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "description": "总数"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "address": {
+                                "type": "string",
+                                "description": "地址"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "地址"
+                              },
+                              "list": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "#/definitions/Matrix"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
     "/nodes/{chainId}/validators/{address}/votingPower": {
       "get": {
-        "summary": "validator投票权重",
+        "summary": "单个validator投票权重",
         "tags": [
-          "baseApi"
+          "statistic"
         ],
         "parameters": [
           {
@@ -533,9 +737,9 @@
     },
     "/nodes/{chainId}/validators/{address}/votingPowerPercent": {
       "get": {
-        "summary": "validator投票权重占比",
+        "summary": "单个validator投票权重占比",
         "tags": [
-          "baseApi"
+          "statistic"
         ],
         "parameters": [
           {
@@ -583,9 +787,9 @@
     },
     "/nodes/{chainId}/validators/{address}/uptime": {
       "get": {
-        "summary": "validator健康度",
+        "summary": "单个validator健康度",
         "tags": [
-          "baseApi"
+          "statistic"
         ],
         "parameters": [
           {
@@ -1375,6 +1579,10 @@
     {
       "name": "pluginApi",
       "description": "插件API"
+    },
+    {
+      "name": "statistic",
+      "description": "统计类API"
     }
   ]
 }
