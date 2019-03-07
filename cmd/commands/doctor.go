@@ -29,13 +29,12 @@ func init() {
 	emailSmtpServer = os.Getenv("MailSmtpServer")
 	emailUser = os.Getenv("MailUser")
 	emailPassword = os.Getenv("MailPassword")
-
-	//DoctorCmd.PersistentFlags().StringVar(&email, "email", "", "the mail")
-	email = "xuyz1988@163.com"
+	email = "xxxx@163.com"
 	registerFlagsDb(DoctorCmd)
 }
 
 func doctor(cmd *cobra.Command, args []string) error {
+
 	logrus.WithField("model", "hadmin").
 		WithField("MailSmtpServer", emailSmtpServer).
 		WithField("MailUser", emailUser).

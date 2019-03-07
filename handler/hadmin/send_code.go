@@ -68,7 +68,7 @@ func sendCodeGin() gin.HandlerFunc {
 			WithField("MailPassword", emailPassword).
 			Debug()
 		if err := service.SendCode(emailSmtpServer, emailUser, emailPassword, reqObj.Email); err != nil {
-			c.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
+			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
 

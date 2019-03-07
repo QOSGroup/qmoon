@@ -9,6 +9,7 @@ require (
 	github.com/elazarl/go-bindata-assetfs v1.0.0
 	github.com/gin-contrib/sse v0.0.0-20190125020943-a7658810eb74 // indirect
 	github.com/gin-gonic/gin v1.3.0
+	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-xorm/core v0.6.2
 	github.com/go-xorm/xorm v0.7.1
