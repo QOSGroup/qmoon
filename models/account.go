@@ -200,3 +200,13 @@ func RetrieveAccountByMail(mail string) (*Account, error) {
 
 	return n, nil
 }
+
+func AccountIsExist(mail string) (bool, error) {
+	n := &Account{Mail: mail}
+	exist, err := basex.Exist(n)
+	if err != nil {
+		return false, err
+	}
+
+	return exist, nil
+}

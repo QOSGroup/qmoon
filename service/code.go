@@ -26,8 +26,6 @@ func CheckCode(email, code string) bool {
 		return false
 	}
 
-	vc.Delete()
-
 	return vc.Code == code
 }
 

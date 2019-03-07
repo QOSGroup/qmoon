@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/QOSGroup/qmoon/models"
+	"github.com/QOSGroup/qmoon/models/errors"
 )
 
 type Account struct {
@@ -68,6 +69,15 @@ func List(offset, limit int) ([]*Account, error) {
 }
 
 func CreateAccount(mail, password string) (*Account, error) {
+	exist, err := models.AccountIsExist(mail)
+	if err != nil {
+		return nil, err
+	}
+
+	if exist {
+		return nil, errors.New("邮箱已经被注册")
+	}
+
 	macc, err := models.CreateAccount(mail, password)
 	if err != nil {
 		return nil, err
