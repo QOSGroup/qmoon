@@ -68,6 +68,7 @@ func init() {
 
 	qmoonTables = append(qmoonTables,
 		new(Account), new(Node), new(App), new(LoginStatus), new(NodeRoute), new(QmoonStatus),
+		new(VerifyCode),
 	)
 
 	nodeTables = append(nodeTables,
