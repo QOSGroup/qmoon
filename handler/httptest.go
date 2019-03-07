@@ -68,7 +68,7 @@ func (ht *HttpTest) WithAuth() *HttpTest {
 		panic(err)
 	}
 
-	ht.req.Header.Set(types.AuthKey, apps[0].SecretKey)
+	ht.req.Header.Set(types.TokenKey, apps[0].SecretKey)
 
 	return ht
 }
