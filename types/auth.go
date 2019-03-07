@@ -4,5 +4,4 @@ package types
 
 const (
 	TokenKey = "QToken"
-	AuthKey  = "Authorization"
 )

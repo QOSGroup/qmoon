@@ -13,27 +13,22 @@ type VerifyCode struct {
 	Code  string `xorm:"TEXT"`
 
 	Version       int       `xorm:"version"`
-	UpdatedAt     time.Time `xorm:"-"`
-	UpdatedAtUnix int64
 	CreatedAt     time.Time `xorm:"-"`
 	CreatedAtUnix int64
 }
 
 func (vc *VerifyCode) BeforeInsert() {
 	vc.CreatedAtUnix = time.Now().Unix()
-	vc.UpdatedAtUnix = time.Now().Unix()
 }
 
 func (vc *VerifyCode) BeforeUpdate() {
-	vc.UpdatedAtUnix = time.Now().Unix()
+	vc.CreatedAtUnix = time.Now().Unix()
 }
 
 func (vc *VerifyCode) AfterSet(colName string, _ xorm.Cell) {
 	switch colName {
 	case "created_at_unix":
 		vc.CreatedAt = time.Unix(vc.CreatedAtUnix, 0).Local()
-	case "updated_at_unix":
-		vc.UpdatedAt = time.Unix(vc.UpdatedAtUnix, 0).Local()
 	}
 }
 
@@ -70,7 +65,7 @@ func CreateVerifyCode(email, code string) (*VerifyCode, error) {
 		}
 
 		vc.Code = code
-		_, err = basex.ID(vc.Id).Cols("code").Update(vc)
+		_, err = basex.ID(vc.Id).Cols("code", "created_at_unix").Update(vc)
 	}
 
 	return vc, err

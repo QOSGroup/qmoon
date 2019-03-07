@@ -4,6 +4,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/QOSGroup/qmoon/models"
@@ -11,19 +12,17 @@ import (
 	"github.com/go-gomail/gomail"
 )
 
-const VerifyCodeExpired = time.Minute * 15
-const VerifyCodeDuration = time.Minute
-
 // CheckCode 验证码校验
 func CheckCode(email, code string) bool {
 	vc, err := models.VerifyCodeByEmail(email)
+	log.Printf("CheckCode email:%s, code:%s, vc:%+v, err:%v", email, code, vc, err)
 	if err != nil {
 		return false
 	}
 
 	now := time.Now()
 
-	if vc.CreatedAt.Add(VerifyCodeExpired).Before(now) {
+	if vc.CreatedAt.Add(models.VerifyCodeExpired).Before(now) {
 		return false
 	}
 
@@ -51,7 +50,7 @@ func SendCode(mailSmtpServer, mailUser, mailPassword, email string) error {
 		您好!
 
 		您本次操作验正码为：%s, %d分钟内有效, 若非本人操作，请忽略!
-	`, code, int(VerifyCodeExpired.Minutes()))
+	`, code, int(models.VerifyCodeExpired.Minutes()))
 	m.SetBody(contentType, body)
 
 	d := gomail.NewDialer(mailSmtpServer, 465, mailUser, mailPassword)

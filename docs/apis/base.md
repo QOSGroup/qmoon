@@ -3,8 +3,11 @@
 # API Instructions
 
 ## Authorization
-所有请求需要在header中增加
-Authorization:xxx
+所有请求需要在header中增加，QToken:xxx
+
+token在[explorer](http://explorer.qoschain.info/developer)中申请
+
+
 
 ## Response Code
 http 状态码为200

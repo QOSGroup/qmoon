@@ -168,7 +168,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, err
 	}
 
-	req.Header.Add(types.AuthKey, c.secretKey)
+	req.Header.Add(types.TokenKey, c.secretKey)
 
 	return req, nil
 }

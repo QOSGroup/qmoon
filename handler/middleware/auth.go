@@ -35,7 +35,7 @@ func ApiAuthGin() func(c *gin.Context) {
 		{
 			return
 		}
-		a := c.GetHeader(types.AuthKey)
+		a := c.GetHeader(types.TokenKey)
 		if a == "" {
 			c.AbortWithStatusJSON(http.StatusOK, types.RPCForbiddenError("", errors.New("no Authorization")))
 			return
