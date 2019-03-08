@@ -1,12 +1,12 @@
 package models
 
 import (
-	"log"
 	"strings"
 	"time"
 
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/go-xorm/xorm"
+	"github.com/sirupsen/logrus"
 )
 
 const DefaultFeeTx = "default"
@@ -45,7 +45,7 @@ func (n *Fee) AfterSet(colName string, _ xorm.Cell) {
 }
 
 func syncDefaultFee(chainID, fee string, gasWanted, gasUsed int64) error {
-	return UpdateFee(chainID, DefaultFeeTx, fee, gasWanted, gasUsed)
+	return updateFee(chainID, DefaultFeeTx, fee, gasWanted, gasUsed)
 }
 
 func (n *Fee) Insert(chainID string) error {
@@ -63,6 +63,18 @@ func (n *Fee) Insert(chainID string) error {
 }
 
 func UpdateFee(chainID, tx, fee string, gasWanted, gasUsed int64) error {
+	if err := updateFee(chainID, tx, fee, gasWanted, gasUsed); err != nil {
+		return err
+	}
+
+	if err := syncDefaultFee(chainID, fee, gasWanted, gasUsed); err != nil {
+		logrus.Warnf("syncDefaultFee err:%s", err.Error())
+	}
+
+	return updateFee(chainID, tx, fee, gasWanted, gasUsed)
+}
+
+func updateFee(chainID, tx, fee string, gasWanted, gasUsed int64) error {
 	tx = strings.ToLower(tx)
 
 	x, err := GetNodeEngine(chainID)
@@ -82,6 +94,8 @@ func UpdateFee(chainID, tx, fee string, gasWanted, gasUsed int64) error {
 			if err := f.Insert(chainID); err != nil {
 				return err
 			}
+		} else {
+			return err
 		}
 	} else {
 		f.GasWanted = gasWanted
@@ -90,10 +104,6 @@ func UpdateFee(chainID, tx, fee string, gasWanted, gasUsed int64) error {
 		if _, err := x.ID(f.Id).Update(f); err != nil {
 			return err
 		}
-	}
-
-	if err := syncDefaultFee(chainID, fee, gasWanted, gasUsed); err != nil {
-		log.Printf("syncDefaultFee err:%s", err.Error())
 	}
 
 	return nil
