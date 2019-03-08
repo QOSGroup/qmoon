@@ -80,7 +80,7 @@ func newQuery(prefix, chainid, addr string) string {
 	return q
 }
 
-func QueryValidatorVotingPower(chainid, addr string) ([]types.ResultMatrix, error) {
+func QueryValidatorVotingPower(chainid, addr string, start, end time.Time, step time.Duration) ([]types.ResultMatrix, error) {
 	prometheusServer := viper.GetString(types.FlagPrometheusServer)
 
 	cli, err := api.NewClient(api.Config{Address: prometheusServer})
@@ -89,11 +89,10 @@ func QueryValidatorVotingPower(chainid, addr string) ([]types.ResultMatrix, erro
 	}
 	papi := v1.NewAPI(cli)
 
-	now := time.Now()
 	ds, err := papi.QueryRange(context.Background(), newQuery(votingPowerPrefix, chainid, addr), v1.Range{
-		Start: utils.NDaysAgo(now, 7),
-		End:   now,
-		Step:  time.Second * 2419,
+		Start: start,
+		End:   end,
+		Step:  step,
 	})
 	if err != nil {
 		return nil, err
@@ -106,7 +105,7 @@ func QueryValidatorVotingPower(chainid, addr string) ([]types.ResultMatrix, erro
 	}
 }
 
-func QueryValidatorVotingPowerPercent(chainid, addr string) ([]types.ResultMatrix, error) {
+func QueryValidatorVotingPowerPercent(chainid, addr string, start, end time.Time, step time.Duration) ([]types.ResultMatrix, error) {
 	prometheusServer := viper.GetString(types.FlagPrometheusServer)
 
 	cli, err := api.NewClient(api.Config{Address: prometheusServer})
@@ -115,11 +114,10 @@ func QueryValidatorVotingPowerPercent(chainid, addr string) ([]types.ResultMatri
 	}
 	papi := v1.NewAPI(cli)
 
-	now := time.Now()
 	ds, err := papi.QueryRange(context.Background(), newQuery(votingPowerPercentPrefix, chainid, addr), v1.Range{
-		Start: utils.NDaysAgo(now, 30),
-		End:   now,
-		Step:  time.Minute * 10,
+		Start: start,
+		End:   end,
+		Step:  step,
 	})
 	if err != nil {
 		return nil, err
@@ -132,7 +130,7 @@ func QueryValidatorVotingPowerPercent(chainid, addr string) ([]types.ResultMatri
 	}
 }
 
-func QueryValidatorUptime(chainid, addr string) ([]types.ResultMatrix, error) {
+func QueryValidatorUptime(chainid, addr string, start, end time.Time, step time.Duration) ([]types.ResultMatrix, error) {
 	prometheusServer := viper.GetString(types.FlagPrometheusServer)
 
 	cli, err := api.NewClient(api.Config{Address: prometheusServer})
@@ -141,11 +139,10 @@ func QueryValidatorUptime(chainid, addr string) ([]types.ResultMatrix, error) {
 	}
 	papi := v1.NewAPI(cli)
 
-	now := time.Now()
 	ds, err := papi.QueryRange(context.Background(), newQuery(uptimePrefix, chainid, addr), v1.Range{
-		Start: utils.NDaysAgo(now, 30),
-		End:   now,
-		Step:  time.Minute * 10,
+		Start: start,
+		End:   end,
+		Step:  step,
 	})
 	if err != nil {
 		return nil, err
