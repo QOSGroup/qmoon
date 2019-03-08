@@ -563,10 +563,24 @@
           },
           {
             "in": "query",
-            "name": "timeRange",
+            "name": "start",
             "required": false,
-            "type": "string",
-            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+            "type": "integer",
+            "description": "开始时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "type": "integer",
+            "description": "结束时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "step",
+            "required": false,
+            "type": "integer",
+            "description": "采点时间间隔(单位秒)"
           }
         ],
         "responses": {
@@ -631,10 +645,24 @@
           },
           {
             "in": "query",
-            "name": "timeRange",
+            "name": "start",
             "required": false,
-            "type": "string",
-            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+            "type": "integer",
+            "description": "开始时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "type": "integer",
+            "description": "结束时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "step",
+            "required": false,
+            "type": "integer",
+            "description": "采点时间间隔(单位秒)"
           }
         ],
         "responses": {
@@ -699,10 +727,24 @@
           },
           {
             "in": "query",
-            "name": "timeRange",
+            "name": "start",
             "required": false,
-            "type": "string",
-            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+            "type": "integer",
+            "description": "开始时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "type": "integer",
+            "description": "结束时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "step",
+            "required": false,
+            "type": "integer",
+            "description": "采点时间间隔(单位秒)"
           }
         ],
         "responses": {
@@ -774,10 +816,24 @@
           },
           {
             "in": "query",
-            "name": "timeRange",
+            "name": "start",
             "required": false,
-            "type": "string",
-            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+            "type": "integer",
+            "description": "开始时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "type": "integer",
+            "description": "结束时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "step",
+            "required": false,
+            "type": "integer",
+            "description": "采点时间间隔(单位秒)"
           }
         ],
         "responses": {
@@ -824,10 +880,24 @@
           },
           {
             "in": "query",
-            "name": "timeRange",
+            "name": "start",
             "required": false,
-            "type": "string",
-            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+            "type": "integer",
+            "description": "开始时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "type": "integer",
+            "description": "结束时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "step",
+            "required": false,
+            "type": "integer",
+            "description": "采点时间间隔(单位秒)"
           }
         ],
         "responses": {
@@ -874,10 +944,24 @@
           },
           {
             "in": "query",
-            "name": "timeRange",
+            "name": "start",
             "required": false,
-            "type": "string",
-            "description": "时间区间(unix时间戳-unix时间戳),默认返回最近7天"
+            "type": "integer",
+            "description": "开始时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "type": "integer",
+            "description": "结束时间(unix时间戳)"
+          },
+          {
+            "in": "query",
+            "name": "step",
+            "required": false,
+            "type": "integer",
+            "description": "采点时间间隔(单位秒)"
           }
         ],
         "responses": {
