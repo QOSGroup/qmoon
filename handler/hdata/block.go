@@ -52,8 +52,10 @@ func blockGin() gin.HandlerFunc {
 				return
 			}
 		}
+		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
+		limit, _ := strconv.ParseInt(c.Query("limit"), 10, 64)
 
-		ts, _ := node.Txs(b.Height, b.Height)
+		ts, _ := node.Txs(b.Height, b.Height, offset, limit)
 		vs, _ := node.BlockValidatorsByHeight(b.Height)
 
 		resp := &types.ResultBlock{}

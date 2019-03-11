@@ -29,10 +29,16 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	result.GenesisTime = types.ResultTime(g.GenesisTime)
 
 	cs, err1 := n.ConsensusState()
-	result.ConsensusState = cs
+	if err1 != nil {
+		result.ConsensusState = &types.ResultConsensusState{}
+	} else {
+		result.ConsensusState = cs
+	}
 
 	vs, err2 := n.Validators()
-	result.TotalValidators = int64(len(vs))
+	if err2 == nil {
+		result.TotalValidators = int64(len(vs))
+	}
 
 	lb, err3 := n.LatestBlock()
 	if err3 == nil {
