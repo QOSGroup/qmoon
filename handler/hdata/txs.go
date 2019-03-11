@@ -38,7 +38,11 @@ func txsGin() gin.HandlerFunc {
 		minHeightStr := c.Query("minHeight")
 		minHeight, _ = strconv.ParseInt(minHeightStr, 10, 64)
 
-		ts, err := node.Txs(minHeight, maxHeight)
+		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
+
+		limit, _ := strconv.ParseInt(c.Query("limit"), 10, 64)
+
+		ts, err := node.Txs(minHeight, maxHeight, offset, limit)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

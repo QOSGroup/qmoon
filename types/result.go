@@ -4,9 +4,11 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/QOSGroup/qbase/types"
+	"github.com/tidwall/gjson"
 )
 
 type ResultTime time.Time
@@ -44,16 +46,33 @@ type ResultValidator struct {
 	Blocks    []*BlockValidator `json:"blocks"`
 }
 
-func TxCN(t string) string {
+func TxCN(t string, tx string, address string) string {
 	switch t {
 	//qos
 	case "qos/txs/TxTransfer":
-		return "转账"
+		if address != "" {
+			if gjson.Get(tx, fmt.Sprintf(`senders.#[addr=="%s"].addr`, address)).String() == "" {
+				return "转入"
+			} else {
+				return "转出"
+			}
+		} else {
+			return "转账"
+		}
 	//qsc
 
 	// cosmos
 	case "send":
-		return "转账"
+		if address != "" {
+			if gjson.Get(tx, fmt.Sprintf(`#[data.from_address=="%s"].type`, address)).String() == "send" {
+				return "转出"
+			} else {
+				return "转入"
+			}
+		} else {
+			return "转账"
+		}
+
 	case "delegate":
 		return "委托"
 	case "begin_unbonding":
