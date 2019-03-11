@@ -77,7 +77,7 @@ func TxCN(t string, tx string, address string) string {
 		return "委托"
 	case "begin_unbonding":
 		return "终止委托"
-	case "withdraw_delegation_reward":
+	case "withdraw_delegator_reward":
 		return "取回分红"
 	default:
 		return t
