@@ -989,6 +989,92 @@
         }
       }
     },
+    "/nodes/{chainId}/validators/{address}/evidence": {
+      "get": {
+        "summary": "validator双签记录",
+        "tags": [
+          "statistic"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "validator"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/ActionRecord"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/validators/{address}/missing": {
+      "get": {
+        "summary": "validator漏签记录",
+        "tags": [
+          "statistic"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "path",
+            "name": "address",
+            "required": true,
+            "type": "string",
+            "description": "validator"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/ActionRecord"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
     "/nodes/{chainId}/peers": {
       "get": {
         "summary": "peers",
@@ -1734,6 +1820,20 @@
         "y": {
           "type": "string",
           "description": "纵坐标"
+        }
+      }
+    },
+    "ActionRecord": {
+      "type": "object",
+      "description": "动作记录",
+      "properties": {
+        "time": {
+          "type": "string",
+          "description": "时间"
+        },
+        "height": {
+          "type": "integer",
+          "description": "高度"
         }
       }
     }
