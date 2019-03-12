@@ -194,3 +194,15 @@ type ResultFee struct {
 	GasWanted int64  `json:"gasWanted"`
 	GasUsed   int64  `json:"gasUsed"`
 }
+
+// ResultEvidence 双签返回结果
+type ResultEvidence struct {
+	Time   string `json:"time"`
+	Height int64  `json:"height"`
+}
+
+// ResultMissing 漏签
+type ResultMissing struct {
+	Time   string `json:"time"`
+	Height int64  `json:"height"`
+}
