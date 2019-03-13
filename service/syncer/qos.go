@@ -122,6 +122,7 @@ func (s QOS) tx(b *types.Block) error {
 			mt.TxStatus = int(txResult.TxStatus)
 			mt.GasWanted = txResult.GasWanted
 			mt.GasUsed = txResult.GasUsed
+			mt.Log = txResult.Log
 		}
 
 		if err := parseQosTx(b.Header, qbasetx, mt); err != nil {

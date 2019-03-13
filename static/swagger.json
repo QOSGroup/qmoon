@@ -1497,6 +1497,18 @@
           "type": "string",
           "description": "原始tx数据"
         },
+        "tx_status": {
+          "type": "integer",
+          "description": "状态"
+        },
+        "status": {
+          "type": "integer",
+          "description": "状态(0:确认中，1:成功，2:失败)"
+        },
+        "log": {
+          "type": "string",
+          "description": "日志信息"
+        },
         "time": {
           "type": "string",
           "description": "UTC格式"

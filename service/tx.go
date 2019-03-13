@@ -23,6 +23,8 @@ func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 		Data:      []byte(mt.JsonTx),
 		Time:      types.ResultTime(mt.Time),
 		TxStatus:  types.TxStatus(mt.TxStatus).String(),
+		Status:    mt.TxStatus,
+		Log:       mt.Log,
 	}
 }
 

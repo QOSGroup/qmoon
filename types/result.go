@@ -95,8 +95,10 @@ type ResultTx struct {
 	GasUsed   int64           `json:"gas_used"`
 	Fee       string          `json:"fee"`
 	TxStatus  string          `json:"tx_status"`
-	Data      json.RawMessage `json:"data"`       // data
-	Time      ResultTime      `json:"time"`       // time
+	Status    int             `json:"status"`
+	Data      json.RawMessage `json:"data"` // data
+	Time      ResultTime      `json:"time"` // time
+	Log       string          `json:"log"`
 	CreatedAt ResultTime      `json:"created_at"` // created_at
 }
 

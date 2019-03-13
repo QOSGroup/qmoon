@@ -26,6 +26,7 @@ type Tx struct {
 	TxStatus    int       `xorm:"default 0 INTEGER"`
 	OriginTx    string    `xorm:"TEXT"`
 	JsonTx      string    `xorm:"TEXT"`
+	Log         string    `xorm:"TEXT"`
 	Time        time.Time `xorm:"-"`
 	TimeUnix    int64
 }

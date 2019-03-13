@@ -119,6 +119,7 @@ func (s QSC) tx(b *types.Block) error {
 			mt.TxStatus = int(txResult.TxStatus)
 			mt.GasWanted = txResult.GasWanted
 			mt.GasUsed = txResult.GasUsed
+			mt.Log = txResult.Log
 		}
 		if err := mt.Insert(s.node.ChanID); err != nil {
 			log.Printf("tx insert data:%+v, err:%v", mt, err.Error())

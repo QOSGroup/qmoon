@@ -60,4 +60,5 @@ type Tx struct {
 	TxStatus  TxStatus `json:"txStatus"`
 	GasWanted int64    `json:"gasWanted"`
 	GasUsed   int64    `json:"gasUsed"`
+	Log       string   `json:"log"`
 }

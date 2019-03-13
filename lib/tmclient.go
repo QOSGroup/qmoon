@@ -66,6 +66,7 @@ func (tc *TmClient) RetrieveTx(txHash []byte) (*types.Tx, error) {
 	result.Code = res.TxResult.Code
 	result.GasWanted = res.TxResult.GetGasWanted()
 	result.GasUsed = res.TxResult.GetGasUsed()
+	result.Log = res.TxResult.Log
 	if res.TxResult.IsOK() {
 		result.TxStatus = types.TxStatusSuccess
 	} else {
