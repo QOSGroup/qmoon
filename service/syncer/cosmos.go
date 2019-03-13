@@ -166,7 +166,6 @@ func (s COSMOS) ValidatorLoop(ctx context.Context) error {
 			for _, val := range vals {
 				s.node.CreateValidator(val)
 			}
-			metric.ValidatorVotingPower(vals)
 
 			valMap := make(map[string]types.Validator)
 			for _, v := range vals {
@@ -183,6 +182,7 @@ func (s COSMOS) ValidatorLoop(ctx context.Context) error {
 					}
 				}
 			}
+			metric.ValidatorVotingPower(allVals)
 		}
 	}
 

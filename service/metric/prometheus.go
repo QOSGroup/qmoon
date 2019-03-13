@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -48,6 +49,15 @@ func ValidatorVotingPower(vals []types.Validator) {
 			}})
 		powerGauge.Set(float64(v.VotingPower))
 		pusher.Collector(powerGauge)
+
+		uptimeGauge := prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: uptimePrefix + strings.Replace(v.ChainID, "-", "_", -1),
+			ConstLabels: map[string]string{
+				"address": v.Address,
+			}})
+		d, _ := strconv.ParseFloat(v.Uptime, 64)
+		uptimeGauge.Set(d)
+		pusher.Collector(uptimeGauge)
 
 		if totalPower > 0 {
 			percentGauge := prometheus.NewGauge(prometheus.GaugeOpts{
