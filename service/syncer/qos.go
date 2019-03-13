@@ -247,8 +247,6 @@ func (s QOS) ValidatorLoop(ctx context.Context) error {
 				s.node.CreateValidator(val)
 			}
 
-			metric.ValidatorVotingPower(vals)
-
 			valMap := make(map[string]types.Validator)
 			for _, v := range vals {
 				valMap[v.Address] = v
@@ -264,6 +262,8 @@ func (s QOS) ValidatorLoop(ctx context.Context) error {
 					}
 				}
 			}
+
+			metric.ValidatorVotingPower(allVals)
 		}
 	}
 

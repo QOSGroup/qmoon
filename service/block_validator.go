@@ -5,6 +5,7 @@ package service
 import (
 	"errors"
 	"log"
+	"time"
 
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
@@ -115,13 +116,28 @@ func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
 		vm[v.ValidatorAddress] = v
 	}
 
+	var height int64
+	var t time.Time
 	for _, v := range vars {
+		height = v.Height
+		t = v.Timestamp
 		if err := n.UpdateValidatorBlock(v.ValidatorAddress, v.Height, v.Timestamp); err != nil {
 			log.Printf("UpdateValidatorBlock err:%v", err.Error())
 		}
 
 		if err := n.saveBlockValidator(v); err != nil {
 			log.Printf("saveBlockValidator err:%v", err.Error())
+		}
+	}
+	allVals, _ := n.Validators()
+	for _, v := range allVals {
+		if _, ok := vm[v.Address]; !ok {
+			missing := &models.Missing{
+				Height:           height,
+				ValidatorAddress: v.Address,
+				CreatedAt:        t,
+			}
+			missing.Insert(n.ChanID)
 		}
 	}
 
