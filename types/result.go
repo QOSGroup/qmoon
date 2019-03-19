@@ -192,7 +192,7 @@ type ResultMatrix struct {
 
 type ResultFee struct {
 	Tx        string `json:"tx"`
-	Fee       string `json:"fee"`
+	Fee       []Coin `json:"fee"`
 	GasWanted int64  `json:"gasWanted"`
 	GasUsed   int64  `json:"gasUsed"`
 }

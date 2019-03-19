@@ -430,8 +430,10 @@
                           "description": "gasUsed"
                         },
                         "fee": {
-                          "type": "string",
-                          "description": "fee"
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/Coin"
+                          }
                         }
                       }
                     }
@@ -1846,6 +1848,20 @@
         "height": {
           "type": "integer",
           "description": "高度"
+        }
+      }
+    },
+    "Coin": {
+      "type": "object",
+      "description": "币",
+      "properties": {
+        "denom": {
+          "type": "string",
+          "description": "币种"
+        },
+        "amount": {
+          "type": "integer",
+          "description": "数量"
         }
       }
     }

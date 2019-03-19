@@ -8,9 +8,11 @@ import (
 )
 
 func convertToFee(mt *models.Fee) *types.ResultFee {
+	cs, _ := types.ParseCoins(mt.Fee)
+
 	return &types.ResultFee{
 		Tx:        mt.Tx,
-		Fee:       mt.Fee,
+		Fee:       cs,
 		GasWanted: mt.GasWanted,
 		GasUsed:   mt.GasUsed,
 	}
