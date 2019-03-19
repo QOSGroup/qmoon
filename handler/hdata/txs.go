@@ -41,6 +41,9 @@ func txsGin() gin.HandlerFunc {
 		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
 
 		limit, _ := strconv.ParseInt(c.Query("limit"), 10, 64)
+		if limit == 0 {
+			limit = 20
+		}
 
 		ts, err := node.Txs(minHeight, maxHeight, offset, limit)
 		if err != nil {

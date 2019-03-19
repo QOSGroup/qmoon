@@ -76,7 +76,7 @@ func init() {
 		new(Validator), new(BlockValidator), new(Peer),
 		new(Block), new(Tx), new(ConsensusState), new(Genesis),
 		new(TmBlock), new(TxTransfer),
-		new(Fee),
+		new(Fee), new(Evidence), new(Missing),
 	)
 
 	gonicNames := []string{"SSL"}
