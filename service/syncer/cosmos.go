@@ -38,7 +38,7 @@ func (s COSMOS) ConsensusState(cs types.ResultConsensusState) error {
 // BlockLoop 同步块
 func (s COSMOS) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {
-		log.Printf("[Sync] BlockLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("COSMOS [Sync] BlockLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
 	defer s.Unlock(LockTypeBlock)
@@ -48,7 +48,7 @@ func (s COSMOS) BlockLoop(ctx context.Context) error {
 	if err == nil && latest != nil {
 		height = latest.Height + 1
 	}
-	log.Printf("[Sync] block start:%d", height)
+	log.Printf("COSMOS [Sync] block start:%d", height)
 
 	for {
 		select {
@@ -57,11 +57,13 @@ func (s COSMOS) BlockLoop(ctx context.Context) error {
 		default:
 			b, err := s.tmcli.RetrieveBlock(&height)
 			if err != nil {
+				log.Printf("COSMOS [Sync] BlockLoop  RetrieveBlock err:%v", err)
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
 
 			if err := s.block(b); err != nil {
+				log.Printf("[Sync] BlockLoop block err:%v", err)
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
@@ -79,8 +81,12 @@ func (s COSMOS) block(b *types.Block) error {
 		return err
 	}
 
-	s.tx(b)
-	s.node.SaveBlockValidator(b.Precommits)
+	if err := s.tx(b); err != nil {
+		log.Printf("COSMOS [Sync] block  tx err:%v", err)
+	}
+	if err := s.node.SaveBlockValidator(b.Precommits); err != nil {
+		log.Printf("COSMOS [Sync] block  tx err:%v", err)
+	}
 
 	return nil
 }
