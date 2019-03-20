@@ -97,3 +97,11 @@ func (n Node) CreateBlock(b *types.Block) error {
 
 	return nil
 }
+
+func (n Node) CreateEvidence(b *types.Block) error {
+	if b.EvidenceList.Evidences == nil || len(b.EvidenceList.Evidences) == 0 {
+		return nil
+	}
+
+	return models.CreateEvidences(n.ChanID, b.EvidenceList)
+}

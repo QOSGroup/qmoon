@@ -81,6 +81,10 @@ func (s COSMOS) block(b *types.Block) error {
 		return err
 	}
 
+	if err := s.node.CreateEvidence(b); err != nil {
+		log.Printf("COSMOS [Sync] CreateEvidence  err:%v", err)
+	}
+
 	if err := s.tx(b); err != nil {
 		log.Printf("COSMOS [Sync] block  tx err:%v", err)
 	}

@@ -32,10 +32,24 @@ type BlockHeader struct {
 
 }
 
+type Evidence struct {
+	Height  int64
+	Address string
+	Hash    string
+	Data    string
+	Time    time.Time
+}
+
+type EvidenceList struct {
+	Evidences []Evidence
+	Time      time.Time
+}
+
 type Block struct {
-	Header     BlockHeader
-	Txs        [][]byte
-	Precommits []*BlockValidator
+	Header       BlockHeader
+	Txs          [][]byte
+	Precommits   []*BlockValidator
+	EvidenceList EvidenceList
 }
 
 type BlockValidator struct {
