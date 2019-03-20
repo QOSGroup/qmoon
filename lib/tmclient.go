@@ -252,7 +252,28 @@ func (tc *TmClient) RetrieveBlock(height *int64) (*types.Block, error) {
 	}
 	result.Precommits = precommit
 
+	if block.Block.Evidence.Evidence != nil {
+		result.EvidenceList = types.EvidenceList{
+			Time:      block.Block.Time,
+			Evidences: parseEvidence(block.Block.Evidence.Evidence),
+		}
+	}
+
 	return &result, nil
+}
+
+func parseEvidence(es tmtypes.EvidenceList) []types.Evidence {
+	var res []types.Evidence
+	for _, v := range es {
+		res = append(res, types.Evidence{
+			Height:  v.Height(),
+			Address: string(v.Address()),
+			Hash:    string(v.Hash()),
+			Data:    v.String(),
+		})
+	}
+
+	return res
 }
 
 func parseVote(chainID string, v *tmtypes.Vote) *types.BlockValidator {
