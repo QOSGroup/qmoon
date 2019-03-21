@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -32,7 +33,7 @@ const (
 	uptimePrefix             = "validator_uptime_"
 )
 
-func ValidatorVotingPower(vals []types.Validator) {
+func ValidatorVotingPower(chainID string, vals []types.Validator) {
 	pushName := viper.GetString(types.FlagPrometheusPushName)
 	pushGateway := viper.GetString(types.FlagPrometheusPushGateway)
 
@@ -43,7 +44,7 @@ func ValidatorVotingPower(vals []types.Validator) {
 	pusher := push.New(pushGateway, pushName)
 	for _, v := range vals {
 		powerGauge := prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: votingPowerPrefix + strings.Replace(v.ChainID, "-", "_", -1),
+			Name: votingPowerPrefix + strings.Replace(chainID, "-", "_", -1),
 			ConstLabels: map[string]string{
 				"address": v.Address,
 			}})
@@ -51,7 +52,7 @@ func ValidatorVotingPower(vals []types.Validator) {
 		pusher.Collector(powerGauge)
 
 		uptimeGauge := prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: uptimePrefix + strings.Replace(v.ChainID, "-", "_", -1),
+			Name: uptimePrefix + strings.Replace(chainID, "-", "_", -1),
 			ConstLabels: map[string]string{
 				"address": v.Address,
 			}})
@@ -61,7 +62,7 @@ func ValidatorVotingPower(vals []types.Validator) {
 
 		if totalPower > 0 {
 			percentGauge := prometheus.NewGauge(prometheus.GaugeOpts{
-				Name: votingPowerPercentPrefix + strings.Replace(v.ChainID, "-", "_", -1),
+				Name: votingPowerPercentPrefix + strings.Replace(chainID, "-", "_", -1),
 				ConstLabels: map[string]string{
 					"address": v.Address,
 				}})
@@ -75,8 +76,9 @@ func ValidatorVotingPower(vals []types.Validator) {
 		}
 	}
 
-	if err := pusher.Add(); err != nil {
-		fmt.Printf("push err:%s\n", err.Error())
+	err := pusher.Add()
+	if err != nil {
+		log.Printf("push err:%s", err.Error())
 	}
 }
 

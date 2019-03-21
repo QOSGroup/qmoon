@@ -39,16 +39,6 @@ func init() {
 	qos0_0_4, _ = version.NewVersion("0.0.4")
 }
 
-func (s QOS) Block(b types.Block) error {
-	return s.block(&b)
-}
-func (s QOS) Validator(val types.Validators) error {
-	return nil
-}
-func (s QOS) ConsensusState(cs types.ResultConsensusState) error {
-	return nil
-}
-
 // BlockLoop 同步块
 func (s QOS) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {
@@ -78,6 +68,7 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
+			s.Validator(height)
 			height += 1
 		}
 	}
@@ -213,60 +204,41 @@ func parseQosITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) e
 	return nil
 }
 
-func (s QOS) ValidatorLoop(ctx context.Context) error {
-	if !s.Lock(LockTypeValidator) {
-		log.Printf("[Sync] ValidatorLoop %v err, has been locked.", s.node.ChanID)
-
-		return nil
+func (s QOS) Validator(height int64) error {
+	var vals []types.Validator
+	var err error
+	if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
+		vals, err = s.tmcli.QOSValidator(height)
+	} else {
+		vals, err = s.tmcli.QOSValidatorV0_0_4(height)
 	}
-	defer s.Unlock(LockTypeValidator)
-	var height int64 = 1
+	if err != nil {
+		log.Printf("COSMOS [Sync] ValidatorLoop  Validator err:%v", err)
+		time.Sleep(time.Millisecond * 100)
+		return err
+	}
 
-	for {
-		time.Sleep(SyncValidator)
-		latest, err := s.node.LatestBlock()
-		if err == nil && latest != nil {
-			height = latest.Height + 1
-		}
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			var vals []types.Validator
-			var err error
-			if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
-				vals, err = s.tmcli.QOSValidator(height)
-			} else {
-				vals, err = s.tmcli.QOSValidatorV0_0_4(height)
-			}
-			if err != nil {
-				time.Sleep(time.Millisecond * 100)
-				continue
-			}
+	for _, val := range vals {
+		s.node.CreateValidator(val)
+	}
 
-			for _, val := range vals {
-				s.node.CreateValidator(val)
-			}
+	valMap := make(map[string]types.Validator)
+	for _, v := range vals {
+		valMap[v.Address] = v
+	}
 
-			valMap := make(map[string]types.Validator)
-			for _, v := range vals {
-				valMap[v.Address] = v
-			}
-
-			allVals, err := s.node.Validators()
-			if err == nil {
-				for _, v := range allVals {
-					if v.Status == types.Active {
-						if _, ok := valMap[v.Address]; !ok {
-							s.node.InactiveValidator(v.Address, 0, 0, time.Time{})
-						}
-					}
+	allVals, err := s.node.Validators()
+	if err == nil {
+		for _, v := range allVals {
+			if v.Status == types.Active {
+				if _, ok := valMap[v.Address]; !ok {
+					s.node.InactiveValidator(v.Address, 0, 0, time.Time{})
 				}
 			}
-
-			metric.ValidatorVotingPower(allVals)
 		}
 	}
+
+	metric.ValidatorVotingPower(s.node.ChanID, allVals)
 
 	return nil
 }

@@ -25,16 +25,6 @@ type QSC struct {
 	tmcli *lib.TmClient
 }
 
-func (s QSC) Block(b types.Block) error {
-	return s.block(&b)
-}
-func (s QSC) Validator(val types.Validators) error {
-	return nil
-}
-func (s QSC) ConsensusState(cs types.ResultConsensusState) error {
-	return nil
-}
-
 // BlockLoop 同步块
 func (s QSC) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {
@@ -64,6 +54,9 @@ func (s QSC) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
+
+			s.Validator(height)
+
 			height += 1
 		}
 	}
@@ -130,53 +123,33 @@ func (s QSC) tx(b *types.Block) error {
 	return nil
 }
 
-func (s QSC) ValidatorLoop(ctx context.Context) error {
-	if !s.Lock(LockTypeValidator) {
-		log.Printf("[Sync] ValidatorLoop %v err, has been locked.", s.node.ChanID)
-
-		return nil
+func (s QSC) Validator(height int64) error {
+	vals, err := s.tmcli.Validator(height)
+	if err != nil {
+		time.Sleep(time.Millisecond * 100)
+		return err
 	}
-	defer s.Unlock(LockTypeValidator)
-	var height int64 = 1
-	for {
-		time.Sleep(SyncValidator)
-		latest, err := s.node.LatestBlock()
-		if err == nil && latest != nil {
-			height = latest.Height + 1
-		}
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			vals, err := s.tmcli.Validator(height)
-			if err != nil {
-				time.Sleep(time.Millisecond * 100)
-				continue
-			}
 
-			metric.ValidatorVotingPower(vals)
+	for _, val := range vals {
+		s.node.CreateValidator(val)
+	}
 
-			for _, val := range vals {
-				s.node.CreateValidator(val)
-			}
+	valMap := make(map[string]types.Validator)
+	for _, v := range vals {
+		valMap[v.Address] = v
+	}
 
-			valMap := make(map[string]types.Validator)
-			for _, v := range vals {
-				valMap[v.Address] = v
-			}
-
-			allVals, err := s.node.Validators()
-			if err == nil {
-				for _, v := range allVals {
-					if v.Status == types.Active {
-						if _, ok := valMap[v.Address]; !ok {
-							s.node.InactiveValidator(v.Address, 0, 0, time.Time{})
-						}
-					}
+	allVals, err := s.node.Validators()
+	if err == nil {
+		for _, v := range allVals {
+			if v.Status == types.Active {
+				if _, ok := valMap[v.Address]; !ok {
+					s.node.InactiveValidator(v.Address, 0, 0, time.Time{})
 				}
 			}
 		}
 	}
+	metric.ValidatorVotingPower(s.node.ChanID, vals)
 
 	return nil
 }

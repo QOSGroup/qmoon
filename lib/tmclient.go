@@ -296,18 +296,13 @@ func (tc *TmClient) Validator(height int64) ([]types.Validator, error) {
 		height = 0
 	}
 
-	chainID, err := tc.ChainID()
-	if err != nil {
-		return nil, err
-	}
-
 	vals, err := tc.Validators(&height)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, v := range vals.Validators {
-		result = append(result, convertQSCValidator(chainID, *v))
+		result = append(result, convertQSCValidator(tc.chainID, *v))
 	}
 
 	return result, nil
