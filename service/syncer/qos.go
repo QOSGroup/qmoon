@@ -70,7 +70,7 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 		default:
 			b, err := s.tmcli.RetrieveBlock(&height)
 			if err != nil {
-				time.Sleep(time.Millisecond * 100)
+				time.Sleep(time.Millisecond * 1000)
 				continue
 			}
 
