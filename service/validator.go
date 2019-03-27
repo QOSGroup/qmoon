@@ -18,6 +18,9 @@ func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 	if bv.Status != 0 {
 		statusStr = "Inactive"
 	}
+
+	uptime := float64(bv.PrecommitNum*10000/(latestHeight-bv.FirstBlockHeight)) / 100.00
+
 	return &types.Validator{
 		Name:             bv.Name,
 		Owner:            bv.Owner,
@@ -37,7 +40,8 @@ func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 		InactiveHeight:   bv.InactiveHeight,
 		BondHeight:       bv.BondHeight,
 		PrecommitNum:     bv.PrecommitNum,
-		Uptime:           fmt.Sprintf("%.2f%%", float64(bv.PrecommitNum*10000/(latestHeight-bv.FirstBlockHeight))/100.00),
+		Uptime:           fmt.Sprintf("%.2f%%", uptime),
+		UptimeFloat:      uptime,
 	}
 }
 

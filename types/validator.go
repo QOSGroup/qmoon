@@ -38,6 +38,7 @@ type Validator struct {
 	Percent          string             `json:"percent"`
 	PrecommitNum     int64              `json:"precommitNum"`
 	Uptime           string             `json:"uptime"`
+	UptimeFloat      float64            `json:"-"`
 }
 
 type Validators []Validator

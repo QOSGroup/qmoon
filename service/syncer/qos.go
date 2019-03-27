@@ -214,7 +214,6 @@ func (s QOS) Validator(height int64) error {
 	}
 	if err != nil {
 		log.Printf("COSMOS [Sync] ValidatorLoop  Validator err:%v", err)
-		time.Sleep(time.Millisecond * 100)
 		return err
 	}
 
