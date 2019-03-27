@@ -35,9 +35,9 @@ func validatorsUptimeGin() gin.HandlerFunc {
 		}
 
 		now := time.Now()
-		start := utils.NDaysAgo(now, 28).Unix()
+		start := utils.NDaysAgo(now, 7).Unix()
 		end := now.Unix()
-		step := int64(60 * 60 * 24)
+		step := int64(60 * 60 * 1)
 
 		if d, err := strconv.ParseInt(c.Query("start"), 10, 64); err == nil {
 			start = d

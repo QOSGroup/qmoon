@@ -45,7 +45,7 @@ func validatorUptimeGin() gin.HandlerFunc {
 			start = d
 		}
 		if d, err := strconv.ParseInt(c.Query("end"), 10, 64); err == nil {
-			start = d
+			end = d
 		}
 		if d, err := strconv.ParseInt(c.Query("step"), 10, 64); err == nil {
 			step = d
