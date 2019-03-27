@@ -186,6 +186,11 @@ type ResultAccount struct {
 }
 
 type ResultMatrix struct {
+	Title string   `json:"title"`
+	List  []Matrix `json:"list"`
+}
+
+type Matrix struct {
 	X string `json:"x"`
 	Y string `json:"y"`
 }
