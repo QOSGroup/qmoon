@@ -597,31 +597,18 @@
                   "type": "object",
                   "properties": {
                     "result": {
-                      "type": "object",
-                      "properties": {
-                        "total": {
-                          "type": "integer",
-                          "description": "总数"
-                        },
-                        "list": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "address": {
-                                "type": "string",
-                                "description": "地址"
-                              },
-                              "name": {
-                                "type": "string",
-                                "description": "地址"
-                              },
-                              "list": {
-                                "type": "array",
-                                "items": {
-                                  "$ref": "#/definitions/Matrix"
-                                }
-                              }
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "地址"
+                          },
+                          "list": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/definitions/Matrix"
                             }
                           }
                         }
@@ -679,31 +666,18 @@
                   "type": "object",
                   "properties": {
                     "result": {
-                      "type": "object",
-                      "properties": {
-                        "total": {
-                          "type": "integer",
-                          "description": "总数"
-                        },
-                        "list": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "address": {
-                                "type": "string",
-                                "description": "地址"
-                              },
-                              "name": {
-                                "type": "string",
-                                "description": "地址"
-                              },
-                              "list": {
-                                "type": "array",
-                                "items": {
-                                  "$ref": "#/definitions/Matrix"
-                                }
-                              }
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "地址"
+                          },
+                          "list": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/definitions/Matrix"
                             }
                           }
                         }
@@ -761,31 +735,18 @@
                   "type": "object",
                   "properties": {
                     "result": {
-                      "type": "object",
-                      "properties": {
-                        "total": {
-                          "type": "integer",
-                          "description": "总数"
-                        },
-                        "list": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "address": {
-                                "type": "string",
-                                "description": "地址"
-                              },
-                              "name": {
-                                "type": "string",
-                                "description": "地址"
-                              },
-                              "list": {
-                                "type": "array",
-                                "items": {
-                                  "$ref": "#/definitions/Matrix"
-                                }
-                              }
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "地址"
+                          },
+                          "list": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/definitions/Matrix"
                             }
                           }
                         }
