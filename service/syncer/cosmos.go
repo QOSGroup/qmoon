@@ -57,7 +57,7 @@ func (s COSMOS) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			s.Validator(height)
+			s.Validator(height, b.Header.Time)
 			height += 1
 		}
 	}
@@ -140,7 +140,7 @@ func (s COSMOS) tx(b *types.Block) error {
 	return nil
 }
 
-func (s COSMOS) Validator(height int64) error {
+func (s COSMOS) Validator(height int64, t time.Time) error {
 	vals, err := s.tmcli.Validator(height)
 	if err != nil {
 		log.Printf("COSMOS [Sync] ValidatorLoop  Validator err:%v", err)
@@ -166,7 +166,7 @@ func (s COSMOS) Validator(height int64) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChanID, allVals)
+	metric.ValidatorVotingPower(s.node.ChanID, t, allVals)
 
 	return nil
 }

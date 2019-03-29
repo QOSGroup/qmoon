@@ -7,4 +7,8 @@ const (
 	FlagPrometheusPushName    = "prometheus.pushName"
 	FlagPrometheusPushGateway = "prometheus.pushGateway"
 	FlagPrometheusServer      = "prometheus.prometheusServer"
+
+	FlagInfluxdbServer   = "influxdb.server"
+	FlagInfluxdbUser     = "influxdb.user"
+	FlagInfluxdbPassword = "influxdb.password"
 )

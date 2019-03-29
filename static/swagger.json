@@ -581,8 +581,8 @@
             "in": "query",
             "name": "step",
             "required": false,
-            "type": "integer",
-            "description": "采点时间间隔(单位秒)"
+            "type": "string",
+            "description": "采点时间间隔:(n)s,(n)m,(n)h,(n)d"
           }
         ],
         "responses": {
@@ -650,8 +650,8 @@
             "in": "query",
             "name": "step",
             "required": false,
-            "type": "integer",
-            "description": "采点时间间隔(单位秒)"
+            "type": "string",
+            "description": "采点时间间隔:(n)s,(n)m,(n)h,(n)d"
           }
         ],
         "responses": {
@@ -719,8 +719,8 @@
             "in": "query",
             "name": "step",
             "required": false,
-            "type": "integer",
-            "description": "采点时间间隔(单位秒)"
+            "type": "string",
+            "description": "采点时间间隔:(n)s,(n)m,(n)h,(n)d"
           }
         ],
         "responses": {
@@ -795,8 +795,8 @@
             "in": "query",
             "name": "step",
             "required": false,
-            "type": "integer",
-            "description": "采点时间间隔(单位秒)"
+            "type": "string",
+            "description": "采点时间间隔:(n)s,(n)m,(n)h,(n)d"
           }
         ],
         "responses": {
@@ -859,8 +859,8 @@
             "in": "query",
             "name": "step",
             "required": false,
-            "type": "integer",
-            "description": "采点时间间隔(单位秒)"
+            "type": "string",
+            "description": "采点时间间隔:(n)s,(n)m,(n)h,(n)d"
           }
         ],
         "responses": {
@@ -923,8 +923,8 @@
             "in": "query",
             "name": "step",
             "required": false,
-            "type": "integer",
-            "description": "采点时间间隔(单位秒)"
+            "type": "string",
+            "description": "采点时间间隔:(n)s,(n)m,(n)h,(n)d"
           }
         ],
         "responses": {

@@ -33,7 +33,7 @@ const (
 
 // Syncer
 type Syncer interface {
-	Validator(height int64) error
+	Validator(height int64, t time.Time) error
 	BlockLoop(ctx context.Context) error
 	ConsensusStateLoop(ctx context.Context) error
 

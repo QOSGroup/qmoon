@@ -55,7 +55,7 @@ func (s QSC) BlockLoop(ctx context.Context) error {
 				continue
 			}
 
-			s.Validator(height)
+			s.Validator(height, b.Header.Time)
 
 			height += 1
 		}
@@ -123,7 +123,7 @@ func (s QSC) tx(b *types.Block) error {
 	return nil
 }
 
-func (s QSC) Validator(height int64) error {
+func (s QSC) Validator(height int64, t time.Time) error {
 	vals, err := s.tmcli.Validator(height)
 	if err != nil {
 		time.Sleep(time.Millisecond * 100)
@@ -149,7 +149,7 @@ func (s QSC) Validator(height int64) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChanID, vals)
+	metric.ValidatorVotingPower(s.node.ChanID, t, vals)
 
 	return nil
 }

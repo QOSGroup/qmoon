@@ -68,7 +68,7 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			s.Validator(height)
+			s.Validator(height, b.Header.Time)
 			height += 1
 		}
 	}
@@ -204,7 +204,7 @@ func parseQosITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) e
 	return nil
 }
 
-func (s QOS) Validator(height int64) error {
+func (s QOS) Validator(height int64, t time.Time) error {
 	var vals []types.Validator
 	var err error
 	if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
@@ -237,7 +237,7 @@ func (s QOS) Validator(height int64) error {
 		}
 	}
 
-	metric.ValidatorVotingPower(s.node.ChanID, allVals)
+	metric.ValidatorVotingPower(s.node.ChanID, t, allVals)
 
 	return nil
 }

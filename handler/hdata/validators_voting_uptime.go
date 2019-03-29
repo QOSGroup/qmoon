@@ -37,7 +37,7 @@ func validatorsUptimeGin() gin.HandlerFunc {
 		now := time.Now()
 		start := utils.NDaysAgo(now, 7).Unix()
 		end := now.Unix()
-		step := int64(60 * 60 * 1)
+		step := "1d"
 
 		if d, err := strconv.ParseInt(c.Query("start"), 10, 64); err == nil {
 			start = d
@@ -45,11 +45,11 @@ func validatorsUptimeGin() gin.HandlerFunc {
 		if d, err := strconv.ParseInt(c.Query("end"), 10, 64); err == nil {
 			start = d
 		}
-		if d, err := strconv.ParseInt(c.Query("step"), 10, 64); err == nil {
+		if d := c.Query("step"); d != "" {
 			step = d
 		}
-		res, err := metric.QueryValidatorsUptime(node.ChanID, "",
-			time.Unix(start, 0), time.Unix(end, 0), time.Second*time.Duration(step))
+		res, err := metric.QueryValidatorsUptime(node.ChanID, time.Unix(start, 0),
+			time.Unix(end, 0), step)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

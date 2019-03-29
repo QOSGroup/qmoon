@@ -38,7 +38,7 @@ func validatorVotingPowerGin() gin.HandlerFunc {
 		now := time.Now()
 		start := utils.NDaysAgo(now, 28).Unix()
 		end := now.Unix()
-		step := int64(60 * 60 * 24)
+		step := "1d"
 
 		if d, err := strconv.ParseInt(c.Query("start"), 10, 64); err == nil {
 			start = d
@@ -46,11 +46,11 @@ func validatorVotingPowerGin() gin.HandlerFunc {
 		if d, err := strconv.ParseInt(c.Query("end"), 10, 64); err == nil {
 			end = d
 		}
-		if d, err := strconv.ParseInt(c.Query("step"), 10, 64); err == nil {
+		if d := c.Query("step"); d != "" {
 			step = d
 		}
 		res, err := metric.QueryValidatorVotingPower(node.ChanID, address,
-			time.Unix(start, 0), time.Unix(end, 0), time.Second*time.Duration(step))
+			time.Unix(start, 0), time.Unix(end, 0), step)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
