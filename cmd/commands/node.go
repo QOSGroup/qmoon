@@ -3,10 +3,12 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/service/syncer"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/spf13/cobra"
@@ -42,6 +44,12 @@ var deleteNodeCmd = &cobra.Command{
 	RunE:  deleteNode,
 }
 
+var syncNodeCmd = &cobra.Command{
+	Use:   "sync nodeName",
+	Short: "快速同步",
+	RunE:  syncNode,
+}
+
 var (
 	nodeName    string
 	nodeUrl     string
@@ -65,8 +73,9 @@ func init() {
 	registerFlagsDb(queryNodeCmd)
 	registerFlagsDb(updateNodeCmd)
 	registerFlagsDb(deleteNodeCmd)
+	registerFlagsDb(syncNodeCmd)
 
-	NodeCmd.AddCommand(createNodeCmd, queryNodeCmd, deleteNodeCmd)
+	NodeCmd.AddCommand(createNodeCmd, queryNodeCmd, deleteNodeCmd, syncNodeCmd)
 }
 
 func createNode(cmd *cobra.Command, args []string) error {
@@ -130,4 +139,17 @@ func deleteNode(cmd *cobra.Command, args []string) error {
 		return errors.New("需要参数nodeName")
 	}
 	return service.DeleteNodeByName(args[0])
+}
+
+func syncNode(cmd *cobra.Command, args []string) error {
+	if len(args) != 1 {
+		return errors.New("需要参数nodeName")
+	}
+	node, err := service.GetNodeByName(args[0])
+	if err != nil {
+		return err
+	}
+	syncer.NewSyncer(node).BlockLoop(context.Background())
+
+	return nil
 }
