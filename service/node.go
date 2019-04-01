@@ -4,12 +4,14 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
 	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
+	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/hashicorp/go-version"
 	"github.com/tendermint/go-amino"
@@ -111,6 +113,10 @@ func CreateNode(name, baseURL, nodeType, nodeVersion, secretKey string) error {
 
 	if err := models.CreateGenesis(genesis.Genesis.ChainID, genesis.Genesis.GenesisTime, string(d)); err != nil {
 		return err
+	}
+
+	if err := metric.CreateDatabase(genesis.Genesis.ChainID); err != nil {
+		return errors.New("CreateDatabase:" + err.Error())
 	}
 
 	return nil
