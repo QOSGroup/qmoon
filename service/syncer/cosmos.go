@@ -47,13 +47,13 @@ func (s COSMOS) BlockLoop(ctx context.Context) error {
 		default:
 			b, err := s.tmcli.RetrieveBlock(&height)
 			if err != nil {
-				log.Printf("COSMOS [Sync] BlockLoop  RetrieveBlock err:%v", err)
+				log.Printf("COSMOS [Sync] BlockLoop  RetrieveBlock height:%d, err:%v", height, err)
 				time.Sleep(time.Millisecond * 1000)
 				continue
 			}
 
 			if err := s.block(b); err != nil {
-				log.Printf("[Sync] BlockLoop block err:%v", err)
+				log.Printf("[Sync] BlockLoop block height:%d, err:%v", height, err)
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}

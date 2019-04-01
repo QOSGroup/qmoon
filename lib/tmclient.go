@@ -225,6 +225,7 @@ func convertBlockHeader(header tmtypes.Header) types.BlockHeader {
 		AppHash:         header.AppHash.String(),
 		LastResultsHash: header.LastResultsHash.String(),
 		EvidenceHash:    header.EvidenceHash.String(),
+		ProposerAddress: header.ProposerAddress.String(),
 	}
 }
 

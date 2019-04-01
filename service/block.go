@@ -91,6 +91,7 @@ func (n Node) CreateBlock(b *types.Block) error {
 	block.Time = b.Header.Time
 	block.DataHash = b.Header.DataHash
 	block.ValidatorsHash = b.Header.ValidatorsHash
+	block.ProposerAddress = b.Header.ProposerAddress
 	if err := block.Insert(n.ChanID); err != nil {
 		return err
 	}
