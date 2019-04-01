@@ -26,7 +26,7 @@ type BlockHeader struct {
 	ConsensusHash   string `json:"consensus_hash"`    // consensus params for current block
 	AppHash         string `json:"app_hash"`          // state after txs from the previous block
 	LastResultsHash string `json:"last_results_hash"` // root hash of all results from the txs from the previous block
-
+	ProposerAddress string `json:"proposer_address"`
 	// consensus info
 	EvidenceHash string `json:"evidence_hash"` // evidence included in the block
 

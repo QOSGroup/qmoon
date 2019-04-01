@@ -22,11 +22,11 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 		}
 	}
 
-	g, err := n.RetrieveGenesis(n.ChanID)
-	if err != nil {
-		return nil, err
-	}
-	result.GenesisTime = types.ResultTime(g.GenesisTime)
+	//g, err := n.RetrieveGenesis(n.ChanID)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//result.GenesisTime = types.ResultTime(g.GenesisTime)
 
 	cs, err1 := n.ConsensusState()
 	if err1 != nil {

@@ -16,6 +16,7 @@ type Block struct {
 	ValidatorsNum   int64     `xorm:"BIGINT"`
 	ValidatorsTotal int64     `xorm:"BIGINT"`
 	ValidatorsHash  string    `xorm:"TEXT"`
+	ProposerAddress string    `xorm:"TEXT"`
 	Time            time.Time `xorm:"-"`
 	TimeUnix        int64
 }
