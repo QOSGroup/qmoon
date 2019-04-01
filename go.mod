@@ -15,7 +15,7 @@ require (
 	github.com/go-xorm/xorm v0.7.1
 	github.com/google/go-querystring v1.0.0
 	github.com/hashicorp/go-version v1.1.0
-	github.com/influxdata/influxdb v1.7.5
+	github.com/influxdata/influxdb v0.0.0-20190330005014-5fbed0b6a589 // indirect
 	github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/lib/pq v1.0.0
@@ -29,7 +29,7 @@ require (
 	github.com/prometheus/client_golang v0.9.1
 	github.com/prometheus/common v0.0.0-20190107103113-2998b132700a // indirect
 	github.com/robfig/cron v0.0.0-20180505203441-b41be1df6967
-	github.com/sirupsen/logrus v1.2.0
+	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
