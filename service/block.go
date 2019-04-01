@@ -6,6 +6,7 @@ package service
 
 import (
 	"errors"
+	"time"
 
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
@@ -65,6 +66,27 @@ func (n Node) Blocks(minHeight, maxHeight int64) ([]*types.ResultBlockBase, erro
 	}
 
 	return res, err
+}
+
+// Search 最近N块平均打快时间
+func (n Node) BlockTimeAvg(blockNum int) (time.Duration, error) {
+	mbs, err := models.Blocks(n.ChanID, &models.BlockOption{Offset: 0, Limit: blockNum})
+	if err != nil {
+		return 0, err
+	}
+
+	if len(mbs) <= 1 {
+		return 0, nil
+	}
+
+	var duration int64
+	num := int64(0)
+	for k := 1; k < len(mbs); k++ {
+		duration += int64(mbs[k-1].Time.Sub(mbs[k].Time))
+		num++
+	}
+
+	return time.Duration(duration / num), err
 }
 
 // HasTx 有交易的块

@@ -95,6 +95,51 @@
         }
       }
     },
+    "/nodes/{chainId}/status": {
+      "get": {
+        "summary": "链状态",
+        "tags": [
+          "baseApi"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "last_height": {
+                          "type": "integer",
+                          "description": "最新高度"
+                        },
+                        "blocks": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/Status"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
     "/nodes/{chainId}/blockchain": {
       "get": {
         "summary": "块链",
@@ -1823,6 +1868,28 @@
         "amount": {
           "type": "integer",
           "description": "数量"
+        }
+      }
+    },
+    "Status": {
+      "type": "object",
+      "description": "币",
+      "properties": {
+        "total_validators": {
+          "type": "integer",
+          "description": "validators节点数量"
+        },
+        "height": {
+          "type": "integer",
+          "description": "链高度"
+        },
+        "total_txs": {
+          "type": "integer",
+          "description": "交易数量"
+        },
+        "blockTimeAvg": {
+          "type": "string",
+          "description": "最近100块平均打快时间"
         }
       }
     }
