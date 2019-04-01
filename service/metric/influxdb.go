@@ -50,6 +50,26 @@ func getInflux() client.Client {
 	return influx
 }
 
+func CreateDatabase(chainID string) error {
+	cli := getInflux()
+	if cli == nil {
+		return nil
+	}
+
+	cmd := fmt.Sprintf("CREATE DATABASE \"%s\"", chainID)
+	q := client.NewQuery(cmd, "", "")
+	response, err := cli.Query(q)
+	if err != nil {
+		return err
+	}
+
+	if response.Error() != nil {
+		return response.Error()
+	}
+
+	return nil
+}
+
 func ValidatorVotingPower(chainID string, t time.Time, vals []types.Validator) {
 	cli := getInflux()
 	if cli == nil {
