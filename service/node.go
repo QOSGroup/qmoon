@@ -3,7 +3,6 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -97,25 +96,17 @@ func CreateNode(name, baseURL, nodeType, nodeVersion, secretKey string) error {
 	}
 
 	tmc := lib.TendermintClient(baseURL)
-	genesis, err := tmc.Genesis()
+	status, err := tmc.Status()
 	if err != nil {
-		return fmt.Errorf("retrieve node genesis err:%s", err)
+		return fmt.Errorf("retrieve node netinfo err:%s", err)
 	}
 
-	if _, err := models.CreateNode(name, baseURL, nodeType, nodeVersion, secretKey, genesis.Genesis.ChainID); err != nil {
+	chainID := status.NodeInfo.Network
+	if _, err := models.CreateNode(name, baseURL, nodeType, nodeVersion, secretKey, chainID); err != nil {
 		return err
 	}
 
-	d, err := json.Marshal(genesis)
-	if err != nil {
-		return err
-	}
-
-	if err := models.CreateGenesis(genesis.Genesis.ChainID, genesis.Genesis.GenesisTime, string(d)); err != nil {
-		return err
-	}
-
-	if err := metric.CreateDatabase(genesis.Genesis.ChainID); err != nil {
+	if err := metric.CreateDatabase(chainID); err != nil {
 		return errors.New("CreateDatabase:" + err.Error())
 	}
 
