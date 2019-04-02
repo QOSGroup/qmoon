@@ -5,7 +5,6 @@ package worker
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/service/syncer"
@@ -37,7 +36,8 @@ func SyncAllNodeBlock() {
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*1)
+	//ctx, cancel := context.WithTimeout(context.Background(), time.Minute*1)
+	ctx := context.Background()
 	for _, v := range needSync {
 		wg.Add(1)
 		go func(node *service.Node) {
@@ -47,5 +47,5 @@ func SyncAllNodeBlock() {
 	}
 
 	wg.Wait()
-	cancel()
+	//cancel()
 }
