@@ -1633,6 +1633,18 @@
           "type": "string",
           "description": "名称"
         },
+        "website": {
+          "type": "string",
+          "description": "主页"
+        },
+        "identity": {
+          "type": "string",
+          "description": "身份"
+        },
+        "details": {
+          "type": "string",
+          "description": "备注"
+        },
         "owner": {
           "type": "string",
           "description": "owner"
