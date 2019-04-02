@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
@@ -142,6 +143,59 @@ func (s COSMOS) tx(b *types.Block) error {
 	return nil
 }
 
+type StakingValidator struct {
+	Commission struct {
+		MaxChangeRate string `json:"max_change_rate"`
+		MaxRate       string `json:"max_rate"`
+		Rate          string `json:"rate"`
+		UpdateTime    string `json:"update_time"`
+	} `json:"commission"`
+	ConsensusPubkey string `json:"consensus_pubkey"`
+	DelegatorShares string `json:"delegator_shares"`
+	Description     struct {
+		Details  string `json:"details"`
+		Identity string `json:"identity"`
+		Moniker  string `json:"moniker"`
+		Website  string `json:"website"`
+	} `json:"description"`
+	Jailed            bool   `json:"jailed"`
+	MinSelfDelegation string `json:"min_self_delegation"`
+	OperatorAddress   string `json:"operator_address"`
+	Status            int    `json:"status"`
+	Tokens            string `json:"tokens"`
+	UnbondingHeight   string `json:"unbonding_height"`
+	UnbondingTime     string `json:"unbonding_time"`
+}
+
+func (s COSMOS) stakingValidators() map[string]StakingValidator {
+	k := "cosmosStakingValidators"
+	if v, ok := cache.Get(k); ok {
+		return v.(map[string]StakingValidator)
+	}
+
+	res := make(map[string]StakingValidator)
+
+	response, err := s.tmcli.ABCIQuery("custom/staking/validators", nil)
+	if err != nil {
+		return res
+	}
+
+	var sv []StakingValidator
+	if response.Response.Code == 0 {
+		json.Unmarshal(response.Response.Value, &sv)
+	}
+
+	for _, v := range sv {
+		res[v.ConsensusPubkey] = v
+	}
+
+	if len(res) != 0 {
+		cache.Set(k, res, time.Minute*5)
+	}
+
+	return res
+}
+
 func (s COSMOS) Validator(height int64, t time.Time) error {
 	vals, err := s.tmcli.Validator(height)
 	if err != nil {
@@ -149,7 +203,15 @@ func (s COSMOS) Validator(height int64, t time.Time) error {
 		return err
 	}
 
+	svs := s.stakingValidators()
 	for _, val := range vals {
+		if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
+			val.Name = sv.Description.Moniker
+			val.Website = sv.Description.Website
+			val.Identity = sv.Description.Identity
+			val.Details = sv.Description.Details
+		}
+
 		s.node.CreateValidator(val)
 	}
 
@@ -158,9 +220,9 @@ func (s COSMOS) Validator(height int64, t time.Time) error {
 		valMap[v.Address] = v
 	}
 
-	allVals, err := s.node.Validators()
+	oldVals, err := s.node.Validators()
 	if err == nil {
-		for _, v := range allVals {
+		for _, v := range oldVals {
 			if v.Status == types.Active {
 				if _, ok := valMap[v.Address]; !ok {
 					s.node.InactiveValidator(v.Address, 0, 0, time.Time{})
@@ -168,7 +230,7 @@ func (s COSMOS) Validator(height int64, t time.Time) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChanID, t, allVals)
+	metric.ValidatorVotingPower(s.node.ChanID, t, oldVals)
 
 	return nil
 }
