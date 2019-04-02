@@ -10,6 +10,9 @@ import (
 type Validator struct {
 	Id                 int64     `xorm:"pk autoincr BIGINT"`
 	Name               string    `xorm:"TEXT"`
+	Details            string    `xorm:"TEXT"`
+	Identity           string    `xorm:"TEXT"`
+	Website            string    `xorm:"TEXT"`
 	Owner              string    `xorm:"TEXT"`
 	ChainId            string    `xorm:"-"`
 	Address            string    `xorm:"unique TEXT"`

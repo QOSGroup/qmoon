@@ -23,6 +23,9 @@ func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 
 	return &types.Validator{
 		Name:             bv.Name,
+		Identity:         bv.Identity,
+		Website:          bv.Website,
+		Details:          bv.Details,
 		Owner:            bv.Owner,
 		ChainID:          bv.ChainId,
 		Address:          bv.Address,
@@ -167,6 +170,9 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			InactiveHeight: vl.InactiveHeight,
 			BondHeight:     vl.BondHeight,
 			Name:           vl.Name,
+			Details:        vl.Details,
+			Identity:       vl.Identity,
+			Website:        vl.Website,
 			Owner:          vl.Owner,
 		}
 
@@ -184,6 +190,9 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.InactiveHeight = vl.InactiveHeight
 		mv.BondHeight = vl.BondHeight
 		mv.Name = vl.Name
+		mv.Details = vl.Details
+		mv.Identity = vl.Identity
+		mv.Website = vl.Website
 		mv.Owner = vl.Owner
 		if err := mv.Update(n.ChanID); err != nil {
 			return err

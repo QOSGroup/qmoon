@@ -18,6 +18,9 @@ const (
 
 type Validator struct {
 	Name             string             `json:"name"`
+	Details          string             `json:"details"`
+	Identity         string             `json:"identity"`
+	Website          string             `json:"website"`
 	Owner            string             `json:"owner"`
 	ChainID          string             `json:"chain_id"`
 	Address          string             `json:"address"`
