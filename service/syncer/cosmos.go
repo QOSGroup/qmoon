@@ -17,6 +17,7 @@ import (
 	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
+	"github.com/sirupsen/logrus"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
@@ -38,13 +39,14 @@ func (s COSMOS) BlockLoop(ctx context.Context) error {
 	if err == nil && latest != nil {
 		height = latest.Height + 1
 	}
-	log.Printf("COSMOS [Sync] block start:%d", height)
+	logrus.Infof("COSMOS [Sync] block start:%d", height)
 
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
 		default:
+			logrus.Infof("COSMOS [Sync] block height:%d", height)
 			b, err := s.tmcli.RetrieveBlock(&height)
 			if err != nil {
 				log.Printf("COSMOS [Sync] BlockLoop  RetrieveBlock height:%d, err:%v", height, err)
