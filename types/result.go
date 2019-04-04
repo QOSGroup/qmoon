@@ -173,11 +173,11 @@ type ResultConsensusState struct {
 }
 
 type ResultStatus struct {
-	//ConsensusState  *ResultConsensusState `json:"consensus_state"`
-	TotalValidators int64  `json:"total_validators"`
-	Height          int64  `json:"height"`
-	TotalTxs        int64  `json:"total_txs"`
-	BlockTimeAvg    string `json:"blockTimeAvg"`
+	ConsensusState  *ResultConsensusState `json:"consensus_state"`
+	TotalValidators int64                 `json:"total_validators"`
+	Height          int64                 `json:"height"`
+	TotalTxs        int64                 `json:"total_txs"`
+	BlockTimeAvg    string                `json:"blockTimeAvg"`
 }
 
 type ResultAccount struct {
