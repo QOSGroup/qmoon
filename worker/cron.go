@@ -16,7 +16,7 @@ func Start() {
 	c.AddFunc("@every 5m", SyncAllNodeConsensusState) // 每5分
 	//c.AddFunc("@every 3s", SyncAllNodeConsensusState) // 每3s
 
-	c.AddFunc("@every 1m", SyncAllNodeBlock) // 每1分
+	//c.AddFunc("@every 1m", SyncAllNodeBlock) // 每1分
 
 	c.Start()
 }
