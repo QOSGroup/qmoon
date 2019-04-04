@@ -22,12 +22,12 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 		}
 	}
 
-	//cs, err1 := n.ConsensusState()
-	//if err1 != nil {
-	//	result.ConsensusState = &types.ResultConsensusState{}
-	//} else {
-	//	result.ConsensusState = cs
-	//}
+	cs, err1 := n.ConsensusState()
+	if err1 != nil {
+		result.ConsensusState = &types.ResultConsensusState{}
+	} else {
+		result.ConsensusState = cs
+	}
 
 	vs, err2 := n.Validators()
 	if err2 == nil {
@@ -43,7 +43,7 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	if err3 == nil {
 		result.TotalTxs = lb.TotalTxs
 	}
-	//result.ConsensusState.ChainID = n.ChanID
+	result.ConsensusState.ChainID = n.ChanID
 
 	if err3 == nil && err2 == nil {
 		cache.Set(chainStatusCache, result, time.Second*1)
