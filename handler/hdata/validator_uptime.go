@@ -48,7 +48,11 @@ func validatorUptimeGin() gin.HandlerFunc {
 			end = d
 		}
 		if d := c.Query("step"); d != "" {
-			step = d
+			if utils.IsDigit(d) {
+				step = d + "s"
+			} else {
+				step = d
+			}
 		}
 
 		res, err := metric.QueryValidatorUptime(node.ChanID, address,

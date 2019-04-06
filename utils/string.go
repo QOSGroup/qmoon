@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"unicode"
 )
 
 // RandmonCode 生成指定位数随机数
@@ -27,4 +28,14 @@ func RandomString(l int) string {
 		result = append(result, bytes[r.Intn(len(bytes))])
 	}
 	return string(result)
+}
+
+func IsDigit(s string) bool {
+	for _, v := range s {
+		if !unicode.IsDigit(v) {
+			return false
+		}
+	}
+
+	return true
 }

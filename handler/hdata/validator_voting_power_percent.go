@@ -47,7 +47,11 @@ func validatorVotingPowerPercentGin() gin.HandlerFunc {
 			end = d
 		}
 		if d := c.Query("step"); d != "" {
-			step = d
+			if utils.IsDigit(d) {
+				step = d + "s"
+			} else {
+				step = d
+			}
 		}
 		res, err := metric.QueryValidatorVotingPowerPercent(node.ChanID, address,
 			time.Unix(start, 0), time.Unix(end, 0), step)

@@ -45,8 +45,13 @@ func validatorsUptimeGin() gin.HandlerFunc {
 		if d, err := strconv.ParseInt(c.Query("end"), 10, 64); err == nil {
 			start = d
 		}
+
 		if d := c.Query("step"); d != "" {
-			step = d
+			if utils.IsDigit(d) {
+				step = d + "s"
+			} else {
+				step = d
+			}
 		}
 		res, err := metric.QueryValidatorsUptime(node.ChanID, time.Unix(start, 0),
 			time.Unix(end, 0), step)
