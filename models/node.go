@@ -63,6 +63,7 @@ func CreateNode(name, baseURL, nodeType, nodeVersion, secretKey, chainID string)
 	n.NodeVersion = nodeVersion
 	n.ChainId = chainID
 	n.NodeType = nodeType
+	n.Sort = 1
 
 	if _, err := basex.Insert(n); err != nil {
 		return nil, err
