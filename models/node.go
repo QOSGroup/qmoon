@@ -15,6 +15,7 @@ type Node struct {
 	ChainId     string `xorm:"TEXT"`
 	NodeType    string `xorm:"TEXT"`
 	NodeVersion string `xorm:"TEXT"`
+	Sort        int
 
 	Version       int       `xorm:"version"`
 	UpdatedAt     time.Time `xorm:"-"`
@@ -72,7 +73,7 @@ func CreateNode(name, baseURL, nodeType, nodeVersion, secretKey, chainID string)
 
 func Nodes() ([]*Node, error) {
 	var nodes = make([]*Node, 0)
-	return nodes, basex.Find(&nodes)
+	return nodes, basex.Desc("sort").Find(&nodes)
 }
 
 func RetrieveNodeByName(name string) (*Node, error) {
