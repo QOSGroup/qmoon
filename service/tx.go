@@ -3,14 +3,16 @@
 package service
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
+	"github.com/tidwall/gjson"
 )
 
 func convertToTx(mt *models.Tx, address string) *types.ResultTx {
-	return &types.ResultTx{
+	res := &types.ResultTx{
 		ChainID:   mt.ChainId,
 		Hash:      mt.Hash,
 		Height:    mt.Height,
@@ -26,6 +28,21 @@ func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 		Status:    mt.TxStatus,
 		Log:       mt.Log,
 	}
+
+	m := make(map[string][]json.RawMessage)
+	result := gjson.Parse(string(res.Data))
+	result.ForEach(func(_, value gjson.Result) bool {
+		if _, ok := m[value.Get("type").String()]; ok {
+			m[value.Get("type").String()] = append(m[value.Get("type").String()], json.RawMessage(value.Get("data").String()))
+		} else {
+			m[value.Get("type").String()] = []json.RawMessage{json.RawMessage(value.Get("data").String())}
+		}
+		return true
+	})
+
+	res.TxDetail = m
+
+	return res
 }
 
 const maxLimit = 20

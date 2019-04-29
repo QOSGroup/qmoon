@@ -85,21 +85,22 @@ func TxCN(t string, tx string, address string) string {
 }
 
 type ResultTx struct {
-	ChainID   string          `json:"chain_id"`
-	Hash      string          `json:"hash"`
-	Height    int64           `json:"height"`
-	Index     int64           `json:"index"`   // index
-	TxType    string          `json:"tx_type"` // tx_type
-	TxTypeCN  string          `json:"tx_type_cn"`
-	GasWanted int64           `json:"gas_wanted"`
-	GasUsed   int64           `json:"gas_used"`
-	Fee       string          `json:"fee"`
-	TxStatus  string          `json:"tx_status"`
-	Status    int             `json:"status"`
-	Data      json.RawMessage `json:"data"` // data
-	Time      ResultTime      `json:"time"` // time
-	Log       string          `json:"log"`
-	CreatedAt ResultTime      `json:"created_at"` // created_at
+	ChainID   string                       `json:"chain_id"`
+	Hash      string                       `json:"hash"`
+	Height    int64                        `json:"height"`
+	Index     int64                        `json:"index"`   // index
+	TxType    string                       `json:"tx_type"` // tx_type
+	TxTypeCN  string                       `json:"tx_type_cn"`
+	GasWanted int64                        `json:"gas_wanted"`
+	GasUsed   int64                        `json:"gas_used"`
+	Fee       string                       `json:"fee"`
+	TxStatus  string                       `json:"tx_status"`
+	Status    int                          `json:"status"`
+	Data      json.RawMessage              `json:"data"` // data
+	Time      ResultTime                   `json:"time"` // time
+	Log       string                       `json:"log"`
+	CreatedAt ResultTime                   `json:"created_at"` // created_at
+	TxDetail  map[string][]json.RawMessage `json:"tx_detail"`
 }
 
 // ResultBlockBase 块信息

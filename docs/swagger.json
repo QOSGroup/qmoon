@@ -1453,6 +1453,90 @@
         }
       }
     },
+    "TxCosmosDelegate": {
+      "type": "object",
+      "description": "交易信息",
+      "properties": {
+        "delegator_address": {
+          "type": "string",
+          "description": "delegator_address"
+        },
+        "validator_address": {
+          "type": "string",
+          "description": "delegator_address"
+        },
+        "value": {
+          "type": "object",
+          "description": "value",
+          "properties": {
+            "denom": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "TxCosmosSend": {
+      "type": "object",
+      "description": "交易信息",
+      "properties": {
+        "from_address": {
+          "type": "string"
+        },
+        "to_address": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "object",
+          "properties": {
+            "denom": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "TxCosmosWithdrawDelegatorReward": {
+      "type": "object",
+      "description": "交易信息",
+      "properties": {
+        "delegator_address": {
+          "type": "string"
+        },
+        "validator_address": {
+          "type": "string"
+        }
+      }
+    },
+    "TxCosmosBeginUnbonding": {
+      "type": "object",
+      "description": "交易信息",
+      "properties": {
+        "delegator_address": {
+          "type": "string"
+        },
+        "validator_address": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "object",
+          "properties": {
+            "denom": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "Tx": {
       "type": "object",
       "description": "交易信息",
@@ -1476,6 +1560,39 @@
         "tx_type_cn": {
           "type": "string",
           "description": "交易类型中文"
+        },
+        "tx_detail": {
+          "type": "object",
+          "properties": {
+            "delegate": {
+              "type": "array",
+              "description": "cosmos delegate",
+              "items": {
+                "$ref": "#/definitions/TxCosmosDelegate"
+              }
+            },
+            "send": {
+              "type": "array",
+              "description": "cosmos send",
+              "items": {
+                "$ref": "#/definitions/TxCosmosSend"
+              }
+            },
+            "withdraw_delegator_reward": {
+              "type": "array",
+              "description": "cosmos withdraw_delegator_reward",
+              "items": {
+                "$ref": "#/definitions/TxCosmosWithdrawDelegatorReward"
+              }
+            },
+            "begin_unbonding": {
+              "type": "array",
+              "description": "cosmos begin_unbonding",
+              "items": {
+                "$ref": "#/definitions/TxCosmosBeginUnbonding"
+              }
+            }
+          }
         },
         "maxgas": {
           "type": "integer",
