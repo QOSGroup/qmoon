@@ -3,6 +3,7 @@
 package syncer
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-version"
@@ -31,4 +32,15 @@ func TestQOSVersion(t *testing.T) {
 
 	assert.True(t, v5.GreaterThan(qos0_0_3))
 	assert.True(t, v5.GreaterThan(qos0_0_4))
+}
+
+func TestJson(t *testing.T) {
+	arr := `[{"type":"send","data":{"from_address":"cosmos1tsggqpeu8yw82thhy6jp4l889zmruw6eum45tf","to_address":"cosmos1yeygh0y8rfyufdczhzytcl
+3pehsnxv9d3wsnlg","amount":[{"denom":"uatom","amount":"175000"}]}}]`
+
+	obj := `{"senders":[{"addr":"address1tqcjlsjgjdcxn3045evgfpr3u8u5h6ut7tu4r0","qos":"1000000","qscs":null}],"receivers":[{"addr":"address1qkf3
+jqkxf2rzpkyud6qyn6yk83jhysy2xxlq2d","qos":"1000000","qscs":null}]}`
+
+	t.Logf("arr:%v", strings.HasPrefix(arr, "["))
+	t.Logf("obj:%v", strings.HasPrefix(obj, "{"))
 }

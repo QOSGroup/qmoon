@@ -8,10 +8,11 @@ import (
 )
 
 type Validator struct {
-	Id                 int64     `xorm:"pk autoincr BIGINT"`
-	Name               string    `xorm:"TEXT"`
-	Details            string    `xorm:"TEXT"`
-	Identity           string    `xorm:"TEXT"`
+	Id                 int64  `xorm:"pk autoincr BIGINT"`
+	Name               string `xorm:"TEXT"`
+	Details            string `xorm:"TEXT"`
+	Identity           string `xorm:"TEXT"`
+	Logo               string
 	Website            string    `xorm:"TEXT"`
 	Owner              string    `xorm:"TEXT"`
 	ChainId            string    `xorm:"-"`

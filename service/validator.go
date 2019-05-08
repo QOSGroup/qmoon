@@ -24,6 +24,7 @@ func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 	return &types.Validator{
 		Name:             bv.Name,
 		Identity:         bv.Identity,
+		Logo:             bv.Logo,
 		Website:          bv.Website,
 		Details:          bv.Details,
 		Owner:            bv.Owner,

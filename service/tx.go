@@ -30,16 +30,19 @@ func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 	}
 
 	m := make(map[string][]json.RawMessage)
-	result := gjson.Parse(string(res.Data))
-	result.ForEach(func(_, value gjson.Result) bool {
-		if _, ok := m[value.Get("type").String()]; ok {
-			m[value.Get("type").String()] = append(m[value.Get("type").String()], json.RawMessage(value.Get("data").String()))
-		} else {
-			m[value.Get("type").String()] = []json.RawMessage{json.RawMessage(value.Get("data").String())}
-		}
-		return true
-	})
-
+	if strings.HasPrefix(string(res.Data), "{") {
+		m[res.TxType] = []json.RawMessage{res.Data}
+	} else {
+		result := gjson.Parse(string(res.Data))
+		result.ForEach(func(_, value gjson.Result) bool {
+			if _, ok := m[value.Get("type").String()]; ok {
+				m[value.Get("type").String()] = append(m[value.Get("type").String()], json.RawMessage(value.Get("data").String()))
+			} else {
+				m[value.Get("type").String()] = []json.RawMessage{json.RawMessage(value.Get("data").String())}
+			}
+			return true
+		})
+	}
 	res.TxDetail = m
 
 	return res

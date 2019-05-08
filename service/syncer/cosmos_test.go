@@ -10,6 +10,14 @@ type QueryValidatorParams struct {
 	ValidatorAddr string
 }
 
+//func TestCosmosDelegate(t *testing.T) {
+//	cli := lib.TendermintClient("http://47.105.52.237:36657")
+//	height := int64(187332)
+//	b, _ := cli.Block(&height)
+//
+//	b.Block.Txs[0].Hash()
+//}
+
 func TestValidator(t *testing.T) {
 	//cli := lib.TendermintClient("http://192.168.1.180:26657")
 	//endpoint := "custom/staking/validator"
