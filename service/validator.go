@@ -146,7 +146,7 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 			mv.InactiveTime = inactiveTime
 			mv.InactiveHeight = inactiveHeight
 
-			if err := mv.Update(n.ChanID); err != nil {
+			if err := mv.UpdateStatus(n.ChanID); err != nil {
 				return err
 			}
 		}

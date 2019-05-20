@@ -88,6 +88,22 @@ func (val *Validator) Update(chainID string) error {
 	return nil
 }
 
+func (val *Validator) UpdateStatus(chainID string) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+
+	_, err = x.ID(val.Id).
+		Cols("status", "inactive_code", "inactive_time_unix", "inactive_height").
+		Update(val)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ValidatorByAddress(chainID, address string) (*Validator, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {

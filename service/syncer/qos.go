@@ -218,7 +218,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	}
 
 	for _, val := range vals {
-		s.node.CreateValidator(val)
+		_ = s.node.CreateValidator(val)
 	}
 
 	valMap := make(map[string]types.Validator)
@@ -231,7 +231,11 @@ func (s QOS) Validator(height int64, t time.Time) error {
 		for _, v := range allVals {
 			if v.Status == types.Active {
 				if _, ok := valMap[v.Address]; !ok {
-					s.node.InactiveValidator(v.Address, 0, 0, time.Time{})
+					_ = s.node.InactiveValidator(v.Address, int(types.Inactive), height, time.Time{})
+				}
+			} else {
+				if _, ok := valMap[v.Address]; ok {
+					_ = s.node.InactiveValidator(v.Address, int(types.Active), height, time.Time{})
 				}
 			}
 		}
