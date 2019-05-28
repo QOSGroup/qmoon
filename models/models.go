@@ -55,7 +55,7 @@ func (dc dbconfig) DataSource(name string) string {
 
 	switch dc.Type {
 	case "mysql":
-		return fmt.Sprintf("%s:%s@tcp(%s)/%s", dc.User, dc.Passwd, dc.Host, name)
+		return fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&autocommit=true", dc.User, dc.Passwd, dc.Host, name)
 	case "postgres":
 		return fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", dc.User, dc.Passwd, dc.Host, name)
 	default:
@@ -77,6 +77,7 @@ func init() {
 		new(Block), new(Tx), new(ConsensusState), new(Genesis),
 		new(TmBlock), new(TxTransfer),
 		new(Fee), new(Evidence), new(Missing),
+		new(Network),
 	)
 
 	gonicNames := []string{"SSL"}
