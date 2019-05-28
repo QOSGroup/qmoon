@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func NewPostJsonRequest(url string, body interface{}) (*http.Request, error) {
@@ -38,4 +39,19 @@ func NewPutJsonRequest(url string, body interface{}) (*http.Request, error) {
 	req.Header.Add("Content-Type", "application/json;charset=utf-8")
 
 	return req, nil
+}
+
+func CheckHttpHealthy(u string, timeout time.Duration) (ok bool, delay time.Duration, err error) {
+	cli := &http.Client{
+		Timeout: timeout,
+	}
+	s := time.Now()
+	resp, err := cli.Head(u)
+	if err != nil {
+		return false, 0, err
+	}
+
+	e := time.Now()
+
+	return resp.StatusCode == http.StatusOK, e.Sub(s), nil
 }
