@@ -25,6 +25,10 @@ type QSC struct {
 	tmcli *lib.TmClient
 }
 
+func (s QSC) RpcPeers(ctx context.Context) error {
+	return nil
+}
+
 // BlockLoop 同步块
 func (s QSC) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {

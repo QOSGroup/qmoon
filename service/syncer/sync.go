@@ -36,6 +36,7 @@ type Syncer interface {
 	Validator(height int64, t time.Time) error
 	BlockLoop(ctx context.Context) error
 	ConsensusStateLoop(ctx context.Context) error
+	RpcPeers(ctx context.Context) error
 
 	Lock(key string) bool
 	Unlock(key string) bool
