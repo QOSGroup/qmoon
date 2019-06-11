@@ -10,13 +10,13 @@ func Start() {
 
 	go SyncAllNodeConsensusState()
 	go SyncAllNodeBlock()
+	go SyncAllNodeNetwork()
 
 	c := cron.New()
 
-	c.AddFunc("@every 5m", SyncAllNodeConsensusState) // 每5分
-	//c.AddFunc("@every 3s", SyncAllNodeConsensusState) // 每3s
+	_ = c.AddFunc("@every 5m", SyncAllNodeConsensusState) // 每5分
 
-	//c.AddFunc("@every 1m", SyncAllNodeBlock) // 每1分
+	_ = c.AddFunc("@every 60m", SyncAllNodeNetwork) // 每60分
 
 	c.Start()
 }

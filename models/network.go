@@ -5,6 +5,7 @@ package models
 import (
 	"time"
 
+	"github.com/QOSGroup/qmoon/utils"
 	"github.com/go-xorm/xorm"
 )
 
@@ -103,4 +104,20 @@ func Networks(chainID string, opt *NetworkOption) ([]*Network, error) {
 	}
 
 	return ns, sess.OrderBy("delay").Find(&ns)
+}
+
+func (n *Network) Check() {
+	ok, delay, err := utils.CheckHttpHealthy(n.Remote, time.Second*3)
+	if err != nil {
+		n.Status = NetworkStatusInvalid
+	} else {
+		if ok {
+			n.Status = NetworkStatusValid
+			n.Delay = delay.Nanoseconds()
+		} else {
+			n.Status = NetworkStatusInvalid
+		}
+	}
+
+	n.LastTestAt = time.Now()
 }
