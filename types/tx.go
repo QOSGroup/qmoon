@@ -28,3 +28,7 @@ func (ts TxStatus) String() string {
 }
 
 type TxByte []byte
+
+type TxSendResult struct {
+	Hash string `json:"hash"`
+}

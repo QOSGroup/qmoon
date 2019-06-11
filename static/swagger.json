@@ -1333,6 +1333,113 @@
           }
         }
       }
+    },
+    "/nodes/{chainId}/nodes": {
+      "get": {
+        "summary": "可用节点列表",
+        "tags": [
+          "proxy"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "nodeId": {
+                            "type": "integer",
+                            "description": "节点ID"
+                          },
+                          "delay": {
+                            "type": "integer",
+                            "description": "延迟(单位纳秒)"
+                          },
+                          "remote": {
+                            "type": "string",
+                            "description": "地址"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{chainId}/tx/send": {
+      "post": {
+        "summary": "发送交易",
+        "tags": [
+          "proxy"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/chainIDParam"
+          },
+          {
+            "in": "body",
+            "name": "event",
+            "schema": {
+              "type": "object",
+              "description": "玻璃情况",
+              "properties": {
+                "remote": {
+                  "type": "string",
+                  "description": "节点地址'"
+                },
+                "tx": {
+                  "type": "string",
+                  "description": "交易内容'"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseResponseBody"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "hash": {
+                          "type": "string",
+                          "description": "tx hash"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2035,6 +2142,10 @@
     {
       "name": "statistic",
       "description": "统计类API"
+    },
+    {
+      "name": "proxy",
+      "description": "代理转发"
     }
   ]
 }

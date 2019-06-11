@@ -39,6 +39,21 @@ func init() {
 	qos0_0_4, _ = version.NewVersion("0.0.4")
 }
 
+func (s QOS) RpcPeers(ctx context.Context) error {
+	//netinfo, err := s.tmcli.NetInfo()
+	//if err != nil {
+	//	return err
+	//}
+
+	//var peers []string
+	//for _, v := range netinfo.Peers {
+	//	v.NodeInfo.Other.RPCAddress
+	//	peers = append(peers, v.NodeInfo.Other.RPCAddress)
+	//}
+
+	return nil
+}
+
 // BlockLoop 同步块
 func (s QOS) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {

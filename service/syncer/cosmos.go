@@ -27,6 +27,10 @@ type COSMOS struct {
 	tmcli *lib.TmClient
 }
 
+func (s COSMOS) RpcPeers(ctx context.Context) error {
+	return nil
+}
+
 // BlockLoop 同步块
 func (s COSMOS) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {

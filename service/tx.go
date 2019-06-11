@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/tidwall/gjson"
@@ -100,4 +101,20 @@ func (n Node) TxByHash(hash string) (*types.ResultTx, error) {
 	}
 
 	return convertToTx(mt, ""), err
+}
+
+// TxSend
+func (n Node) TxSend(remote string, txData []byte) (*types.TxSendResult, error) {
+	cli := lib.TendermintClient(remote)
+	res, err := cli.BroadcastTxSync(txData)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO 检查BroadcastTxSync的返回值
+	// xxx
+
+	return &types.TxSendResult{
+		Hash: res.Hash.String(),
+	}, err
 }
