@@ -277,7 +277,7 @@ func parseEvidence(es tmtypes.EvidenceList) []types.Evidence {
 	return res
 }
 
-func parseVote(chainID string, v *tmtypes.Vote) *types.BlockValidator {
+func parseVote(chainID string, v *tmtypes.CommitSig) *types.BlockValidator {
 	return &types.BlockValidator{
 		ChainID:          chainID,
 		Height:           v.Height,

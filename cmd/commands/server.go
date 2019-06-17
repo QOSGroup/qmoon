@@ -19,7 +19,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/common"
+	"github.com/tendermint/tendermint/libs/log"	
 )
+var slogger = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 
 // ServerCmd qmoon http server
 var ServerCmd = &cobra.Command{
@@ -27,6 +29,7 @@ var ServerCmd = &cobra.Command{
 	Short: "restful api server",
 	RunE:  server,
 }
+
 
 func init() {
 	registerFlagsHttpServer(ServerCmd)
@@ -91,7 +94,7 @@ func server(cmd *cobra.Command, args []string) error {
 	}()
 
 	wg.Wait()
-	common.TrapSignal(func() {})
+	common.TrapSignal(slogger,func() {})
 
 	return nil
 }
