@@ -86,7 +86,7 @@ func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator
 	}
 
 	return types.Validator{
-		Name:           val.Name,
+	//	Name:           val.Name,
 		Owner:          val.Owner.String(),
 		ChainID:        chainID,
 		Address:        val.ValidatorPubKey.Address().String(),
