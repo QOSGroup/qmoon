@@ -181,8 +181,11 @@ func parseQosTx(blockHeader types.BlockHeader, t qbasetypes.Tx, mt *models.Tx) e
 
 	mt.Maxgas = std.MaxGas.Int64()
 
-	if err := parseQosITx(blockHeader, std.ITx, mt); err != nil {
-		return err
+	var itx qbasetxs.ITx
+	for _, itx = range std.ITxs {
+		if err := parseQosITx(blockHeader, itx, mt); err != nil {
+			return err
+		}
 	}
 
 	if mt.TxType == "Unknown" {
