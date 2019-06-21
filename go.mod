@@ -2,8 +2,8 @@ module github.com/QOSGroup/qmoon
 
 require (
 	cloud.google.com/go v0.36.0 // indirect
-	github.com/QOSGroup/qbase v0.1.0
-	github.com/QOSGroup/qos v0.0.4
+	github.com/QOSGroup/qbase v0.2.0
+	github.com/QOSGroup/qos v0.0.4-0.20190620090832-387a6a0d4459
 	github.com/btcsuite/btcd v0.0.0-20181013004428-67e573d211ac // indirect
 	github.com/didip/tollbooth v4.0.0+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.0
@@ -34,8 +34,8 @@ require (
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
 	github.com/tendermint/btcd v0.1.1 // indirect
-	github.com/tendermint/go-amino v0.14.1
-	github.com/tendermint/tendermint v0.27.3
+	github.com/tendermint/go-amino v0.15.0
+	github.com/tendermint/tendermint v0.31.5
 	github.com/tidwall/gjson v1.1.5
 	github.com/tidwall/match v1.0.1 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
