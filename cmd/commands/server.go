@@ -4,9 +4,8 @@ package commands
 
 import (
 	"net/http"
-	"os"
-	"os/signal"
 	"sync"
+	"time"
 
 	"github.com/QOSGroup/qmoon/handler"
 	"github.com/QOSGroup/qmoon/handler/hadmin"
@@ -18,10 +17,7 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/common"
-	"github.com/tendermint/tendermint/libs/log"	
 )
-var slogger = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 
 // ServerCmd qmoon http server
 var ServerCmd = &cobra.Command{
@@ -29,7 +25,6 @@ var ServerCmd = &cobra.Command{
 	Short: "restful api server",
 	RunE:  server,
 }
-
 
 func init() {
 	registerFlagsHttpServer(ServerCmd)
@@ -79,8 +74,8 @@ func initRouter(r *gin.Engine) {
 
 func server(cmd *cobra.Command, args []string) error {
 	wg := sync.WaitGroup{}
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, os.Kill)
+	//quit := make(chan os.Signal, 1)
+	//signal.Notify(quit, os.Interrupt, os.Kill)
 
 	worker.Start()
 
@@ -88,13 +83,17 @@ func server(cmd *cobra.Command, args []string) error {
 	initRouter(r)
 
 	go func() {
+		wg.Add(1)
+		defer wg.Done()
+
 		if err := r.Run(config.HttpServer.ListenAddress); err != nil {
 			panic(err)
 		}
 	}()
 
+	time.Sleep(time.Second)
+
 	wg.Wait()
-	common.TrapSignal(slogger,func() {})
 
 	return nil
 }
