@@ -2,7 +2,7 @@ module github.com/QOSGroup/qmoon
 
 require (
 	cloud.google.com/go v0.36.0 // indirect
-	github.com/QOSGroup/qbase v0.2.0
+	github.com/QOSGroup/qbase v0.2.1
 	github.com/QOSGroup/qos v0.0.4-0.20190620090832-387a6a0d4459
 	github.com/btcsuite/btcd v0.0.0-20181013004428-67e573d211ac // indirect
 	github.com/didip/tollbooth v4.0.0+incompatible
