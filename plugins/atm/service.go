@@ -22,7 +22,7 @@ import (
 	transtypes "github.com/QOSGroup/qos/module/transfer/types"
 	qostypes "github.com/QOSGroup/qos/types"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+	// "github.com/spf13/viper"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/rpc/client"
