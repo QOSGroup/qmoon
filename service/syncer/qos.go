@@ -231,7 +231,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 		vals, err = s.tmcli.QOSValidatorV0_0_4(height)
 	}
 	if err != nil {
-		log.Printf("COSMOS [Sync] ValidatorLoop  Validator err:%v", err)
+		log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
 		return err
 	}
 
