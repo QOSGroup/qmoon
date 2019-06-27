@@ -129,10 +129,11 @@ func Withdraw(addr, chainid, nodeUrl string) (*ctypes.ResultBroadcastTxCommit, e
 		return nil, err
 	}
 
-	maxGas := viper.GetInt64("max-gas")
-	if maxGas < 0 {
-		return nil, errors.New("max-gas flag not correct")
-	}
+	maxGas := int64(2000000)
+	// maxGas := viper.GetInt64("max-gas")
+	// if maxGas < 0 {
+	// 	return nil, errors.New("max-gas flag not correct")
+	// }
 
 	coin := "qos"
 	amount := getAmount()
