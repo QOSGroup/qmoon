@@ -22,7 +22,7 @@ func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 	uptime := float64(bv.PrecommitNum*10000/(latestHeight-bv.FirstBlockHeight)) / 100.00
 
 	return &types.Validator{
-		//Name:             bv.Name,
+		Name:             bv.Name,
 		Identity:         bv.Identity,
 		Logo:             bv.Logo,
 		Website:          bv.Website,
@@ -170,9 +170,10 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			InactiveTime:   vl.InactiveTime,
 			InactiveHeight: vl.InactiveHeight,
 			BondHeight:     vl.BondHeight,
-			//Name:           vl.Name,
+			Name:           vl.Name,
 			Details:        vl.Details,
 			Identity:       vl.Identity,
+			Logo:           vl.Logo,
 			Website:        vl.Website,
 			Owner:          vl.Owner,
 		}
@@ -190,7 +191,8 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.InactiveTime = vl.InactiveTime
 		mv.InactiveHeight = vl.InactiveHeight
 		mv.BondHeight = vl.BondHeight
-		//mv.Name = vl.Name
+		mv.Name = vl.Name
+		mv.Logo = vl.Logo
 		mv.Details = vl.Details
 		mv.Identity = vl.Identity
 		mv.Website = vl.Website
