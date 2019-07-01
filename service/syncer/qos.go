@@ -5,12 +5,14 @@ package syncer
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"log"
 	"strings"
 	"time"
 
 	qbasetxs "github.com/QOSGroup/qbase/txs"
 	qbasetypes "github.com/QOSGroup/qbase/types"
+	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
@@ -222,6 +224,60 @@ func parseQosITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) e
 	return nil
 }
 
+//QOSStakingValidator struct
+type QOSStakingValidator struct {
+	Commission struct {
+		MaxChangeRate string `json:"max_change_rate"`
+		MaxRate       string `json:"max_rate"`
+		Rate          string `json:"rate"`
+		UpdateTime    string `json:"update_time"`
+	} `json:"commission"`
+	ConsensusPubkey string `json:"consensus_pubkey"`
+	DelegatorShares string `json:"delegator_shares"`
+	Description     struct {
+		Details string `json:"details"`
+		Logo    string `json:"logo"`
+		Moniker string `json:"moniker"`
+		Website string `json:"website"`
+	} `json:"description"`
+	Jailed            bool   `json:"jailed"`
+	MinSelfDelegation string `json:"min_self_delegation"`
+	OperatorAddress   string `json:"operator_address"`
+	Status            int    `json:"status"`
+	Tokens            string `json:"tokens"`
+	UnbondingHeight   string `json:"unbonding_height"`
+	UnbondingTime     string `json:"unbonding_time"`
+}
+
+func (s QOS) stakingValidators() map[string]QOSStakingValidator {
+	k := "qosStakingValidators"
+	if v, ok := cache.Get(k); ok {
+		return v.(map[string]QOSStakingValidator)
+	}
+
+	res := make(map[string]QOSStakingValidator)
+
+	response, err := s.tmcli.ABCIQuery("custom/staking/validators", nil)
+	if err != nil {
+		return res
+	}
+
+	var sv []QOSStakingValidator
+	if response.Response.Code == 0 {
+		json.Unmarshal(response.Response.Value, &sv)
+	}
+
+	for _, v := range sv {
+		res[v.ConsensusPubkey] = v
+	}
+
+	if len(res) != 0 {
+		cache.Set(k, res, time.Minute*5)
+	}
+
+	return res
+}
+
 func (s QOS) Validator(height int64, t time.Time) error {
 	var vals []types.Validator
 	var err error
@@ -235,8 +291,20 @@ func (s QOS) Validator(height int64, t time.Time) error {
 		return err
 	}
 
+	// for _, val := range vals {
+	// 	_ = s.node.CreateValidator(val)
+	// }
+
+	svs := s.stakingValidators()
 	for _, val := range vals {
-		_ = s.node.CreateValidator(val)
+		if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
+			val.Name = sv.Description.Moniker
+			val.Website = sv.Description.Website
+			val.Logo = sv.Description.Logo
+			val.Details = sv.Description.Details
+		}
+
+		s.node.CreateValidator(val)
 	}
 
 	valMap := make(map[string]types.Validator)
