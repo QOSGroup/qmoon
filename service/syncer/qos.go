@@ -257,7 +257,7 @@ func (s QOS) stakingValidators() map[string]QOSStakingValidator {
 
 	res := make(map[string]QOSStakingValidator)
 
-	response, err := s.tmcli.ABCIQuery("custom/staking/validators", nil)
+	response, err := s.tmcli.ABCIQuery("/store/validator/subspace", nil)
 	if err != nil {
 		return res
 	}
