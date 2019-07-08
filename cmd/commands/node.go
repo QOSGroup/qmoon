@@ -72,6 +72,10 @@ func init() {
 
 	queryNodeCmd.PersistentFlags().StringVar(&nodeName, "nodeName", "", "the name of node")
 
+	deleteNodeCmd.Flags().String(types.FlagInfluxdbServer, "http://localhost:8086", "influxdb server")
+	deleteNodeCmd.Flags().String(types.FlagInfluxdbUser, "", "influxdb user")
+	deleteNodeCmd.Flags().String(types.FlagInfluxdbPassword, "", "influxdb password")
+
 	registerFlagsDb(createNodeCmd)
 	registerFlagsDb(queryNodeCmd)
 	registerFlagsDb(updateNodeCmd)
@@ -92,6 +96,10 @@ func createNode(cmd *cobra.Command, args []string) error {
 
 	if nodeType == "" {
 		return errors.New("nodeType 不能为空")
+	}
+
+	if nodeVersion == "" {
+		return errors.New("nodeVersion 不能为空")
 	}
 
 	if !types.CheckNodeType(types.NodeType(nodeType)) {

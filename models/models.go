@@ -230,6 +230,26 @@ func createDatabase(db *sql.DB, dbName string) error {
 }
 
 // DropDatabase 删除数据库
+func DropDatabase(name string) error {
+	dbName := nodeDbname(name)
+	var err error
+
+	closeConn := fmt.Sprintf("SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity "+
+		"WHERE datname='%s' AND pid<>pg_backend_pid();", dbName)
+	_, err = basex.Query(closeConn)
+	if err != nil {
+		return err
+	}
+
+	s := fmt.Sprintf("drop database %s;", dbName)
+	_, err = basex.Query(s)
+
+	//fmt.Printf("dropDatabase:%v, err:%v\n", dbName, err)
+
+	return err
+}
+
+// DropDatabase 删除数据库
 func dropDatabase(db *sql.DB, dbName string) error {
 	var err error
 
