@@ -123,6 +123,14 @@ func GetNodeByName(name string) (*Node, error) {
 }
 
 func DeleteNodeByName(name string) error {
+	if err := models.DropDatabase(name); err != nil {
+		return err
+	}
+
+	if err := metric.DeleteDatabase(name); err != nil {
+		return err
+	}
+
 	return models.DeleteNodeByName(name)
 }
 
