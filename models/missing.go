@@ -54,5 +54,5 @@ func RetrieveMissings(chainID, validator string) ([]*Missing, error) {
 	}
 
 	var missings = make([]*Missing, 0)
-	return missings, x.Where("validator_address = ?", validator).OrderBy("created_at_unix desc").Find(&missings)
+	return missings, x.Where("validator_address = ?", validator).OrderBy("created_at_unix desc").Limit(10, 0).Find(&missings)
 }
