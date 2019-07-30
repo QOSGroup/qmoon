@@ -6,7 +6,9 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
+	"net/url"
 	"strings"
 	"time"
 
@@ -26,6 +28,26 @@ type QSC struct {
 }
 
 func (s QSC) RpcPeers(ctx context.Context) error {
+	netinfo, err := s.tmcli.NetInfo()
+	if err != nil {
+		return err
+	}
+
+	//var peers []string
+	for _, peer := range netinfo.Peers {
+		remoteIp := peer.RemoteIP
+		u, err := url.Parse(peer.NodeInfo.Other.RPCAddress)
+		if err != nil {
+			log.Printf("[QOS] Parse Peer RPCAddress err:%s", err.Error())
+			continue
+		}
+
+		u.Host = fmt.Sprintf("%s:%s", remoteIp, u.Port())
+		//peers = append(peers, u.String())
+
+		_ = models.CreateNetworkOrUpdate(s.node.ChanID, &models.Network{Remote: u.String()})
+	}
+
 	return nil
 }
 

@@ -170,8 +170,11 @@ func newEngine() (err error) {
 }
 
 func nodeDbname(chainId string) string {
-
-	return dbCfg.Name + "_" + strings.Replace(chainId, "-", "_", -1)
+	if chainId != "" {
+		return dbCfg.Name + "_" + strings.Replace(chainId, "-", "_", -1)
+	} else {
+		return dbCfg.Name
+	}
 }
 
 func GetNodeEngine(name string) (*xorm.Engine, error) {
@@ -225,7 +228,7 @@ func createDatabase(db *sql.DB, dbName string) error {
 
 	_, err := db.Query(s)
 
-	//fmt.Printf("createDatabase:%v, err:%v\n", dbName, err)
+	//log.Printf("createDatabase:%v, err:%v\n", dbName, err)
 	return err
 }
 
