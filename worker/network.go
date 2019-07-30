@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/service/syncer"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,9 +37,14 @@ func SyncAllNodeNetwork() {
 		wg.Add(1)
 		go func(node *service.Node) {
 			defer wg.Done()
-			v.NetworkSpider(context.Background())
+			network(node)
 		}(v)
 	}
 
 	wg.Wait()
+}
+
+func network(node *service.Node) {
+	_ = syncer.NewSyncer(node).RpcPeers(context.Background())
+	node.NetworkSpider(context.Background())
 }

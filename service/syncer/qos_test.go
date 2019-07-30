@@ -3,9 +3,12 @@
 package syncer
 
 import (
+	"context"
 	"strings"
 	"testing"
 
+	"github.com/QOSGroup/qmoon/service"
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
 )
@@ -43,4 +46,15 @@ jqkxf2rzpkyud6qyn6yk83jhysy2xxlq2d","qos":"1000000","qscs":null}]}`
 
 	t.Logf("arr:%v", strings.HasPrefix(arr, "["))
 	t.Logf("obj:%v", strings.HasPrefix(obj, "{"))
+}
+
+func TestRpcPeers(t *testing.T) {
+
+	qos := NewSyncer(&service.Node{
+		BaseURL:  "http://47.105.52.237:36657",
+		NodeType: types.NodeTypeQOS.String(),
+	})
+
+	err := qos.RpcPeers(context.Background())
+	assert.Nil(t, err)
 }

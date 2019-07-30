@@ -66,7 +66,6 @@ func (n Node) NetworkSpider(ctx context.Context) {
 	}
 
 	spider.Run()
-
 	spider.Check()
 	spider.Save()
 }
