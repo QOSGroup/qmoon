@@ -10,7 +10,7 @@ import (
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
-	qostypes "github.com/QOSGroup/qos/module/eco/types"
+	qostypes "github.com/QOSGroup/qos/module/stake/types"
 )
 
 func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validator {

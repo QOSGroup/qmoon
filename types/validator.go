@@ -5,7 +5,7 @@ package types
 import (
 	"time"
 
-	"github.com/QOSGroup/qos/module/eco/types"
+	"github.com/QOSGroup/qos/module/stake/types"
 )
 
 const (

@@ -10,8 +10,8 @@ import (
 	qbasetxs "github.com/QOSGroup/qbase/txs"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"github.com/QOSGroup/qos/module/transfer"
-	transfertypes "github.com/QOSGroup/qos/module/transfer/types"
+	transfer "github.com/QOSGroup/qos/module/bank/txs"
+	transfertypes "github.com/QOSGroup/qos/module/bank/types"
 	"github.com/gin-gonic/gin"
 )
 

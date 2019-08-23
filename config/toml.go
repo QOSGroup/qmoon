@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"html/template"
 	"path/filepath"
-
+	"fmt"
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
@@ -22,11 +22,11 @@ func init() {
 // WriteDefaultConfigFile 初始化默认配置文件
 func WriteDefaultConfigFile(rootDir string) {
 	if err := cmn.EnsureDir(rootDir, 0700); err != nil {
-		cmn.PanicSanity(err.Error())
+		panic(fmt.Sprintf("Panicked on a Crisis: %v", err.Error()))
 	}
 
 	if err := cmn.EnsureDir(filepath.Join(rootDir, defaultConfigDir), 0700); err != nil {
-		cmn.PanicSanity(err.Error())
+		panic(fmt.Sprintf("Panicked on a Crisis: %v", err.Error()))
 	}
 
 	configFilePath := filepath.Join(rootDir, defaultConfigFilePath)
