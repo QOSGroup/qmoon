@@ -201,7 +201,7 @@ func (s COSMOS) stakingValidators() map[string]StakingValidator {
 
 	res := make(map[string]StakingValidator)
 
-	response, err := s.tmcli.ABCIQuery("custom/staking/validators", nil)
+	response, err := s.tmcli.ABCIQuery("/store/validator/subspace", nil)
 	if err != nil {
 		return res
 	}
