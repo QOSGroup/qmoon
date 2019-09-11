@@ -77,7 +77,7 @@ func init() {
 		new(Block), new(Tx), new(ConsensusState), new(Genesis),
 		new(TmBlock), new(TxTransfer),
 		new(Fee), new(Evidence), new(Missing),
-		new(Network),
+		new(Network), new(Proposal),
 	)
 
 	gonicNames := []string{"SSL"}
