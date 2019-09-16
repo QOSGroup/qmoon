@@ -121,10 +121,23 @@ func (s QOS) block(b *types.Block) error {
 }
 
 func (s QOS) tx(b *types.Block) error {
+	if len(b.Txs) == 0 {
+		return nil
+	}
+
+	var txs []string
+	for _, v := range b.Txs {
+		txs = append(txs, utils.Base64En(v))
+	}
+
 	for k, v := range b.Txs {
 		qbasetx, err := getQbaseTx(v)
 		if err != nil {
 			return err
+		}
+		var txTypes []string
+		for _, tt := range v.Txs {
+			txTypes = append(txTypes, tt.Type)
 		}
 
 		hash := tmtypes.Tx(b.Txs[k]).Hash()
@@ -132,9 +145,12 @@ func (s QOS) tx(b *types.Block) error {
 		mt.Hash = strings.ToUpper(hex.EncodeToString(hash))
 		mt.Height = b.Header.Height
 		mt.Index = int64(k)
-		mt.OriginTx = utils.Base64En(v)
+		mt.OriginTx = txs[k]
+		if d, err := json.Marshal(v.Txs); err == nil {
+			mt.JsonTx = string(d)
+		}
 		mt.Time = b.Header.Time
-		mt.TxType = qbasetx.Type()
+		mt.TxType = strings.Join(txTypes, ";")
 
 		txResult, errtx := s.tmcli.RetrieveTx(hash)
 		if errtx == nil {
