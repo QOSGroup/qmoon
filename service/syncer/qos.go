@@ -331,6 +331,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 			val.Website = sv.Description.Website
 			val.Logo = sv.Description.Logo
 			val.Details = sv.Description.Details
+			val.Commission = sv.Commission.Rate
 		}
 
 		s.node.CreateValidator(val)
@@ -360,6 +361,14 @@ func (s QOS) Validator(height int64, t time.Time) error {
 
 	return nil
 }
+
+//qos proposals
+// func (s QOS) Proposals() {
+// 	response, err := s.tmcli.ABCIQuery("custom/gov/proposals", []byte("null"))
+// 	if err != nil {
+// 		return err.Error()
+// 	}
+// }
 
 func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeConsensusState) {

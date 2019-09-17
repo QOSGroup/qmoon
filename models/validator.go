@@ -19,6 +19,7 @@ type Validator struct {
 	Address            string    `xorm:"unique TEXT"`
 	PubKeyType         string    `xorm:"TEXT"`
 	PubKeyValue        string    `xorm:"TEXT"`
+	Commission         string    `xorm:"TEXT"`
 	VotingPower        int64     `xorm:"BIGINT"`
 	Accum              int64     `xorm:"BIGINT"`
 	FirstBlockHeight   int64     `xorm:"BIGINT"`

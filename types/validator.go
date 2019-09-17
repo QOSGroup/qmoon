@@ -43,6 +43,7 @@ type Validator struct {
 	PrecommitNum     int64              `json:"precommitNum"`
 	Uptime           string             `json:"uptime"`
 	UptimeFloat      float64            `json:"-"`
+	Commission       string             `json:"commission_rate"`
 }
 
 type Validators []Validator
