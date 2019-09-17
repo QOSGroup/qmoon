@@ -35,6 +35,7 @@ func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 		PubKeyValue:      bv.PubKeyValue,
 		VotingPower:      bv.VotingPower,
 		Accum:            bv.Accum,
+		Commission:       bv.Commission,
 		FirstBlockHeight: bv.FirstBlockHeight,
 		FirstBlockTime:   bv.FirstBlockTime,
 		Status:           int8(bv.Status),
@@ -176,6 +177,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			Logo:           vl.Logo,
 			Website:        vl.Website,
 			Owner:          vl.Owner,
+			Commission:     vl.Commission,
 		}
 
 		if err := mv.Insert(n.ChanID); err != nil {
@@ -197,6 +199,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.Identity = vl.Identity
 		mv.Website = vl.Website
 		mv.Owner = vl.Owner
+		mv.Commission = vl.Commission
 		if err := mv.Update(n.ChanID); err != nil {
 			return err
 		}
