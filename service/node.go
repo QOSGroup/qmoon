@@ -137,7 +137,7 @@ func DeleteNodeByName(name string) error {
 func (n Node) Bech32PrefixConsPub() string {
 	switch types.NodeType(n.NodeType) {
 	case types.NodeTypeQOS:
-		return ""
+		return "qosconspub"
 	case types.NodeTypeQSC:
 		return ""
 	case types.NodeTypeCOSMOS:

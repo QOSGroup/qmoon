@@ -54,8 +54,8 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 }
 
 // Search 块查询
-func (n Node) Blocks(minHeight, maxHeight int64) ([]*types.ResultBlockBase, error) {
-	mbs, err := models.Blocks(n.ChanID, &models.BlockOption{MinHeight: minHeight, MaxHeight: maxHeight})
+func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.ResultBlockBase, error) {
+	mbs, err := models.Blocks(n.ChanID, &models.BlockOption{MinHeight: minHeight, MaxHeight: maxHeight, Offset: int(offset), Limit: int(limit)})
 	if err != nil {
 		return nil, err
 	}
