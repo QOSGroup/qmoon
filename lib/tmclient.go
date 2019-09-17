@@ -100,6 +100,7 @@ func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator
 		InactiveTime:   val.InactiveTime,
 		InactiveHeight: int64(val.InactiveHeight),
 		BondHeight:     int64(val.BondHeight),
+		Commission:     val.Commission.Rate.String(),
 	}
 }
 
