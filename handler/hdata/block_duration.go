@@ -76,7 +76,14 @@ func blockDurationGin() gin.HandlerFunc {
 			minHeight = 1
 		}
 
-		bs, err := node.Blocks(minHeight, maxHeight)
+		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
+
+		limit, _ := strconv.ParseInt(c.Query("limit"), 10, 64)
+		if limit == 0 {
+			limit = 50
+		}
+
+		bs, err := node.Blocks(minHeight, maxHeight, offset, limit)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
