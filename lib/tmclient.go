@@ -78,7 +78,7 @@ func (tc *TmClient) RetrieveTx(txHash []byte) (*types.Tx, error) {
 
 func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator {
 	var pubKeyType, pubKeyValue string
-	d, err := Cdc.MarshalJSON(val.ValidatorPubKey)
+	d, err := Cdc.MarshalJSON(val.ConsPubKey)
 	if err == nil {
 		j := string(d)
 		pubKeyType = gjson.Get(j, "type").String()
@@ -91,10 +91,10 @@ func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator
 		Website:        val.Description.Website,
 		Owner:          val.Owner.String(),
 		ChainID:        chainID,
-		Address:        val.ValidatorPubKey.Address().String(),
+		Address:        val.ConsPubKey.Address().String(),
 		PubKeyType:     pubKeyType,
 		PubKeyValue:    pubKeyValue,
-		VotingPower:    int64(val.BondTokens),
+		VotingPower:    int64(val.BondTokens.Int64()),
 		Status:         val.Status,
 		InactiveCode:   val.InactiveCode,
 		InactiveTime:   val.InactiveTime,
