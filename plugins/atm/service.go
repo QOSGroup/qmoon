@@ -22,6 +22,7 @@ import (
 	transtypes "github.com/QOSGroup/qos/module/bank/types"
 	qostypes "github.com/QOSGroup/qos/types"
 	"github.com/sirupsen/logrus"
+
 	// "github.com/spf13/viper"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
@@ -123,7 +124,7 @@ func Withdraw(addr, chainid, nodeUrl string) (*ctypes.ResultBroadcastTxCommit, e
 		logrus.WithField("pri", pri).Warnf("invalid pri")
 		return nil, errors.New("服务异常")
 	}
-	acc := types.Address(pri.PubKey().Address().Bytes())
+	acc := types.AccAddress(pri.PubKey().Address())
 
 	if err := check(addr, chainid); err != nil {
 		return nil, err
