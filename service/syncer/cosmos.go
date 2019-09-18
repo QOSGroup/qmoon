@@ -176,7 +176,7 @@ type StakingValidator struct {
 		Rate          string `json:"rate"`
 		UpdateTime    string `json:"update_time"`
 	} `json:"commission"`
-	ConsensusPubkey string `json:"consensus_pubkey"`
+	ConsPubKey      string `json:"consensus_pubkey"`
 	DelegatorShares string `json:"delegator_shares"`
 	Description     struct {
 		Details  string `json:"details"`
@@ -184,13 +184,13 @@ type StakingValidator struct {
 		Moniker  string `json:"moniker"`
 		Website  string `json:"website"`
 	} `json:"description"`
-	Jailed            bool   `json:"jailed"`
-	MinSelfDelegation string `json:"min_self_delegation"`
-	OperatorAddress   string `json:"operator_address"`
-	Status            int    `json:"status"`
-	Tokens            string `json:"tokens"`
-	UnbondingHeight   string `json:"unbonding_height"`
-	UnbondingTime     string `json:"unbonding_time"`
+	Jailed                  bool   `json:"jailed"`
+	MinSelfDelegation       string `json:"min_self_delegation"`
+	OperatorAddress         string `json:"operator_address"`
+	Status                  int    `json:"status"`
+	Tokens                  string `json:"tokens"`
+	UnbondingHeight         string `json:"unbonding_height"`
+	UnbondingCompletionTime string `json:"unbonding_time"`
 }
 
 func (s COSMOS) stakingValidators() map[string]StakingValidator {
@@ -212,7 +212,7 @@ func (s COSMOS) stakingValidators() map[string]StakingValidator {
 	}
 
 	for _, v := range sv {
-		res[v.ConsensusPubkey] = v
+		res[v.ConsPubKey] = v
 	}
 
 	if len(res) != 0 {
