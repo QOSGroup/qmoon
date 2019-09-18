@@ -69,11 +69,11 @@ func blockchainGin() gin.HandlerFunc {
 			maxHeight = lb.Height
 		}
 
-		if maxHeight >= 20 {
-			minHeight = maxHeight - 19
-		} else {
-			minHeight = 1
-		}
+		// if maxHeight >= 20 {
+		// 	minHeight = maxHeight - 19
+		// } else {
+		// 	minHeight = 1
+		// }
 
 		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
 
