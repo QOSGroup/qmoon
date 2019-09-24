@@ -2,10 +2,12 @@ module github.com/QOSGroup/qmoon
 
 require (
 	cloud.google.com/go v0.36.0 // indirect
-	github.com/QOSGroup/qbase v0.2.2
-	github.com/QOSGroup/qos v0.0.6
+	github.com/QOSGroup/qbase v0.2.3-0.20190917080943-5c13010498cc
+	github.com/QOSGroup/qos v0.0.0-20190923023834-8669f2fea96c
+	github.com/cosmos/cosmos-sdk v0.37.0
 	github.com/didip/tollbooth v4.0.0+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.0
+	github.com/ethereum/go-ethereum v1.8.23 // indirect
 	github.com/gin-contrib/sse v0.0.0-20190125020943-a7658810eb74 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
@@ -16,24 +18,20 @@ require (
 	github.com/hashicorp/go-version v1.1.0
 	github.com/influxdata/influxdb v1.7.5
 	github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589 // indirect
-	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/magiconair/properties v1.8.0
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.8.1
-	github.com/prometheus/client_golang v0.9.1
-	github.com/prometheus/common v0.0.0-20190107103113-2998b132700a // indirect
+	github.com/prometheus/client_golang v1.1.0
 	github.com/robfig/cron v0.0.0-20180505203441-b41be1df6967
 	github.com/sirupsen/logrus v1.3.0
-	github.com/spf13/cobra v0.0.3
-	github.com/spf13/viper v1.3.1
+	github.com/spf13/cobra v0.0.5
+	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0
 	github.com/tendermint/go-amino v0.15.0
-	github.com/tendermint/tendermint v0.32.0
+	github.com/tendermint/tendermint v0.32.2
 	github.com/tidwall/gjson v1.1.5
 	github.com/tidwall/match v1.0.1 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
