@@ -12,6 +12,8 @@ import (
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	qostypes "github.com/QOSGroup/qos/module/stake/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	costypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/bech32"
 	"github.com/tendermint/tendermint/rpc/client"
@@ -119,6 +121,32 @@ func convertQSCValidator(chainID string, val tmtypes.Validator) types.Validator 
 		PubKeyType:  pubKeyType,
 		PubKeyValue: pubKeyValue,
 		VotingPower: val.VotingPower,
+	}
+}
+
+//convertCOSValidator
+func convertCOSValidator(chainID string, val costypes.Validator) types.Validator {
+	var pubKeyType, pubKeyValue string
+	d, err := Cdc.MarshalJSON(val.ConsPubKey)
+	if err == nil {
+		j := string(d)
+		pubKeyType = gjson.Get(j, "type").String()
+		pubKeyValue = gjson.Get(j, "value").String()
+	}
+
+	return types.Validator{
+		Name:           val.Description.Moniker,
+		Identity:       val.Description.Identity,
+		Website:        val.Description.Website,
+		Owner:          val.GetOperator().String(),
+		ChainID:        chainID,
+		Address:        val.ConsPubKey.Address().String(),
+		PubKeyType:     pubKeyType,
+		PubKeyValue:    pubKeyValue,
+		VotingPower:    int64(val.Tokens.Int64()),
+		Status:         int8(val.Status),
+		InactiveHeight: int64(val.UnbondingHeight),
+		Commission:     val.Commission.Rate.String(),
 	}
 }
 
@@ -307,6 +335,42 @@ func (tc *TmClient) Validator(height int64) ([]types.Validator, error) {
 
 	for _, v := range vals.Validators {
 		result = append(result, convertQSCValidator(tc.chainID, *v))
+	}
+
+	return result, nil
+}
+
+//COSMOSValidator同步信息
+func (tc *TmClient) COSMOSValidator(height int64) ([]types.Validator, error) {
+	var result []types.Validator
+	if height <= 0 {
+		height = 0
+	}
+
+	chainID, err := tc.ChainID()
+	if err != nil {
+		return nil, err
+	}
+
+	path := "/store/validator/subspace"
+	data := []byte{0x21}
+	response, err := tc.ABCIQuery(path, data)
+	if err != nil {
+		return nil, err
+	}
+	valueBz := response.Response.GetValue()
+	if len(valueBz) == 0 {
+		return nil, errors.New("")
+	}
+
+	var vKVPair []sdk.KVPair
+	Cdc.MustUnmarshalBinaryLengthPrefixed(valueBz, &vKVPair)
+
+	for _, kv := range vKVPair {
+		var val costypes.Validator
+		if err := Cdc.UnmarshalBinaryLengthPrefixed(kv.Value, &val); err == nil {
+			result = append(result, convertCOSValidator(chainID, val))
+		}
 	}
 
 	return result, nil

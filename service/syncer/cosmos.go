@@ -223,7 +223,7 @@ func (s COSMOS) stakingValidators() map[string]StakingValidator {
 }
 
 func (s COSMOS) Validator(height int64, t time.Time) error {
-	vals, err := s.tmcli.Validator(height)
+	vals, err := s.tmcli.COSMOSValidator(height)
 	if err != nil {
 		log.Printf("COSMOS [Sync] ValidatorLoop  Validator err:%v", err)
 		return err
