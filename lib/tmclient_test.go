@@ -9,17 +9,17 @@ import (
 )
 
 func TestTendermintClient(t *testing.T) {
-	//cli := TendermintClient("http://192.168.1.223:26657")
-	//
-	//height := int64(654547)
-	//block, err := cli.RetrieveBlock(&height)
-	//assert.Nil(t, err)
-	//
-	//for _, v := range block.Tx {
-	//	txStatus := cli.RetrieveTxResult(v)
-	//	assert.Nil(t, err)
-	//	assert.Equal(t, types.TxStatusSuccess, txStatus)
-	//}
+	// cli := TendermintClient("http://47.98.253.9:36657")
+
+	// height := int64(1000)
+	// validator, err := cli.COSMOSValidator(height)
+	// assert.Nil(t, err)
+	// t.Log(validator)
+	// for _, v := range block.Tx {
+	// 	txStatus := cli.RetrieveTxResult(v)
+	// 	assert.Nil(t, err)
+	// 	assert.Equal(t, types.TxStatusSuccess, txStatus)
+	// }
 }
 
 func TestConsensusAddressToHex(t *testing.T) {
