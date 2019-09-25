@@ -365,7 +365,7 @@ func (tc *TmClient) COSMOSValidator(height int64) ([]types.Validator, error) {
 	}
 	valueBz := response.Response.GetValue()
 	if len(valueBz) == 0 {
-		return nil, errors.New("")
+		return nil, errors.New("fuck empty")
 	}
 
 	var vKVPair []sdk.KVPair
