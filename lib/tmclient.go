@@ -352,9 +352,14 @@ func (tc *TmClient) COSMOSValidator(height int64) ([]types.Validator, error) {
 		return nil, err
 	}
 
+	opt := client.ABCIQueryOptions{
+		Height: height,
+		Prove:  true,
+	}
+
 	path := "/store/validator/subspace"
 	data := []byte{0x21}
-	response, err := tc.ABCIQuery(path, data)
+	response, err := tc.ABCIQueryWithOptions(path, data, opt)
 	if err != nil {
 		return nil, err
 	}
