@@ -4,6 +4,7 @@ package lib
 
 import (
 	"encoding/json"
+	"github.com/QOSGroup/qmoon/lib/cosmos/staking/types"
 	"net/http"
 	"strings"
 )
@@ -46,6 +47,21 @@ func (cc CosmosCli) Txs(txs []string) ([]ResultCosmosTx, error) {
 	}
 
 	var result []ResultCosmosTx
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (cc CosmosCli) Validators() ([]types.Validator, error) {
+	resp, err := http.Get(cc.remote+"/stake/validators")
+	if err != nil {
+		return nil, err
+	}
+
+	var result []types.Validator
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return nil, err

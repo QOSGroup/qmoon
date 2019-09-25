@@ -14,6 +14,7 @@ import (
 
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib"
+	cosmos_staking_types "github.com/QOSGroup/qmoon/lib/cosmos/staking/types"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/service"
@@ -169,49 +170,34 @@ func (s COSMOS) tx(b *types.Block) error {
 	return nil
 }
 
-type StakingValidator struct {
-	Commission struct {
-		MaxChangeRate string `json:"max_change_rate"`
-		MaxRate       string `json:"max_rate"`
-		Rate          string `json:"rate"`
-		UpdateTime    string `json:"update_time"`
-	} `json:"commission"`
-	ConsPubKey      string `json:"consensus_pubkey"`
-	DelegatorShares string `json:"delegator_shares"`
-	Description     struct {
-		Details  string `json:"details"`
-		Identity string `json:"identity"`
-		Moniker  string `json:"moniker"`
-		Website  string `json:"website"`
-	} `json:"description"`
-	Jailed                  bool   `json:"jailed"`
-	MinSelfDelegation       string `json:"min_self_delegation"`
-	OperatorAddress         string `json:"operator_address"`
-	Status                  int    `json:"status"`
-	Tokens                  string `json:"tokens"`
-	UnbondingHeight         string `json:"unbonding_height"`
-	UnbondingCompletionTime string `json:"unbonding_time"`
-}
-
-func (s COSMOS) stakingValidators() map[string]StakingValidator {
+func (s COSMOS) stakingValidators() map[string]cosmos_staking_types.Validator {
 	k := "cosmosStakingValidators"
 	if v, ok := cache.Get(k); ok {
-		return v.(map[string]StakingValidator)
+		if validators, ok := v.(map[string]cosmos_staking_types.Validator); ok {
+			return validators
+		}
 	}
 
-	res := make(map[string]StakingValidator)
+	res := make(map[string]cosmos_staking_types.Validator)
 
-	response, err := s.tmcli.ABCIQuery("/store/staking/subspace", []byte{0x21})
+	//response, err := s.tmcli.ABCIQuery("/store/staking/subspace", []byte{0x21})
+	//if err != nil {
+	//	return res
+	//}
+	//
+	//var sv []StakingValidator
+	//if response.Response.Code == 0 {
+	//	json.Unmarshal(response.Response.Value, &sv)
+	//}
+	//
+	//for _, v := range sv {
+	//	res[v.ConsPubKey] = v
+	//}
+	validators, err := lib.NewCosmosCli("").Validators()
 	if err != nil {
 		return res
 	}
-
-	var sv []StakingValidator
-	if response.Response.Code == 0 {
-		json.Unmarshal(response.Response.Value, &sv)
-	}
-
-	for _, v := range sv {
+	for _, v := range validators {
 		res[v.ConsPubKey] = v
 	}
 

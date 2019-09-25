@@ -40,6 +40,6 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 )
 
-replace golang.org/x/tools => github.com/golang/tools v0.0.0-20190330180304-aef51cc3777c
-
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
+
+replace golang.org/x/sys => github.com/golang/sys v0.0.0-20190801041406-cbf593c0f2f3
