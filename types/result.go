@@ -215,3 +215,19 @@ type ResultMissing struct {
 	Time   string `json:"time"`
 	Height int64  `json:"height"`
 }
+
+// ResultProposal
+type ResultProposal struct {
+	ProposalID      int64     `json:"proposal_ID"`
+	Title           string    `json:"title"`
+	Description     string    `json:"description"`
+	Type            string    `json:"type"`
+	Status          string    `json:"status"`
+	SubmitTime      time.Time `json:"submit_Time"`
+	VotingStartTime time.Time `json:"voting_StartTime"`
+	TotalDeposit    int64     `json:"total_Deposit"`
+}
+
+type ResultProposals struct {
+	Proposals []*ResultProposal `json:"proposals"`
+}

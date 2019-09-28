@@ -10,8 +10,8 @@ type Proposal struct {
 
 	ProposalID int64 `json:"proposal_id"` //  ID of the proposal
 
-	Status           byte        `json:"proposal_status"`    //  Status of the Proposal {Pending, Active, Passed, Rejected}
-	FinalTallyResult TallyResult `json:"final_tally_result"` //  Result of Tallys
+	Status           ProposalStatus `json:"proposal_status"`    //  Status of the Proposal {Pending, Active, Passed, Rejected}
+	FinalTallyResult TallyResult    `json:"final_tally_result"` //  Result of Tallys
 
 	SubmitTime     time.Time `json:"submit_time"`      //  Time of the block where TxGovSubmitProposal was included
 	DepositEndTime time.Time `json:"deposit_end_time"` // Time that the Proposal would expire if deposit amount isn't met
@@ -42,4 +42,50 @@ type TallyResult struct {
 
 type BigInt struct {
 	i *big.Int
+}
+
+// Int64 converts BigInt to int64
+// Panics if the value is out of range
+func (i BigInt) Int64() int64 {
+	if !i.i.IsInt64() {
+		panic("Int64() out of bound")
+	}
+	return i.i.Int64()
+}
+
+type ProposalStatus byte
+
+//nolint
+const (
+	StatusNil           ProposalStatus = 0x00
+	StatusDepositPeriod ProposalStatus = 0x01
+	StatusVotingPeriod  ProposalStatus = 0x02
+	StatusPassed        ProposalStatus = 0x03
+	StatusRejected      ProposalStatus = 0x04
+)
+
+func ValidProposalStatus(status ProposalStatus) bool {
+	if status == StatusDepositPeriod ||
+		status == StatusVotingPeriod ||
+		status == StatusPassed ||
+		status == StatusRejected {
+		return true
+	}
+	return false
+}
+
+// Turns VoteOption byte to String
+func (ps ProposalStatus) String() string {
+	switch ps {
+	case StatusDepositPeriod:
+		return "Deposit"
+	case StatusVotingPeriod:
+		return "Voting"
+	case StatusPassed:
+		return "Passed"
+	case StatusRejected:
+		return "Rejected"
+	default:
+		return ""
+	}
 }

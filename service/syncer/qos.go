@@ -16,6 +16,7 @@ import (
 	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib"
+	"github.com/QOSGroup/qmoon/lib/qos"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/plugins"
@@ -98,6 +99,7 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 			}
 			s.Validator(height, b.Header.Time)
 			height += 1
+			s.Proposals()
 		}
 	}
 
@@ -363,12 +365,28 @@ func (s QOS) Validator(height int64, t time.Time) error {
 }
 
 //qos proposals
-// func (s QOS) Proposals() {
-// 	response, err := s.tmcli.ABCIQuery("custom/gov/proposals", []byte("null"))
-// 	if err != nil {
-// 		return err.Error()
-// 	}
-// }
+func (s QOS) Proposals() error {
+	prores, err := qos.NewQosCli("").QueryProposals(s.node.BaseURL)
+	if err != nil {
+		return err
+	}
+	mt := &models.Proposal{}
+	for _, pro := range prores {
+		mt.Description = pro.ProposalContent.Value.Description
+		mt.ProposalID = pro.ProposalID
+		mt.Status = pro.Status.String()
+		mt.SubmitTime = pro.SubmitTime
+		mt.Title = pro.ProposalContent.Value.Title
+		mt.TotalDeposit = pro.TotalDeposit.Int64()
+		mt.Type = pro.ProposalContent.Type
+		mt.VotingStartTime = pro.VotingStartTime
+	}
+	if err := mt.Insert(s.node.ChanID); err != nil {
+		log.Printf("proposals insert data:%+v, err:%v", mt, err.Error())
+		return err
+	}
+	return nil
+}
 
 func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeConsensusState) {

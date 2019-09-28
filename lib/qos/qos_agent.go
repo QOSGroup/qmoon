@@ -2,16 +2,17 @@ package qos
 
 import (
 	"encoding/json"
-	"github.com/QOSGroup/qmoon/lib/qos/gov/types"
 	"net/http"
 	"strconv"
+
+	"github.com/QOSGroup/qmoon/lib/qos/gov/types"
 )
 
 type QosCli struct {
 	remote string
 }
 
-func NewCosmosCli(remote string) QosCli {
+func NewQosCli(remote string) QosCli {
 	if remote == "" {
 		remote = "http://localhost:19527"
 	}
