@@ -2,10 +2,10 @@ package qos
 
 import (
 	"encoding/json"
+	"github.com/QOSGroup/qmoon/lib/qos/gov/types"
+	"github.com/QOSGroup/qmoon/models/errors"
 	"net/http"
 	"strconv"
-
-	"github.com/QOSGroup/qmoon/lib/qos/gov/types"
 )
 
 type QosCli struct {
@@ -14,24 +14,24 @@ type QosCli struct {
 
 func NewQosCli(remote string) QosCli {
 	if remote == "" {
-		remote = "http://localhost:19527"
+		remote = "http://localhost:19528"
 	}
 	return QosCli{remote: remote}
 }
 
-func (cc QosCli) QueryProposals(nodeUrl string) ([]types.Proposal, error) {
+func (cc QosCli) QueryProposals(nodeUrl string) (result []types.Proposal, err error) {
 	resp, err := http.Get(cc.remote + "/gov/proposals?node_url=" + nodeUrl)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	var result []types.Proposal
+	if resp.StatusCode != 200 {
+		err = errors.New(resp.Status)
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return
 }
 
 func (cc QosCli) QueryProposal(nodeUrl string, pId int64) (proposal types.Proposal, err error) {
