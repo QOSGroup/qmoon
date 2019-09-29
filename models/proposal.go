@@ -7,37 +7,40 @@ import (
 )
 
 type Proposal struct {
-	Id              int64     `xorm:"pk autoincr BIGINT"`
-	ProposalID      int64     `xorm:"BIGINT"`
-	Title           string    `xorm:"unique(title_tx_idx) TEXT"`
-	Description     string    `xorm:"TEXT"`
-	Type            string    `xorm:"TEXT"`
-	Status          string    `xorm:"TEXT"`
-	SubmitTime      time.Time `xorm:"-"`
-	VotingStartTime time.Time `xorm:"-"`
-	TotalDeposit    int64     `xorm:"BIGINT"`
-	ChainID         string    `xorm:"-"`
-	UpdatedAt       time.Time `xorm:"-"`
-	UpdatedAtUnix   int64
-	CreatedAt       time.Time `xorm:"-"`
-	CreatedAtUnix   int64
+	Id                  int64     `xorm:"pk autoincr BIGINT"`
+	ProposalID          int64     `xorm:"BIGINT"`
+	Title               string    `xorm:"unique(title_tx_idx) TEXT"`
+	Description         string    `xorm:"TEXT"`
+	Type                string    `xorm:"TEXT"`
+	Status              string    `xorm:"TEXT"`
+	SubmitTime          time.Time `xorm:"-"`
+	VotingStartTime     time.Time `xorm:"-"`
+	SubmitTimeUnix      int64
+	VotingStartTimeUnix int64
+	TotalDeposit        int64  `xorm:"BIGINT"`
+	ChainID             string `xorm:"-"`
+	// UpdatedAt           time.Time `xorm:"-"`
+	// UpdatedAtUnix       int64
+	// CreatedAt           time.Time `xorm:"-"`
+	// CreatedAtUnix       int64
 }
 
 func (n *Proposal) BeforeInsert() {
-	n.CreatedAtUnix = time.Now().Unix()
-	n.UpdatedAtUnix = time.Now().Unix()
+	n.SubmitTimeUnix = n.SubmitTime.Unix()
+	n.VotingStartTimeUnix = n.VotingStartTime.Unix()
 }
 
 func (n *Proposal) BeforeUpdate() {
-	n.UpdatedAtUnix = time.Now().Unix()
+	n.SubmitTimeUnix = n.SubmitTime.Unix()
+	n.VotingStartTimeUnix = n.VotingStartTime.Unix()
 }
 
 func (n *Proposal) AfterSet(colName string, _ xorm.Cell) {
 	switch colName {
-	case "created_at_unix":
-		n.CreatedAt = time.Unix(n.CreatedAtUnix, 0).Local()
-	case "updated_at_unix":
-		n.UpdatedAt = time.Unix(n.UpdatedAtUnix, 0).Local()
+	case "submit_at_unix":
+		n.SubmitTime = time.Unix(n.SubmitTimeUnix, 0).Local()
+	case "voting_start_at_unix":
+		n.VotingStartTime = time.Unix(n.VotingStartTimeUnix, 0).Local()
 	}
 }
 
