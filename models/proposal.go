@@ -56,6 +56,14 @@ func (n *Proposal) Insert(chainID string) error {
 	if err != nil {
 		return err
 	}
+	has, err := x.Exist(&Proposal{ProposalID: n.ProposalID})
+	if err != nil {
+		return err
+	}
+
+	if has {
+		return nil
+	}
 
 	_, err = x.Insert(n)
 	if err != nil {
