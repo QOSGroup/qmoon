@@ -9,7 +9,7 @@ import (
 type Proposal struct {
 	Id                  int64     `xorm:"pk autoincr BIGINT"`
 	ProposalID          int64     `xorm:"BIGINT"`
-	Title               string    `xorm:"unique(title_tx_idx) TEXT"`
+	Title               string    `xorm:"TEXT"`
 	Description         string    `xorm:"TEXT"`
 	Type                string    `xorm:"TEXT"`
 	Status              string    `xorm:"TEXT"`

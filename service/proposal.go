@@ -29,9 +29,9 @@ func convertToProposal(mp *models.Proposal) *types.ResultProposal {
 		Description:     mp.Description,
 		Type:            mp.Type,
 		Status:          mp.Status,
-		SubmitTime:      mp.SubmitTime,
-		VotingStartTime: mp.VotingStartTime,
-		VotingEndTime:   mp.VotingEndTime,
+		SubmitTime:      types.ResultTime(mp.SubmitTime),
+		VotingStartTime: types.ResultTime(mp.VotingStartTime),
+		VotingEndTime:   types.ResultTime(mp.VotingEndTime),
 		TotalDeposit:    mp.TotalDeposit,
 	}
 }

@@ -218,15 +218,15 @@ type ResultMissing struct {
 
 // ResultProposal
 type ResultProposal struct {
-	ProposalID      int64     `json:"proposal_ID"`
-	Title           string    `json:"title"`
-	Description     string    `json:"description"`
-	Type            string    `json:"type"`
-	Status          string    `json:"status"`
-	SubmitTime      time.Time `json:"submit_Time"`
-	VotingStartTime time.Time `json:"voting_StartTime"`
-	VotingEndTime   time.Time `json:"voting_EndTime"`
-	TotalDeposit    int64     `json:"total_Deposit"`
+	ProposalID      int64      `json:"proposal_ID"`
+	Title           string     `json:"title"`
+	Description     string     `json:"description"`
+	Type            string     `json:"type"`
+	Status          string     `json:"status"`
+	SubmitTime      ResultTime `json:"submit_Time"`
+	VotingStartTime ResultTime `json:"voting_StartTime"`
+	VotingEndTime   ResultTime `json:"voting_EndTime"`
+	TotalDeposit    int64      `json:"total_Deposit"`
 }
 
 type ResultProposals struct {
