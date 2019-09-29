@@ -8,10 +8,6 @@ import (
 
 func TestQueryProposals(t *testing.T) {
 	proposals, err := NewQosCli("").QueryProposals("39.97.234.227:26657")
-	//log.Printf("res:%+v, err:%+v", proposals, err.Error())
-	//bytes, err := json.Marshal(proposals)
-	//log.Printf("res:%+v, err:%+v", string(bytes), err.Error())
-
 	bytes, err := json.Marshal(proposals)
 	log.Printf("res:%+v, err:%+v", string(bytes), err)
 }

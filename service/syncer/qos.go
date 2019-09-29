@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -372,12 +373,15 @@ func (s QOS) Proposals() error {
 	}
 	mt := &models.Proposal{}
 	for _, pro := range prores {
-		mt.Description = pro.ProposalContent.Value.Description
+		mt.Description = pro.ProposalContent.Description
 		mt.ProposalID = pro.ProposalID
-		mt.Status = pro.Status.String()
+		mt.Status = pro.Status
 		mt.SubmitTime = pro.SubmitTime
-		mt.Title = pro.ProposalContent.Value.Title
-		mt.TotalDeposit = pro.TotalDeposit.Int64()
+		mt.Title = pro.ProposalContent.Type
+		pId, err := strconv.ParseInt(pro.TotalDeposit, 10, 64)
+		if err == nil {
+			mt.TotalDeposit = pId
+		}
 		mt.Type = pro.ProposalContent.Type
 		mt.VotingStartTime = pro.VotingStartTime
 	}
