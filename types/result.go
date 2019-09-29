@@ -225,6 +225,7 @@ type ResultProposal struct {
 	Status          string    `json:"status"`
 	SubmitTime      time.Time `json:"submit_Time"`
 	VotingStartTime time.Time `json:"voting_StartTime"`
+	VotingEndTime   time.Time `json:"voting_EndTime"`
 	TotalDeposit    int64     `json:"total_Deposit"`
 }
 

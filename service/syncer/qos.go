@@ -384,6 +384,7 @@ func (s QOS) Proposals() error {
 		}
 		mt.Type = pro.ProposalContent.Type
 		mt.VotingStartTime = pro.VotingStartTime
+		mt.VotingEndTime = pro.VotingEndTime
 	}
 	if err := mt.Insert(s.node.ChanID); err != nil {
 		log.Printf("proposals insert data:%+v, err:%v", mt, err.Error())
