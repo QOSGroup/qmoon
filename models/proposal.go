@@ -41,13 +41,12 @@ func (n *Proposal) BeforeUpdate() {
 
 func (n *Proposal) AfterSet(colName string, _ xorm.Cell) {
 	switch colName {
-	case "submit_at_unix":
+	case "submit_time_unix":
 		n.SubmitTime = time.Unix(n.SubmitTimeUnix, 0).Local()
-	case "voting_start_at_unix":
+	case "voting_start_time_unix":
 		n.VotingStartTime = time.Unix(n.VotingStartTimeUnix, 0).Local()
-	case "voting_end_at_unix":
+	case "voting_end_time_unix":
 		n.VotingEndTime = time.Unix(n.VotingEndTimeUnix, 0).Local()
-
 	}
 }
 
