@@ -6,7 +6,7 @@ import "fmt"
 type Vote struct {
 	Voter      string     `json:"voter"`       //  address of the voter
 	ProposalID int64      `json:"proposal_id"` //  proposalID of the proposal
-	Option     VoteOption `json:"option"`      //  option from OptionSet chosen by the voter
+	Option     string `json:"option"`      //  option from OptionSet chosen by the voter
 }
 
 func (v Vote) String() string {
