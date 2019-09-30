@@ -1,10 +1,13 @@
 package hdata
 
 import (
+	"fmt"
+	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
@@ -19,6 +22,11 @@ const (
 	votesUrl     = "/votes"
 	depositsUrl  = "/deposits"
 	tallyUrl     = "/tally"
+
+	proposalCacheKey = "qos_proposal_key_%d"
+	votesCacheKey    = "qos_votes_key_%d"
+	depositsCacheKey = "qos_deposits_key_%d"
+	tallyCacheKey    = "qos_tally_key_%d"
 )
 
 func init() {
@@ -89,54 +97,102 @@ func proposalsGin() gin.HandlerFunc {
 }
 
 func proposal(context *gin.Context) (proposal qos_types.Proposal, err error) {
-	node, err := GetNodeFromUrl(context)
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
 		return
 	}
+
+	k := fmt.Sprintf(proposalCacheKey, pId)
+	if v, ok := cache.Get(k); ok {
+		if proposal, ok = v.(qos_types.Proposal); ok {
+			return
+		}
+	}
+
+	node, err := GetNodeFromUrl(context)
+	if err != nil {
+		return
+	}
+
 	proposal, err = qos.NewQosCli("").QueryProposal(node.BaseURL, pId)
+	if err == nil{
+		cache.Set(k, proposal, time.Minute*5)
+	}
 	return
 }
 
 func votes(context *gin.Context) (votes qos_types.Votes, err error) {
-	node, err := GetNodeFromUrl(context)
-	if err != nil {
-		return
-	}
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
 		return
 	}
+
+	k := fmt.Sprintf(votesCacheKey, pId)
+	if v, ok := cache.Get(k); ok {
+		if votes, ok = v.(qos_types.Votes); ok {
+			return
+		}
+	}
+
+	node, err := GetNodeFromUrl(context)
+	if err != nil {
+		return
+	}
 	votes, err = qos.NewQosCli("").QueryVotes(node.BaseURL, pId)
+	if err == nil{
+		cache.Set(k, votes, time.Minute*5)
+	}
 	return
 }
 
 func deposits(context *gin.Context) (deposits qos_types.Deposits, err error) {
-	node, err := GetNodeFromUrl(context)
-	if err != nil {
-		return
-	}
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
 		return
 	}
+
+	k := fmt.Sprintf(depositsCacheKey, pId)
+	if v, ok := cache.Get(k); ok {
+		if deposits, ok = v.(qos_types.Deposits); ok {
+			return
+		}
+	}
+
+	node, err := GetNodeFromUrl(context)
+	if err != nil {
+		return
+	}
 	deposits, err = qos.NewQosCli("").QueryDeposits(node.BaseURL, pId)
+	if err == nil{
+		cache.Set(k, deposits, time.Minute*5)
+	}
 	return
 }
 
 func tally(context *gin.Context) (tally qos_types.TallyResult, err error) {
-	node, err := GetNodeFromUrl(context)
-	if err != nil {
-		return
-	}
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
 		return
 	}
+
+	k := fmt.Sprintf(tallyCacheKey, pId)
+	if v, ok := cache.Get(k); ok {
+		if tally, ok = v.(qos_types.TallyResult); ok {
+			return
+		}
+	}
+
+	node, err := GetNodeFromUrl(context)
+	if err != nil {
+		return
+	}
 	tally, err = qos.NewQosCli("").QueryTally(node.BaseURL, pId)
+	if err == nil{
+		cache.Set(k, tally, time.Minute*5)
+	}
 	return
 }
