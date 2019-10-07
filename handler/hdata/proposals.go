@@ -33,7 +33,7 @@ func init() {
 	hdataHander[proposalsUrl] = proposalsGinRegister
 	hdataHander[proposalUrl] = func(r *gin.Engine) {
 		r.GET(NodeProxy+proposalUrl, middleware.ApiAuthGin(), func(context *gin.Context) {
-			proposal, err := proposal(context)
+			proposal, err := queryProposal(context)
 			if err != nil {
 				context.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
 				return
@@ -43,7 +43,7 @@ func init() {
 	}
 	hdataHander[votesUrl] = func(r *gin.Engine) {
 		r.GET(NodeProxy+votesUrl, middleware.ApiAuthGin(), func(context *gin.Context) {
-			votes, err := votes(context)
+			votes, err := queryVotes(context)
 			if err != nil {
 				context.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
 				return
@@ -53,7 +53,7 @@ func init() {
 	}
 	hdataHander[depositsUrl] = func(r *gin.Engine) {
 		r.GET(NodeProxy+depositsUrl, middleware.ApiAuthGin(), func(context *gin.Context) {
-			deposits, err := deposits(context)
+			deposits, err := queryDeposits(context)
 			if err != nil {
 				context.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
 				return
@@ -63,7 +63,7 @@ func init() {
 	}
 	hdataHander[tallyUrl] = func(r *gin.Engine) {
 		r.GET(NodeProxy+tallyUrl, middleware.ApiAuthGin(), func(context *gin.Context) {
-			tally, err := tally(context)
+			tally, err := queryTally(context)
 			if err != nil {
 				context.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
 				return
@@ -96,7 +96,7 @@ func proposalsGin() gin.HandlerFunc {
 	}
 }
 
-func proposal(context *gin.Context) (proposal qos_types.Proposal, err error) {
+func queryProposal(context *gin.Context) (proposal qos_types.Proposal, err error) {
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
@@ -122,7 +122,7 @@ func proposal(context *gin.Context) (proposal qos_types.Proposal, err error) {
 	return
 }
 
-func votes(context *gin.Context) (votes qos_types.Votes, err error) {
+func queryVotes(context *gin.Context) (votes qos_types.Votes, err error) {
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
@@ -147,7 +147,7 @@ func votes(context *gin.Context) (votes qos_types.Votes, err error) {
 	return
 }
 
-func deposits(context *gin.Context) (deposits qos_types.Deposits, err error) {
+func queryDeposits(context *gin.Context) (deposits qos_types.Deposits, err error) {
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
@@ -172,7 +172,7 @@ func deposits(context *gin.Context) (deposits qos_types.Deposits, err error) {
 	return
 }
 
-func tally(context *gin.Context) (tally qos_types.TallyResult, err error) {
+func queryTally(context *gin.Context) (tally qos_types.TallyResult, err error) {
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
