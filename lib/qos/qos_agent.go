@@ -164,7 +164,7 @@ func (cc QosCli) QueryValidators(nodeUrl string, height int64) (result []stake_t
 	return
 }
 
-func (cc QosCli) queryTotalValidatorBondToken(nodeUrl string, height int64) (result string, err error) {
+func (cc QosCli) QueryTotalValidatorBondTokens(nodeUrl string) (result string, err error) {
 	resp, err := http.Get(cc.remote + "/stake/validators/total/bond/tokens?node_url=" + nodeUrl)
 	if err != nil {
 		return

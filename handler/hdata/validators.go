@@ -3,7 +3,10 @@
 package hdata
 
 import (
+	"github.com/QOSGroup/qmoon/cache"
+	"github.com/QOSGroup/qmoon/lib/qos"
 	"net/http"
+	"time"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
@@ -11,10 +14,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const validatorsUrl = "/validators"
+const (
+	validatorsUrl          = "/validators"
+	validatorsBondTokenUrl = "/validator/bond/tokens"
+
+	validatorsBondTokenCacheKey = "validators_bond_tokens"
+)
 
 func init() {
 	hdataHander[validatorsUrl] = ValidatorsGinRegister
+	hdataHander[validatorsBondTokenUrl] = func(r *gin.Engine) {
+		r.GET(NodeProxy+validatorsBondTokenUrl, middleware.ApiAuthGin(), func(context *gin.Context) {
+			bondToken, err := queryBondTokens(context)
+			if err != nil {
+				context.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
+				return
+			}
+			context.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", bondToken))
+		})
+	}
 }
 
 // ValidatorsGinRegister 注册validators
@@ -42,4 +60,24 @@ func validatorsGin() gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", vs))
 	}
+}
+
+func queryBondTokens(context *gin.Context) (result string, err error) {
+	k := validatorsBondTokenCacheKey
+	if v, ok := cache.Get(k); ok {
+		if result, ok = v.(string); ok {
+			return
+		}
+	}
+
+	node, err := GetNodeFromUrl(context)
+	if err != nil {
+		return
+	}
+
+	result, err = qos.NewQosCli("").QueryTotalValidatorBondTokens(node.BaseURL)
+	if err == nil {
+		cache.Set(k, result, time.Minute*5)
+	}
+	return
 }
