@@ -16,8 +16,9 @@ type ValidatorDisplayInfo struct {
 	InactiveTime   time.Time `json:"inactiveTime"`
 	InactiveHeight int64     `json:"inactiveHeight"`
 
-	MinPeriod  int64 `json:"minPeriod"`
-	BondHeight int64 `json:"bondHeight"`
+	MinPeriod  int64  `json:"minPeriod"`
+	BondHeight int64  `json:"bondHeight"`
+	SelfBond   string `json:"selfBond"`
 }
 
 // Description - description fields for a validator
