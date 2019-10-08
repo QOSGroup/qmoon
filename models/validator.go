@@ -32,6 +32,8 @@ type Validator struct {
 	InactiveHeight     int64 `xorm:"BIGINT"`
 	BondHeight         int64 `xorm:"BIGINT"`
 	PrecommitNum       int64
+	BondedTokens       int64 `xorm:"BIGINT"`
+	SelfBond           int64 `xorm:"BIGINT"`
 }
 
 func (val *Validator) BeforeInsert() {

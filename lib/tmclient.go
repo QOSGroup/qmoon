@@ -87,6 +87,9 @@ func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator
 		pubKeyValue = gjson.Get(j, "value").String()
 	}
 
+	if !val.BondTokens.IsInt64() {
+		err = types.NewInvalidTypeError(val.BondTokens.String(), "int64")
+	}
 	return types.Validator{
 		Name:           val.Description.Moniker,
 		Logo:           val.Description.Logo,
@@ -103,6 +106,8 @@ func convertQOSValidator(chainID string, val qostypes.Validator) types.Validator
 		InactiveHeight: int64(val.InactiveHeight),
 		BondHeight:     int64(val.BondHeight),
 		Commission:     val.Commission.Rate.String(),
+		BondedTokens:   val.BondTokens.Int64(),
+		SelfBond:       0,
 	}
 }
 

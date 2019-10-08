@@ -18,6 +18,7 @@ const (
 	validatorsUrl          = "/validators"
 	validatorsBondTokenUrl = "/validator/bond/tokens"
 
+	validatorsCacheKey          = "validators"
 	validatorsBondTokenCacheKey = "validators_bond_tokens"
 )
 

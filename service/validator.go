@@ -178,6 +178,8 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			Website:        vl.Website,
 			Owner:          vl.Owner,
 			Commission:     vl.Commission,
+			BondedTokens:   vl.BondedTokens,
+			SelfBond:       vl.SelfBond,
 		}
 
 		if err := mv.Insert(n.ChanID); err != nil {

@@ -150,7 +150,7 @@ func (cc QosCli) QueryApplied(nodeUrl string) (result string, err error) {
 	return
 }
 
-func (cc QosCli) QueryValidators(nodeUrl string, height int64) (result []stake_types.ValidatorDisplayInfo, err error) {
+func (cc QosCli) QueryValidators(nodeUrl string) (result []stake_types.ValidatorDisplayInfo, err error) {
 	resp, err := http.Get(cc.remote + "/stake/validators?node_url=" + nodeUrl)
 	if err != nil {
 		return

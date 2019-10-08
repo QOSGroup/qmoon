@@ -18,6 +18,7 @@ import (
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/lib/qos"
+	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/plugins"
@@ -25,6 +26,7 @@ import (
 	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
+	qostypes "github.com/QOSGroup/qos/module/stake/types"
 	"github.com/hashicorp/go-version"
 	tmtypes "github.com/tendermint/tendermint/types"
 	"github.com/tidwall/gjson"
@@ -38,11 +40,13 @@ type QOS struct {
 var (
 	qos0_0_3 *version.Version
 	qos0_0_4 *version.Version
+	qos0_0_8 *version.Version
 )
 
 func init() {
 	qos0_0_3, _ = version.NewVersion("0.0.3")
 	qos0_0_4, _ = version.NewVersion("0.0.4")
+	qos0_0_8, _ = version.NewVersion("0.0.8")
 }
 
 func (s QOS) RpcPeers(ctx context.Context) error {
@@ -312,11 +316,23 @@ func (s QOS) stakingValidators() map[string]QOSStakingValidator {
 
 func (s QOS) Validator(height int64, t time.Time) error {
 	var vals []types.Validator
+	var vals_display []stake_types.ValidatorDisplayInfo
 	var err error
 	if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
 		vals, err = s.tmcli.QOSValidator(height)
-	} else {
+	} else if !s.node.NodeVersion.GreaterThan(qos0_0_8) {
 		vals, err = s.tmcli.QOSValidatorV0_0_4(height)
+	} else {
+		vals_display, err = qos.NewQosCli("").QueryValidators(s.node.BaseURL)
+		for _, dist := range vals_display {
+			val, err := s.convertDisplayValidators(dist)
+			if err != nil {
+				log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
+				return err
+			}
+			vals = append(vals, val)
+		}
+
 	}
 	if err != nil {
 		log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
@@ -363,6 +379,55 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	metric.ValidatorVotingPower(s.node.ChanID, t, allVals)
 
 	return nil
+}
+
+func (s QOS) convertDisplayValidators(val stake_types.ValidatorDisplayInfo) (types.Validator, error) {
+	//var bondTokens_int64 int64
+	//var selfBond_int64 int64
+	bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
+	if err != nil {
+		err = types.NewInvalidTypeError(val.BondTokens, "int64")
+		return types.Validator{}, err
+	}
+	selfBond_int64, err := strconv.ParseInt(val.SelfBond, 10, 64)
+	if err != nil {
+		err = types.NewInvalidTypeError(val.BondTokens, "int64")
+		return types.Validator{}, err
+	}
+
+	//var status_int8 int8
+	//var inactive_int8 int8
+	status_int8, err := strconv.ParseInt(val.Status, 10, 8)
+	if err != nil {
+		err = types.NewInvalidTypeError(val.Status, "int8")
+		return types.Validator{}, err
+	}
+	inactive_int8, err := strconv.ParseInt(val.InactiveDesc, 10, 8)
+	if err != nil {
+		err = types.NewInvalidTypeError(val.InactiveDesc, "int8")
+		return types.Validator{}, err
+	}
+
+	vall := types.Validator{
+		Name:           val.Description.Moniker,
+		Logo:           val.Description.Logo,
+		Website:        val.Description.Website,
+		Owner:          val.Owner,
+		ChainID:        s.node.Name,
+		Address:        val.OperatorAddress,
+		PubKeyType:     "tendermint/PubKeyEd25519",
+		PubKeyValue:    val.ConsPubKey,
+		VotingPower:    bondTokens_int64,
+		Status:         int8(status_int8),
+		InactiveCode:   qostypes.InactiveCode(inactive_int8),
+		InactiveTime:   val.InactiveTime,
+		InactiveHeight: val.InactiveHeight,
+		BondHeight:     val.BondHeight,
+		Commission:     val.Commission.Rate,
+		BondedTokens:   bondTokens_int64,
+		SelfBond:       selfBond_int64,
+	}
+	return vall, nil
 }
 
 //qos proposals
