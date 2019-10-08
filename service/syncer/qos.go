@@ -320,8 +320,8 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	var err error
 	if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
 		vals, err = s.tmcli.QOSValidator(height)
-	} else if !s.node.NodeVersion.GreaterThan(qos0_0_8) {
-		vals, err = s.tmcli.QOSValidatorV0_0_4(height)
+		//} else if !s.node.NodeVersion.GreaterThan(qos0_0_8) {
+		//	vals, err = s.tmcli.QOSValidatorV0_0_4(height)
 	} else {
 		vals_display, err = qos.NewQosCli("").QueryValidators(s.node.BaseURL)
 		for _, dist := range vals_display {
