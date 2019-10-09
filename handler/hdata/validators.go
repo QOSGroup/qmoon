@@ -78,7 +78,7 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 		return err
 	}
 	for _, val := range vals {
-		old, err := node.RetrieveValidator(val.OperatorAddress)
+		old, err := models.ValidatorByAddress(node.ChanID, val.OperatorAddress)
 		if err != nil {
 			bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
 			if err != nil {
@@ -89,43 +89,33 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 				return types.NewInvalidTypeError(val.BondTokens, "int64")
 			}
 
-			status_int8 := int8(0)
+			status_int8 := int(0)
 			if val.Status != "active" {
-				status_int8 = int8(1)
+				status_int8 = int(1)
 			}
 			//status_int8, err := strconv.ParseInt(val.Status, 10, 8)
 			//if err != nil {
 			//	return types.NewInvalidTypeError(val.Status, "int8")
 			//}
-			inactive_int8 := 0
+			inactive_int8 := int64(0)
 			if val.InactiveDesc != "" {
-				inactive_int8, err := strconv.ParseInt(val.InactiveDesc, 10, 8)
+				inactive_int8, err = strconv.ParseInt(val.InactiveDesc, 10, 8)
 				if err != nil {
 					return types.NewInvalidTypeError(val.InactiveDesc, "int8")
 				}
 			}
-			mv := &models.Validator{
-				Address:        old.Address,
-				PubKeyType:     old.PubKeyType,
-				PubKeyValue:    old.PubKeyValue,
-				VotingPower:    bondTokens_int64,
-				Accum:          old.Accum,
-				Status:         int(status_int8),
-				InactiveCode:   int(inactive_int8),
-				InactiveTime:   old.InactiveTime,
-				InactiveHeight: old.InactiveHeight,
-				BondHeight:     old.BondHeight,
-				Name:           val.Description.Moniker,
-				Details:        val.Description.Details,
-				Identity:       old.Identity,
-				Logo:           val.Description.Logo,
-				Website:        val.Description.Website,
-				Owner:          val.Owner,
-				Commission:     val.Commission.Rate,
-				BondedTokens:   bondTokens_int64,
-				SelfBond:       selfBond_int64,
-			}
-			if err := mv.Update(node.ChanID); err != nil {
+
+			old.Status = status_int8
+			old.InactiveCode = int(inactive_int8)
+			old.Name = val.Description.Moniker
+			old.Details = val.Description.Details
+			old.Logo = val.Description.Logo
+			old.Website = val.Description.Website
+			old.Owner = val.Owner
+			old.Commission = val.Commission.Rate
+			old.BondedTokens = bondTokens_int64
+			old.SelfBond = selfBond_int64
+			if err := old.Update(node.ChanID); err != nil {
 				return err
 			}
 		}
