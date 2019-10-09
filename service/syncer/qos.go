@@ -325,6 +325,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	} else {
 		vals_display, err = qos.NewQosCli("").QueryValidators(s.node.BaseURL)
 		for _, dist := range vals_display {
+			log.Printf(dist.Description.Moniker + " bonded " + dist.BondTokens + " self " + dist.SelfBond)
 			val, err := s.convertDisplayValidators(dist)
 			if err != nil {
 				log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
@@ -345,6 +346,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 
 	svs := s.stakingValidators()
 	for _, val := range vals {
+		log.Printf("stakingvalidator " + sv.Description.Moniker + " tokens " + sv.Tokens)
 		if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
 			val.Name = sv.Description.Moniker
 			val.Website = sv.Description.Website
@@ -382,8 +384,6 @@ func (s QOS) Validator(height int64, t time.Time) error {
 }
 
 func (s QOS) convertDisplayValidators(val stake_types.ValidatorDisplayInfo) (types.Validator, error) {
-	//var bondTokens_int64 int64
-	//var selfBond_int64 int64
 	bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
 	if err != nil {
 		err = types.NewInvalidTypeError(val.BondTokens, "int64")
@@ -395,8 +395,6 @@ func (s QOS) convertDisplayValidators(val stake_types.ValidatorDisplayInfo) (typ
 		return types.Validator{}, err
 	}
 
-	//var status_int8 int8
-	//var inactive_int8 int8
 	status_int8, err := strconv.ParseInt(val.Status, 10, 8)
 	if err != nil {
 		err = types.NewInvalidTypeError(val.Status, "int8")
