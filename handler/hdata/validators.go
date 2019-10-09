@@ -97,9 +97,12 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 			//if err != nil {
 			//	return types.NewInvalidTypeError(val.Status, "int8")
 			//}
-			inactive_int8, err := strconv.ParseInt(val.InactiveDesc, 10, 8)
-			if err != nil {
-				return types.NewInvalidTypeError(val.InactiveDesc, "int8")
+			inactive_int8 := 0
+			if val.InactiveDesc != "" {
+				inactive_int8, err := strconv.ParseInt(val.InactiveDesc, 10, 8)
+				if err != nil {
+					return types.NewInvalidTypeError(val.InactiveDesc, "int8")
+				}
 			}
 			mv := &models.Validator{
 				Address:        old.Address,
@@ -107,7 +110,7 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 				PubKeyValue:    old.PubKeyValue,
 				VotingPower:    bondTokens_int64,
 				Accum:          old.Accum,
-				Status:         status_int8,
+				Status:         int(status_int8),
 				InactiveCode:   int(inactive_int8),
 				InactiveTime:   old.InactiveTime,
 				InactiveHeight: old.InactiveHeight,

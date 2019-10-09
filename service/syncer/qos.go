@@ -399,10 +399,12 @@ func (s QOS) convertDisplayValidators(val stake_types.ValidatorDisplayInfo) (typ
 	if val.Status != "active" {
 		status_int8 = int8(1)
 	}
-	inactive_int8, err := strconv.ParseInt(val.InactiveDesc, 10, 8)
-	if err != nil {
-		err = types.NewInvalidTypeError(val.InactiveDesc, "int8")
-		return types.Validator{}, err
+	inactive_int8 := 0
+	if val.InactiveDesc != "" {
+		inactive_int8, err := strconv.ParseInt(val.InactiveDesc, 10, 8)
+		if err != nil {
+			return types.NewInvalidTypeError(val.InactiveDesc, "int8")
+		}
 	}
 
 	vall := types.Validator{
