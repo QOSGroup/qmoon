@@ -6,10 +6,13 @@ import (
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
+	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -49,6 +52,11 @@ func validatorsGin() gin.HandlerFunc {
 			return
 		}
 
+		err = updateValidatorsFromAgent(c)
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCServerError("", err))
+			return
+		}
 		vs, err := node.Validators()
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
@@ -61,6 +69,82 @@ func validatorsGin() gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", vs))
 	}
+}
+
+func updateValidatorsFromAgent(context *gin.Context) error {
+	node, err := GetNodeFromUrl(context)
+	vals, err := queryValidators(context)
+	if err != nil {
+		for _, val := range vals {
+			old, err := node.RetrieveValidator(val.OperatorAddress)
+			if err != nil {
+				bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
+				if err != nil {
+					return types.NewInvalidTypeError(val.BondTokens, "int64")
+				}
+				selfBond_int64, err := strconv.ParseInt(val.SelfBond, 10, 64)
+				if err != nil {
+					return types.NewInvalidTypeError(val.BondTokens, "int64")
+				}
+
+				status_int8, err := strconv.ParseInt(val.Status, 10, 8)
+				if err != nil {
+					return types.NewInvalidTypeError(val.Status, "int8")
+				}
+				inactive_int8, err := strconv.ParseInt(val.InactiveDesc, 10, 8)
+				if err != nil {
+					return types.NewInvalidTypeError(val.InactiveDesc, "int8")
+				}
+				mv := &models.Validator{
+					Address:        old.Address,
+					PubKeyType:     old.PubKeyType,
+					PubKeyValue:    old.PubKeyValue,
+					VotingPower:    bondTokens_int64,
+					Accum:          old.Accum,
+					Status:         int(status_int8),
+					InactiveCode:   int(inactive_int8),
+					InactiveTime:   old.InactiveTime,
+					InactiveHeight: old.InactiveHeight,
+					BondHeight:     old.BondHeight,
+					Name:           val.Description.Moniker,
+					Details:        val.Description.Details,
+					Identity:       old.Identity,
+					Logo:           val.Description.Logo,
+					Website:        val.Description.Website,
+					Owner:          val.Owner,
+					Commission:     val.Commission.Rate,
+					BondedTokens:   bondTokens_int64,
+					SelfBond:       selfBond_int64,
+				}
+				if err := mv.Update(node.ChanID); err != nil {
+					return err
+				}
+			}
+
+		}
+	}
+	return nil
+}
+
+func queryValidators(context *gin.Context) (result []stake_types.ValidatorDisplayInfo, err error) {
+	k := validatorsCacheKey
+	if v, ok := cache.Get(k); ok {
+		if result, ok = v.([]stake_types.ValidatorDisplayInfo); ok {
+			return
+		}
+	}
+
+	node, err := GetNodeFromUrl(context)
+	if err != nil {
+		return
+	}
+
+	result, err = qos.NewQosCli("").QueryValidators(node.BaseURL)
+	//result = context.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", vals))
+	if err == nil {
+		cache.Set(k, result, time.Minute*5)
+	}
+	return
 }
 
 func queryBondTokens(context *gin.Context) (result string, err error) {

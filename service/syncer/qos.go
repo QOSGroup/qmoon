@@ -346,8 +346,8 @@ func (s QOS) Validator(height int64, t time.Time) error {
 
 	svs := s.stakingValidators()
 	for _, val := range vals {
-		log.Printf("stakingvalidator " + sv.Description.Moniker + " tokens " + sv.Tokens)
 		if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
+			log.Printf("stakingvalidator " + sv.Description.Moniker + " tokens " + sv.Tokens)
 			val.Name = sv.Description.Moniker
 			val.Website = sv.Description.Website
 			val.Logo = sv.Description.Logo
