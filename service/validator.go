@@ -185,6 +185,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			SelfBond:       vl.SelfBond,
 		}
 
+		fmt.Println(mv.Address, mv.BondedTokens, mv.SelfBond)
 		if err := mv.Insert(n.ChanID); err != nil {
 			return err
 		}
@@ -205,6 +206,9 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.Website = vl.Website
 		mv.Owner = vl.Owner
 		mv.Commission = vl.Commission
+		mv.BondedTokens = vl.BondedTokens
+		mv.SelfBond = vl.SelfBond
+		fmt.Println(mv.Address, mv.BondedTokens, mv.SelfBond)
 		if err := mv.Update(n.ChanID); err != nil {
 			return err
 		}
