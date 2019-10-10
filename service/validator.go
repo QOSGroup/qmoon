@@ -72,6 +72,7 @@ func (n Node) Validators() (types.Validators, error) {
 		if int8(v.Status) == types.Active {
 			totoal += v.VotingPower
 		}
+		fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
 		res = append(res, *convertToValidator(v, latest.Height))
 	}
 
@@ -210,7 +211,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.Commission = vl.Commission
 		mv.BondedTokens = vl.BondedTokens
 		mv.SelfBond = vl.SelfBond
-		fmt.Println("befor update ", mv.Address, mv.BondedTokens, mv.SelfBond)
+		fmt.Println("before update ", mv.Address, mv.BondedTokens, mv.SelfBond)
 		if err := mv.Update(n.ChanID); err != nil {
 			return err
 		}
@@ -220,9 +221,9 @@ func (n Node) CreateValidator(vl types.Validator) error {
 }
 
 func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (types.Validator, error) {
-	bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
+	bondTokens_int64, err := strconv.ParseInt(val.BondedTokens, 10, 64)
 	if err != nil {
-		err = types.NewInvalidTypeError("val.BondTokens "+val.BondTokens, "int64")
+		err = types.NewInvalidTypeError("val.BondedTokens "+val.BondedTokens, "int64")
 		return types.Validator{}, err
 	}
 	selfBond_int64, err := strconv.ParseInt(val.SelfBond, 10, 64)

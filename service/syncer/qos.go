@@ -319,12 +319,10 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	var err error
 	if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
 		vals, err = s.tmcli.QOSValidator(height)
-		//} else if !s.node.NodeVersion.GreaterThan(qos0_0_8) {
-		//	vals, err = s.tmcli.QOSValidatorV0_0_4(height)
 	} else {
 		vals_display, err = qos.NewQosCli("").QueryValidators(s.node.BaseURL)
 		for _, dist := range vals_display {
-			fmt.Println("in syncer ", dist.OperatorAddress, dist.BondTokens, dist.SelfBond)
+			fmt.Println("in syncer display ", dist.OperatorAddress, dist.BondedTokens, dist.SelfBond)
 			val, err := s.node.ConvertDisplayValidators(dist)
 			if err != nil {
 				log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
@@ -354,6 +352,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 			val.Commission = sv.Commission.Rate
 		}
 
+		fmt.Println("before Create ", val.Address, val.BondedTokens, val.SelfBond)
 		s.node.CreateValidator(val)
 	}
 
