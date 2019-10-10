@@ -18,7 +18,6 @@ import (
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/lib/qos"
-	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/plugins"
