@@ -50,6 +50,8 @@ func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 		PrecommitNum:     bv.PrecommitNum,
 		Uptime:           fmt.Sprintf("%.2f%%", uptime),
 		UptimeFloat:      uptime,
+		BondedTokens:     bv.BondedTokens,
+		SelfBond:         bv.SelfBond,
 	}
 }
 
