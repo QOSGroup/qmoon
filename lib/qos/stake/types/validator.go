@@ -7,7 +7,7 @@ type ValidatorDisplayInfo struct {
 	Owner           string      `json:"owner"`
 	ConsAddress     string      `json:"consensusAddress"`
 	ConsPubKey      string      `json:"consensusPubKey"`
-	BondTokens      string      `json:"bondTokens"`
+	BondedTokens    string      `json:"bondTokens"`
 	Description     Description `json:"description"`
 	Commission      Commission  `json:"commission"`
 
