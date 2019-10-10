@@ -5,6 +5,7 @@ package hdata
 import (
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
+	"log"
 	"net/http"
 	"time"
 
@@ -86,6 +87,7 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 		if err != nil {
 			return err
 		}
+		log.Println(validator.Address + " " + string(validator.BondedTokens) + " " + string(validator.SelfBond))
 		node.CreateValidator(validator)
 		//old, err := models.ValidatorByAddress(node.ChanID, val.OperatorAddress)
 		//if err != nil {
@@ -143,7 +145,6 @@ func queryValidators(context *gin.Context) (result []stake_types.ValidatorDispla
 	}
 
 	result, err = qos.NewQosCli("").QueryValidators(node.BaseURL)
-	//result = context.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", vals))
 	if err == nil {
 		cache.Set(k, result, time.Minute*5)
 	}

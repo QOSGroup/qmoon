@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/QOSGroup/qmoon/lib"
 	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
@@ -242,7 +243,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Website:        val.Description.Website,
 		Owner:          val.Owner,
 		ChainID:        n.Name,
-		Address:        val.OperatorAddress,
+		Address:        lib.Bech32AddressToHex(val.OperatorAddress),
 		PubKeyType:     "tendermint/PubKeyEd25519",
 		PubKeyValue:    val.ConsPubKey,
 		VotingPower:    bondTokens_int64,
