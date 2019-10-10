@@ -324,7 +324,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	} else {
 		vals_display, err = qos.NewQosCli("").QueryValidators(s.node.BaseURL)
 		for _, dist := range vals_display {
-			fmt.Println("in syncer ", dist.Address, dist.BondedTokens, dist.SelfBond)
+			fmt.Println("in syncer ", dist.OperatorAddress, dist.BondTokens, dist.SelfBond)
 			val, err := s.node.ConvertDisplayValidators(dist)
 			if err != nil {
 				log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
