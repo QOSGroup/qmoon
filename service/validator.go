@@ -163,11 +163,10 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 }
 
 func (n Node) CreateValidator(vl types.Validator) error {
-	address := vl.Address
-	mv, err := n.retrieveValidator(address)
+	mv, err := n.retrieveValidator(vl.Address)
 	if err != nil {
 		mv = &models.Validator{
-			Address:        address,
+			Address:        vl.Address,
 			PubKeyType:     vl.PubKeyType,
 			PubKeyValue:    vl.PubKeyValue,
 			VotingPower:    vl.VotingPower,
@@ -232,12 +231,12 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		return types.Validator{}, err
 	}
 
-	status_int8 := int8(0)
+	status_int8 := types.Active
 	if val.Status != "active" {
-		status_int8 = int8(1)
+		status_int8 = types.Inactive
 	}
 	inactive_int8 := int64(0)
-	if val.InactiveDesc != "" {
+	if val.InactiveDesc != "" && utils.IsDigit(val.InactiveDesc) {
 		inactive_int8, err = strconv.ParseInt(val.InactiveDesc, 10, 8)
 		if err != nil {
 			return types.Validator{}, types.NewInvalidTypeError("val.InactiveDesc "+val.InactiveDesc, "int64")
@@ -263,6 +262,6 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
 	}
-	fmt.Printf("after convert ", vall.Name, vall.BondedTokens, vall.SelfBond)
+	fmt.Printf("after convert ", vall.Address, vall.BondedTokens, vall.SelfBond)
 	return vall, nil
 }
