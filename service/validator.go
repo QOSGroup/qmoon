@@ -5,6 +5,7 @@ package service
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/models"
@@ -208,4 +209,50 @@ func (n Node) CreateValidator(vl types.Validator) error {
 	}
 
 	return nil
+}
+
+func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (types.Validator, error) {
+	bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
+	if err != nil {
+		err = types.NewInvalidTypeError("val.BondTokens "+val.BondTokens, "int64")
+		return types.Validator{}, err
+	}
+	selfBond_int64, err := strconv.ParseInt(val.SelfBond, 10, 64)
+	if err != nil {
+		err = types.NewInvalidTypeError("val.SelfBond "+val.SelfBond, "int64")
+		return types.Validator{}, err
+	}
+
+	status_int8 := int8(0)
+	if val.Status != "active" {
+		status_int8 = int8(1)
+	}
+	inactive_int8 := int64(0)
+	if val.InactiveDesc != "" {
+		inactive_int8, err = strconv.ParseInt(val.InactiveDesc, 10, 8)
+		if err != nil {
+			return types.Validator{}, types.NewInvalidTypeError("val.InactiveDesc "+val.InactiveDesc, "int64")
+		}
+	}
+
+	vall := types.Validator{
+		Name:           val.Description.Moniker,
+		Logo:           val.Description.Logo,
+		Website:        val.Description.Website,
+		Owner:          val.Owner,
+		ChainID:        n.Name,
+		Address:        val.OperatorAddress,
+		PubKeyType:     "tendermint/PubKeyEd25519",
+		PubKeyValue:    val.ConsPubKey,
+		VotingPower:    bondTokens_int64,
+		Status:         int8(status_int8),
+		InactiveCode:   qostypes.InactiveCode(inactive_int8),
+		InactiveTime:   val.InactiveTime,
+		InactiveHeight: val.InactiveHeight,
+		BondHeight:     val.BondHeight,
+		Commission:     val.Commission.Rate,
+		BondedTokens:   bondTokens_int64,
+		SelfBond:       selfBond_int64,
+	}
+	return vall, nil
 }

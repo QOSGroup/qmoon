@@ -73,53 +73,57 @@ func validatorsGin() gin.HandlerFunc {
 
 func updateValidatorsFromAgent(context *gin.Context) error {
 	node, err := GetNodeFromUrl(context)
+	if err != nil {
+		return err
+	}
 	vals, err := queryValidators(context)
 	if err != nil {
 		return err
 	}
+	if err != nil {
+		return err
+	}
 	for _, val := range vals {
-		old, err := models.ValidatorByAddress(node.ChanID, val.OperatorAddress)
-		if err != nil {
-			return err
-		}
-		bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
-		if err != nil {
-			return types.NewInvalidTypeError(val.BondTokens, "int64")
-		}
-		selfBond_int64, err := strconv.ParseInt(val.SelfBond, 10, 64)
-		if err != nil {
-			return types.NewInvalidTypeError(val.BondTokens, "int64")
-		}
-
-		status_int8 := int(0)
-		if val.Status != "active" {
-			status_int8 = int(1)
-		}
-		//status_int8, err := strconv.ParseInt(val.Status, 10, 8)
+		validator, err := node.ConvertDisplayValidators(val)
+		node.CreateValidator(validator)
+		//old, err := models.ValidatorByAddress(node.ChanID, val.OperatorAddress)
 		//if err != nil {
-		//	return types.NewInvalidTypeError(val.Status, "int8")
+		//	return err
 		//}
-		inactive_int8 := int64(0)
-		if val.InactiveDesc != "" {
-			inactive_int8, err = strconv.ParseInt(val.InactiveDesc, 10, 8)
-			if err != nil {
-				return types.NewInvalidTypeError(val.InactiveDesc, "int8")
-			}
-		}
-
-		old.Status = status_int8
-		old.InactiveCode = int(inactive_int8)
-		old.Name = val.Description.Moniker
-		old.Details = val.Description.Details
-		old.Logo = val.Description.Logo
-		old.Website = val.Description.Website
-		old.Owner = val.Owner
-		old.Commission = val.Commission.Rate
-		old.BondedTokens = bondTokens_int64
-		old.SelfBond = selfBond_int64
-		if err := old.Update(node.ChanID); err != nil {
-			return err
-		}
+		//bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
+		//if err != nil {
+		//	return types.NewInvalidTypeError(val.BondTokens, "int64")
+		//}
+		//selfBond_int64, err := strconv.ParseInt(val.SelfBond, 10, 64)
+		//if err != nil {
+		//	return types.NewInvalidTypeError(val.BondTokens, "int64")
+		//}
+		//
+		//status_int8 := int(0)
+		//if val.Status != "active" {
+		//	status_int8 = int(1)
+		//}
+		//inactive_int8 := int64(0)
+		//if val.InactiveDesc != "" {
+		//	inactive_int8, err = strconv.ParseInt(val.InactiveDesc, 10, 8)
+		//	if err != nil {
+		//		return types.NewInvalidTypeError(val.InactiveDesc, "int8")
+		//	}
+		//}
+		//
+		//old.Status = status_int8
+		//old.InactiveCode = int(inactive_int8)
+		//old.Name = val.Description.Moniker
+		//old.Details = val.Description.Details
+		//old.Logo = val.Description.Logo
+		//old.Website = val.Description.Website
+		//old.Owner = val.Owner
+		//old.Commission = val.Commission.Rate
+		//old.BondedTokens = bondTokens_int64
+		//old.SelfBond = selfBond_int64
+		//if err := old.Update(node.ChanID); err != nil {
+		//	return err
+		//}
 	}
 	return nil
 }

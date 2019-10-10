@@ -326,7 +326,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 		vals_display, err = qos.NewQosCli("").QueryValidators(s.node.BaseURL)
 		for _, dist := range vals_display {
 			log.Printf(dist.Description.Moniker + " bonded " + dist.BondTokens + " self " + dist.SelfBond)
-			val, err := s.convertDisplayValidators(dist)
+			val, err := s.node.ConvertDisplayValidators(dist)
 			if err != nil {
 				log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
 				return err
@@ -381,52 +381,6 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	metric.ValidatorVotingPower(s.node.ChanID, t, allVals)
 
 	return nil
-}
-
-func (s QOS) convertDisplayValidators(val stake_types.ValidatorDisplayInfo) (types.Validator, error) {
-	bondTokens_int64, err := strconv.ParseInt(val.BondTokens, 10, 64)
-	if err != nil {
-		err = types.NewInvalidTypeError(val.BondTokens, "int64")
-		return types.Validator{}, err
-	}
-	selfBond_int64, err := strconv.ParseInt(val.SelfBond, 10, 64)
-	if err != nil {
-		err = types.NewInvalidTypeError(val.BondTokens, "int64")
-		return types.Validator{}, err
-	}
-
-	status_int8 := int8(0)
-	if val.Status != "active" {
-		status_int8 = int8(1)
-	}
-	inactive_int8 := int64(0)
-	if val.InactiveDesc != "" {
-		inactive_int8, err = strconv.ParseInt(val.InactiveDesc, 10, 8)
-		if err != nil {
-			return types.Validator{}, types.NewInvalidTypeError(val.InactiveDesc, "int8")
-		}
-	}
-
-	vall := types.Validator{
-		Name:           val.Description.Moniker,
-		Logo:           val.Description.Logo,
-		Website:        val.Description.Website,
-		Owner:          val.Owner,
-		ChainID:        s.node.Name,
-		Address:        val.OperatorAddress,
-		PubKeyType:     "tendermint/PubKeyEd25519",
-		PubKeyValue:    val.ConsPubKey,
-		VotingPower:    bondTokens_int64,
-		Status:         int8(status_int8),
-		InactiveCode:   qostypes.InactiveCode(inactive_int8),
-		InactiveTime:   val.InactiveTime,
-		InactiveHeight: val.InactiveHeight,
-		BondHeight:     val.BondHeight,
-		Commission:     val.Commission.Rate,
-		BondedTokens:   bondTokens_int64,
-		SelfBond:       selfBond_int64,
-	}
-	return vall, nil
 }
 
 //qos proposals
