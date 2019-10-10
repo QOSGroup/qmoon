@@ -250,7 +250,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Website:        val.Description.Website,
 		Owner:          val.Owner,
 		ChainID:        n.Name,
-		Address:        lib.Bech32AddressToHex(val.OperatorAddress),
+		Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
 		PubKeyType:     "tendermint/PubKeyEd25519",
 		PubKeyValue:    val.ConsPubKey,
 		VotingPower:    bondTokens_int64,

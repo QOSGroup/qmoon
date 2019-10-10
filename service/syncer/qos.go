@@ -315,31 +315,27 @@ func (s QOS) stakingValidators() map[string]QOSStakingValidator {
 
 func (s QOS) Validator(height int64, t time.Time) error {
 	var vals []types.Validator
-	var vals_display []stake_types.ValidatorDisplayInfo
-	var err error
-	if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
-		vals, err = s.tmcli.QOSValidator(height)
-	} else {
-		vals_display, err = qos.NewQosCli("").QueryValidators(s.node.BaseURL)
-		for _, dist := range vals_display {
-			fmt.Println("in syncer display ", dist.OperatorAddress, dist.BondedTokens, dist.SelfBond)
-			val, err := s.node.ConvertDisplayValidators(dist)
-			if err != nil {
-				log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
-				return err
-			}
-			vals = append(vals, val)
+	//var vals_display []stake_types.ValidatorDisplayInfo
+	//var err error
+	//if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
+	//	vals, err = s.tmcli.QOSValidator(height)
+	//} else {
+	vals_display, err := qos.NewQosCli("").QueryValidators(s.node.BaseURL)
+	for _, dist := range vals_display {
+		fmt.Println("in syncer display ", dist.OperatorAddress, dist.BondedTokens, dist.SelfBond)
+		val, err := s.node.ConvertDisplayValidators(dist)
+		if err != nil {
+			log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
+			return err
 		}
-
-	}
-	if err != nil {
-		log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
-		return err
+		vals = append(vals, val)
 	}
 
-	// for _, val := range vals {
-	// 	_ = s.node.CreateValidator(val)
-	// }
+	//}
+	//if err != nil {
+	//	log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
+	//	return err
+	//}
 
 	svs := s.stakingValidators()
 	for _, val := range vals {
