@@ -44,6 +44,8 @@ type Validator struct {
 	Uptime           string             `json:"uptime"`
 	UptimeFloat      float64            `json:"-"`
 	Commission       string             `json:"commission_rate"`
+	BondedTokens     int64              `json:"bondedTokens"`
+	SelfBond         int64              `json:"selfBond"`
 }
 
 type Validators []Validator

@@ -38,11 +38,13 @@ type QOS struct {
 var (
 	qos0_0_3 *version.Version
 	qos0_0_4 *version.Version
+	qos0_0_8 *version.Version
 )
 
 func init() {
 	qos0_0_3, _ = version.NewVersion("0.0.3")
 	qos0_0_4, _ = version.NewVersion("0.0.4")
+	qos0_0_8, _ = version.NewVersion("0.0.8")
 }
 
 func (s QOS) RpcPeers(ctx context.Context) error {
@@ -312,23 +314,21 @@ func (s QOS) stakingValidators() map[string]QOSStakingValidator {
 
 func (s QOS) Validator(height int64, t time.Time) error {
 	var vals []types.Validator
-	var err error
-	if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
-		vals, err = s.tmcli.QOSValidator(height)
-	} else {
-		vals, err = s.tmcli.QOSValidatorV0_0_4(height)
-	}
-	if err != nil {
-		log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
-		return err
-	}
-
-	// for _, val := range vals {
-	// 	_ = s.node.CreateValidator(val)
-	// }
-
+	valMap := make(map[string]types.Validator)
+	//var vals_display []stake_types.ValidatorDisplayInfo
+	//var err error
+	//if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
+	//	vals, err = s.tmcli.QOSValidator(height)
+	//} else {
+	vals_display, err := qos.NewQosCli("").QueryValidators(s.node.BaseURL)
+	fmt.Println(len(vals), " validators")
 	svs := s.stakingValidators()
-	for _, val := range vals {
+	for _, dist := range vals_display {
+		val, err := s.node.ConvertDisplayValidators(dist)
+		if err != nil {
+			log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
+			return err
+		}
 		if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
 			val.Name = sv.Description.Moniker
 			val.Website = sv.Description.Website
@@ -336,13 +336,11 @@ func (s QOS) Validator(height int64, t time.Time) error {
 			val.Details = sv.Description.Details
 			val.Commission = sv.Commission.Rate
 		}
-
+		fmt.Println("before Create ", val.Address, val.BondedTokens, val.SelfBond)
 		s.node.CreateValidator(val)
-	}
 
-	valMap := make(map[string]types.Validator)
-	for _, v := range vals {
-		valMap[v.Address] = v
+		valMap[val.Address] = val
+		vals = append(vals, val)
 	}
 
 	allVals, err := s.node.Validators()
