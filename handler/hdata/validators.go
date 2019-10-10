@@ -3,9 +3,9 @@
 package hdata
 
 import (
+	"fmt"
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
-	"log"
 	"net/http"
 	"time"
 
@@ -87,7 +87,7 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 		if err != nil {
 			return err
 		}
-		log.Println(validator.Address + " " + string(validator.BondedTokens) + " " + string(validator.SelfBond))
+		fmt.Println("%v, %d, %d", validator.Address, validator.BondedTokens, string(validator.SelfBond))
 		node.CreateValidator(validator)
 		//old, err := models.ValidatorByAddress(node.ChanID, val.OperatorAddress)
 		//if err != nil {
