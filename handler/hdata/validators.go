@@ -6,13 +6,11 @@ import (
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
 	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
-	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -85,6 +83,9 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 	}
 	for _, val := range vals {
 		validator, err := node.ConvertDisplayValidators(val)
+		if err != nil {
+			return err
+		}
 		node.CreateValidator(validator)
 		//old, err := models.ValidatorByAddress(node.ChanID, val.OperatorAddress)
 		//if err != nil {
