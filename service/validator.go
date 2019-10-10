@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
