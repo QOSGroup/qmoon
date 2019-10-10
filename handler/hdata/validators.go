@@ -87,7 +87,7 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("%v, %d, %d", validator.Address, validator.BondedTokens, string(validator.SelfBond))
+		fmt.Println("after convert in query ", validator.Address, validator.BondedTokens, validator.SelfBond)
 		node.CreateValidator(validator)
 		//old, err := models.ValidatorByAddress(node.ChanID, val.OperatorAddress)
 		//if err != nil {

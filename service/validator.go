@@ -185,7 +185,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			SelfBond:       vl.SelfBond,
 		}
 
-		fmt.Println(mv.Address, mv.BondedTokens, mv.SelfBond)
+		fmt.Println("before insert ", mv.Address, mv.BondedTokens, mv.SelfBond)
 		if err := mv.Insert(n.ChanID); err != nil {
 			return err
 		}
@@ -208,7 +208,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.Commission = vl.Commission
 		mv.BondedTokens = vl.BondedTokens
 		mv.SelfBond = vl.SelfBond
-		fmt.Println(mv.Address, mv.BondedTokens, mv.SelfBond)
+		fmt.Println("befor update ", mv.Address, mv.BondedTokens, mv.SelfBond)
 		if err := mv.Update(n.ChanID); err != nil {
 			return err
 		}
@@ -260,5 +260,6 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
 	}
+	fmt.Printf("after convert ", vall.Name, vall.BondedTokens, vall.SelfBond)
 	return vall, nil
 }
