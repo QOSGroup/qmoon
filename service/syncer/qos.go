@@ -26,7 +26,6 @@ import (
 	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
-	qostypes "github.com/QOSGroup/qos/module/stake/types"
 	"github.com/hashicorp/go-version"
 	tmtypes "github.com/tendermint/tendermint/types"
 	"github.com/tidwall/gjson"
