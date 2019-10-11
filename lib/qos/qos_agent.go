@@ -5,6 +5,7 @@ import (
 	"github.com/QOSGroup/qmoon/lib/qos/gov/types"
 	mint_types "github.com/QOSGroup/qmoon/lib/qos/mint/types"
 	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
+	base_types "github.com/QOSGroup/qmoon/lib/qos/types"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"net/http"
 	"strconv"
@@ -19,6 +20,21 @@ func NewQosCli(remote string) QosCli {
 		remote = "http://localhost:19528"
 	}
 	return QosCli{remote: remote}
+}
+
+func (cc QosCli) QueryTx(nodeUrl, tx string) (result base_types.TxResponse, err error) {
+	resp, err := http.Get(cc.remote + "/block/tx?node_url=" + nodeUrl + "&tx=" + tx)
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode != 200 {
+		err = errors.New(resp.Status)
+		return
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	return
 }
 
 func (cc QosCli) QueryProposals(nodeUrl string) (result []types.Proposal, err error) {
