@@ -9,7 +9,6 @@ import (
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"github.com/tidwall/gjson"
 )
 
 func convertToTx(mt *models.Tx, address string) *types.ResultTx {
@@ -23,28 +22,32 @@ func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 		GasWanted: mt.GasWanted,
 		GasUsed:   mt.GasUsed,
 		Fee:       mt.Fee,
-		Data:      []byte(mt.JsonTx),
-		Time:      types.ResultTime(mt.Time),
-		TxStatus:  types.TxStatus(mt.TxStatus).String(),
-		Status:    mt.TxStatus,
-		Log:       mt.Log,
+		//Data:      []byte(mt.JsonTx),
+		Time:     types.ResultTime(mt.Time),
+		TxStatus: types.TxStatus(mt.TxStatus).String(),
+		Status:   mt.TxStatus,
+		Log:      mt.Log,
+		ITxs:     make([]json.RawMessage, 0),
 	}
 
-	m := make(map[string][]json.RawMessage)
-	if strings.HasPrefix(string(res.Data), "{") {
-		m[res.TxType] = []json.RawMessage{res.Data}
-	} else {
-		result := gjson.Parse(string(res.Data))
-		result.ForEach(func(_, value gjson.Result) bool {
-			if _, ok := m[value.Get("type").String()]; ok {
-				m[value.Get("type").String()] = append(m[value.Get("type").String()], json.RawMessage(value.Get("data").String()))
-			} else {
-				m[value.Get("type").String()] = []json.RawMessage{json.RawMessage(value.Get("data").String())}
-			}
-			return true
-		})
+	for _, v := range mt.ITxs {
+		message := []byte(v.JsonTx)
+		res.ITxs = append(res.ITxs, message)
 	}
-	res.TxDetail = m
+
+	//if strings.HasPrefix(string(res.Data), "{") {
+	//	m[res.TxType] = []json.RawMessage{res.Data}
+	//} else {
+	//	result := gjson.Parse(string(res.Data))
+	//	result.ForEach(func(_, value gjson.Result) bool {
+	//		if _, ok := m[value.Get("type").String()]; ok {
+	//			m[value.Get("type").String()] = append(m[value.Get("type").String()], json.RawMessage(value.Get("data").String()))
+	//		} else {
+	//			m[value.Get("type").String()] = []json.RawMessage{json.RawMessage(value.Get("data").String())}
+	//		}
+	//		return true
+	//	})
+	//}
 
 	return res
 }
