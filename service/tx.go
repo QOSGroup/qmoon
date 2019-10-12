@@ -31,8 +31,9 @@ func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 	}
 
 	for _, v := range mt.ITxs {
-		message := []byte(v.JsonTx)
-		res.ITxs = append(res.ITxs, message)
+		bz := json.RawMessage{}
+		lib.Cdc.UnmarshalJSON(bz, v)
+		res.ITxs = append(res.ITxs, bz)
 	}
 
 	//if strings.HasPrefix(string(res.Data), "{") {
