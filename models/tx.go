@@ -206,12 +206,8 @@ func ITxByHash(chainID string, hash string) ([]*ITx, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// itx := &ITx{Hash: hash}
 	itxs := make([]*ITx, 0)
 	err = x.Where("hash = ?", hash).Find(&itxs)
-
-	//fmt.Println(itxs[0].JsonTx)
 
 	if err != nil {
 		return nil, errors.NotExist{Obj: "Tx"}

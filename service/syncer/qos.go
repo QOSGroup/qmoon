@@ -156,7 +156,7 @@ func (s QOS) tx(b *types.Block) error {
 		// 	mt.JsonTx = string(d)
 		// }
 		mt.Time = b.Header.Time
-		mt.TxType = qbasetx.Type()
+		// mt.TxType = qbasetx.Type()
 		// mt.TxType = strings.Join(txTypes, ";")
 
 		txResult, errtx := s.tmcli.RetrieveTx(hash)
