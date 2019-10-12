@@ -121,7 +121,6 @@ type TxOption struct {
 	Offset, Limit int
 }
 
-
 func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
@@ -140,8 +139,8 @@ func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 		sess.Find(&itxs)
 
 		if len(itxs) > 0 {
-			var hashS := ""
-			for _, iTx = range itxs {
+			var hashS = ""
+			for _, iTx := range itxs {
 				hashS += ", '" + iTx.Hash + "'"
 			}
 			hashS = hashS[2 : len(hashS)-1]
