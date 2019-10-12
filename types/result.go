@@ -4,11 +4,9 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/QOSGroup/qbase/types"
-	"github.com/tidwall/gjson"
 )
 
 type ResultTime time.Time
@@ -46,51 +44,51 @@ type ResultValidator struct {
 	Blocks    []*BlockValidator `json:"blocks"`
 }
 
-func TxCN(t string, tx string, address string) string {
-	switch t {
-	//qos
-	case "qos/txs/TxTransfer":
-		if address != "" {
-			if gjson.Get(tx, fmt.Sprintf(`senders.#[addr=="%s"].addr`, address)).String() == "" {
-				return "转入"
-			} else {
-				return "转出"
-			}
-		} else {
-			return "转账"
-		}
-	//qsc
-
-	// cosmos
-	case "send":
-		if address != "" {
-			if gjson.Get(tx, fmt.Sprintf(`#[data.from_address=="%s"].type`, address)).String() == "send" {
-				return "转出"
-			} else {
-				return "转入"
-			}
-		} else {
-			return "转账"
-		}
-
-	case "delegate":
-		return "委托"
-	case "begin_unbonding":
-		return "终止委托"
-	case "withdraw_delegator_reward":
-		return "取回分红"
-	default:
-		return t
-	}
-}
+//func TxCN(t string, tx string, address string) string {
+//	switch t {
+//	//qos
+//	case "qos/txs/TxTransfer":
+//		if address != "" {
+//			if gjson.Get(tx, fmt.Sprintf(`senders.#[addr=="%s"].addr`, address)).String() == "" {
+//				return "转入"
+//			} else {
+//				return "转出"
+//			}
+//		} else {
+//			return "转账"
+//		}
+//	//qsc
+//
+//	// cosmos
+//	case "send":
+//		if address != "" {
+//			if gjson.Get(tx, fmt.Sprintf(`#[data.from_address=="%s"].type`, address)).String() == "send" {
+//				return "转出"
+//			} else {
+//				return "转入"
+//			}
+//		} else {
+//			return "转账"
+//		}
+//
+//	case "delegate":
+//		return "委托"
+//	case "begin_unbonding":
+//		return "终止委托"
+//	case "withdraw_delegator_reward":
+//		return "取回分红"
+//	default:
+//		return t
+//	}
+//}
 
 type ResultTx struct {
-	ChainID   string                       `json:"chain_id"`
-	Hash      string                       `json:"hash"`
-	Height    int64                        `json:"height"`
-	Index     int64                        `json:"index"`   // index
-	TxType    string                       `json:"tx_type"` // tx_type
-	TxTypeCN  string                       `json:"tx_type_cn"`
+	ChainID string `json:"chain_id"`
+	Hash    string `json:"hash"`
+	Height  int64  `json:"height"`
+	Index   int64  `json:"index"`   // index
+	TxType  string `json:"tx_type"` // tx_type
+	// TxTypeCN  string                       `json:"tx_type_cn"`
 	GasWanted int64                        `json:"gas_wanted"`
 	GasUsed   int64                        `json:"gas_used"`
 	Fee       string                       `json:"fee"`
@@ -105,17 +103,18 @@ type ResultTx struct {
 
 // ResultBlockBase 块信息
 type ResultBlockBase struct {
-	ID             int64      `json:"-"`
-	BlockID        string     `json:"block_id"`
-	ChainID        string     `json:"chain_id"`
-	Height         int64      `json:"height"`
-	NumTxs         int64      `json:"num_txs"`
-	TotalTxs       int64      `json:"total_txs"`
-	Data           string     `json:"data"`
-	Time           ResultTime `json:"time"`
-	DataHash       string     `json:"data_hash"`
-	ValidatorsHash string     `json:"validators_hash"`
-	CreatedAt      ResultTime `json:"-"`
+	ID              int64      `json:"-"`
+	BlockID         string     `json:"block_id"`
+	ChainID         string     `json:"chain_id"`
+	Height          int64      `json:"height"`
+	NumTxs          int64      `json:"num_txs"`
+	TotalTxs        int64      `json:"total_txs"`
+	Data            string     `json:"data"`
+	Time            ResultTime `json:"time"`
+	DataHash        string     `json:"data_hash"`
+	ValidatorsHash  string     `json:"validators_hash"`
+	ProposerAddress string     `json:"proposer"`
+	CreatedAt       ResultTime `json:"-"`
 }
 
 type ResultBlockDuration struct {
