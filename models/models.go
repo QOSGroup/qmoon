@@ -150,7 +150,7 @@ func getEngine(name string) (*xorm.Engine, error) {
 	//x.SetLogger(xorm.NewSimpleLogger(os.Stdout))
 	x.SetLogLevel(core.LOG_DEBUG)
 	// x.SetLogLevel(core.LOG_DEBUG)
-	//x.ShowSQL(true)
+	x.ShowSQL(true)
 	x.SetTZLocation(time.Local)
 	xs[name] = x
 

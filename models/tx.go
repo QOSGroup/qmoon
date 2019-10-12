@@ -209,7 +209,7 @@ func ITxByHash(chainID string, hash string) ([]*ITx, error) {
 
 	// itx := &ITx{Hash: hash}
 	itxs := make([]*ITx, 0)
-	err = x.Where("hash = ?", "'"+hash+"'").Find(&itxs)
+	err = x.Where("hash = ?", hash).Find(&itxs)
 
 	//fmt.Println(itxs[0].JsonTx)
 
