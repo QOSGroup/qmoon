@@ -143,8 +143,8 @@ func getEngine(name string) (*xorm.Engine, error) {
 	}
 	x.SetMapper(core.GonicMapper{})
 	x.SetLogger(xorm.NewSimpleLogger(os.Stdout))
-	//x.SetLogLevel(core.LOG_INFO)
-	x.SetLogLevel(core.LOG_DEBUG)
+	x.SetLogLevel(core.LOG_INFO)
+	// x.SetLogLevel(core.LOG_DEBUG)
 	//x.ShowSQL(true)
 	x.SetTZLocation(time.Local)
 	xs[name] = x
@@ -183,12 +183,6 @@ func GetNodeEngine(name string) (*xorm.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	f, err := os.Create("sql.log")
-	if err != nil {
-		return nil, err
-	}
-	engine.SetLogger(xorm.NewSimpleLogger(f))
-	engine.SetLogLevel(core.LOG_DEBUG)
 	return getEngine(name)
 }
 

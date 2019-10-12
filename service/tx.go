@@ -22,12 +22,12 @@ func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 		GasWanted: mt.GasWanted,
 		GasUsed:   mt.GasUsed,
 		Fee:       mt.Fee,
-		Data:      []byte(""),
-		Time:      types.ResultTime(mt.Time),
-		TxStatus:  types.TxStatus(mt.TxStatus).String(),
-		Status:    mt.TxStatus,
-		Log:       mt.Log,
-		ITxs:      make([]json.RawMessage, 0),
+		//Data:      json.RawMessage{[]byte("")},
+		Time:     types.ResultTime(mt.Time),
+		TxStatus: types.TxStatus(mt.TxStatus).String(),
+		Status:   mt.TxStatus,
+		Log:      mt.Log,
+		ITxs:     make([]json.RawMessage, 0),
 	}
 
 	for _, v := range mt.ITxs {
