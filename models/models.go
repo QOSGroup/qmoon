@@ -179,6 +179,16 @@ func nodeDbname(chainId string) string {
 
 func GetNodeEngine(name string) (*xorm.Engine, error) {
 	name = nodeDbname(name)
+	engine, err:= getEngine(name)
+	if err != nil {
+		return nil, err
+	}
+	f, err := os.Create("sql.log")
+	if err != nil {
+		return nil, err
+	}
+	engine.SetLogger(xorm.NewSimpleLogger(f))
+	engine.SetLogLevel(core.LOG_DEBUG)
 	return getEngine(name)
 }
 
