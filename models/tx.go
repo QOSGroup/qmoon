@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/QOSGroup/qmoon/models/errors"
@@ -207,13 +208,11 @@ func ITxByHash(chainID string, hash string) ([]*ITx, error) {
 		return nil, err
 	}
 
-	itx := &ITx{Hash: hash}
-	//has, err := x.Get(itx)
-	//if err != nil {
-	//	return nil, err
-	//}
-	var itxs = make([]*ITx, 0)
-	err = x.Find(&itxs, itx)
+	// itx := &ITx{Hash: hash}
+	itxs := make([]*ITx, 0)
+	err = x.Where("hash = ?", "'"+hash+"'").Find(&itxs)
+
+	fmt.Println(itxs[0].JsonTx)
 
 	if err != nil {
 		return nil, errors.NotExist{Obj: "Tx"}
