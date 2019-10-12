@@ -171,7 +171,7 @@ func (s QOS) tx(b *types.Block) error {
 			return err
 		}
 
-		if err := mt.Insert(s.node.ChanID); err != nil {
+		if err := mt.InsertOrUpdate(s.node.ChanID); err != nil {
 			return err
 		}
 
@@ -217,42 +217,46 @@ func parseQosTx(blockHeader types.BlockHeader, t qbasetypes.Tx, mt *models.Tx) e
 
 	mt.Maxgas = std.MaxGas.Int64()
 
-	var itx qbasetxs.ITx
-	for _, itx = range std.ITxs {
-		if err := parseQosITx(blockHeader, itx, mt); err != nil {
+	var iTx qbasetxs.ITx
+	i := int64(0)
+	for _, iTx = range std.ITxs {
+		var itx = &models.ITx{Hash: mt.Hash, Seq: i}
+		if err := parseQosITx(blockHeader, iTx, itx); err != nil {
 			return err
 		}
+		mt.ITxs = append(mt.ITxs, itx)
+		i++
 	}
 
-	if mt.TxType == "Unknown" {
-		mt.TxType = t.Type()
-	}
+	//if mt.TxType == "Unknown" {
+	//	mt.TxType = t.Type()
+	//}
 
 	return nil
 }
 
-func parseQosITx(blockHeader types.BlockHeader, t qbasetxs.ITx, mt *models.Tx) error {
+func parseQosITx(blockHeader types.BlockHeader, iTx qbasetxs.ITx, itx *models.ITx) error {
 	cdc := lib.MakeCodec()
-	d, err := cdc.MarshalJSON(t)
+	d, err := cdc.MarshalJSON(iTx)
 	if err != nil {
 		return err
 	}
 
 	valueInJson := gjson.Get(string(d), "value")
 	if valueInJson.Exists() {
-		mt.JsonTx = valueInJson.String()
+		itx.JsonTx = valueInJson.String()
 	} else {
-		mt.JsonTx = string(d)
+		itx.JsonTx = string(d)
 	}
 
 	typeInJson := gjson.Get(string(d), "type")
 	if typeInJson.Exists() {
-		mt.TxType = typeInJson.String()
+		itx.TxType = typeInJson.String()
 	} else {
-		mt.TxType = "Unknown"
+		itx.TxType = "Unknown"
 	}
 
-	name, err := plugins.Parse(blockHeader, t)
+	name, err := plugins.Parse(blockHeader, iTx)
 	log.Printf("plugins.Parse name:%s, err:%v", name, err)
 
 	return nil
@@ -321,6 +325,9 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	//	vals, err = s.tmcli.QOSValidator(height)
 	//} else {
 	vals_display, err := qos.NewQosCli("").QueryValidators(s.node.BaseURL)
+	if err != nil {
+		return err
+	}
 	fmt.Println(len(vals), " validators")
 	svs := s.stakingValidators()
 	for _, dist := range vals_display {
@@ -343,22 +350,22 @@ func (s QOS) Validator(height int64, t time.Time) error {
 		vals = append(vals, val)
 	}
 
-	allVals, err := s.node.Validators()
-	if err == nil {
-		for _, v := range allVals {
-			if v.Status == types.Active {
-				if _, ok := valMap[v.Address]; !ok {
-					_ = s.node.InactiveValidator(v.Address, int(types.Inactive), height, time.Time{})
-				}
-			} else {
-				if _, ok := valMap[v.Address]; ok {
-					_ = s.node.InactiveValidator(v.Address, int(types.Active), height, time.Time{})
-				}
-			}
-		}
-	}
+	//allVals, err := s.node.Validators()
+	//if err == nil {
+	//	for _, v := range allVals {
+	//		if v.Status == types.Active {
+	//			if _, ok := valMap[v.Address]; !ok {
+	//				_ = s.node.InactiveValidator(v.Address, int(types.Inactive), height, time.Time{})
+	//			}
+	//		} else {
+	//			if _, ok := valMap[v.Address]; ok {
+	//				_ = s.node.InactiveValidator(v.Address, int(types.Active), height, time.Time{})
+	//			}
+	//		}
+	//	}
+	//}
 
-	metric.ValidatorVotingPower(s.node.ChanID, t, allVals)
+	metric.ValidatorVotingPower(s.node.ChanID, t, vals)
 
 	return nil
 }

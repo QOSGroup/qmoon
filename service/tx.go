@@ -14,12 +14,12 @@ import (
 
 func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 	res := &types.ResultTx{
-		ChainID:   mt.ChainId,
-		Hash:      mt.Hash,
-		Height:    mt.Height,
-		Index:     mt.Index,
-		TxType:    mt.TxType,
-		TxTypeCN:  types.TxCN(mt.TxType, mt.JsonTx, address),
+		ChainID: mt.ChainId,
+		Hash:    mt.Hash,
+		Height:  mt.Height,
+		Index:   mt.Index,
+		TxType:  mt.TxType,
+		// TxTypeCN:  types.TxCN(mt.TxType, mt.JsonTx, address),
 		GasWanted: mt.GasWanted,
 		GasUsed:   mt.GasUsed,
 		Fee:       mt.Fee,

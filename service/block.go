@@ -14,14 +14,15 @@ import (
 
 func convertToBlock(mb *models.Block) *types.ResultBlockBase {
 	return &types.ResultBlockBase{
-		ID:             mb.Id,
-		ChainID:        mb.ChainId,
-		Height:         mb.Height,
-		NumTxs:         mb.NumTxs,
-		TotalTxs:       mb.TotalTxs,
-		Time:           types.ResultTime(mb.Time),
-		DataHash:       mb.DataHash,
-		ValidatorsHash: mb.ValidatorsHash,
+		ID:              mb.Id,
+		ChainID:         mb.ChainId,
+		Height:          mb.Height,
+		NumTxs:          mb.NumTxs,
+		TotalTxs:        mb.TotalTxs,
+		Time:            types.ResultTime(mb.Time),
+		DataHash:        mb.DataHash,
+		ValidatorsHash:  mb.ValidatorsHash,
+		ProposerAddress: mb.ProposerAddress,
 	}
 }
 
