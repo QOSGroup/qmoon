@@ -142,8 +142,13 @@ func getEngine(name string) (*xorm.Engine, error) {
 		return nil, fmt.Errorf("Fail to connect to database: %v ", err)
 	}
 	x.SetMapper(core.GonicMapper{})
-	x.SetLogger(xorm.NewSimpleLogger(os.Stdout))
-	x.SetLogLevel(core.LOG_INFO)
+	f, err := os.Create("sql.log")
+	if err != nil {
+		return nil, err
+	}
+	x.SetLogger(xorm.NewSimpleLogger(f))
+	//x.SetLogger(xorm.NewSimpleLogger(os.Stdout))
+	x.SetLogLevel(core.LOG_DEBUG)
 	// x.SetLogLevel(core.LOG_DEBUG)
 	//x.ShowSQL(true)
 	x.SetTZLocation(time.Local)
@@ -179,10 +184,6 @@ func nodeDbname(chainId string) string {
 
 func GetNodeEngine(name string) (*xorm.Engine, error) {
 	name = nodeDbname(name)
-	engine, err:= getEngine(name)
-	if err != nil {
-		return nil, err
-	}
 	return getEngine(name)
 }
 
