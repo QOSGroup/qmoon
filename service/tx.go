@@ -9,42 +9,30 @@ import (
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"github.com/tidwall/gjson"
 )
 
 func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 	res := &types.ResultTx{
-		ChainID:   mt.ChainId,
-		Hash:      mt.Hash,
-		Height:    mt.Height,
-		Index:     mt.Index,
-		TxType:    mt.TxType,
-		TxTypeCN:  types.TxCN(mt.TxType, mt.JsonTx, address),
+		ChainID: mt.ChainId,
+		Hash:    mt.Hash,
+		Height:  mt.Height,
+		Index:   mt.Index,
+		TxType:  mt.TxType,
+		// TxTypeCN:  types.TxCN(mt.TxType, mt.JsonTx, address),
 		GasWanted: mt.GasWanted,
 		GasUsed:   mt.GasUsed,
 		Fee:       mt.Fee,
-		Data:      []byte(mt.JsonTx),
 		Time:      types.ResultTime(mt.Time),
 		TxStatus:  types.TxStatus(mt.TxStatus).String(),
 		Status:    mt.TxStatus,
 		Log:       mt.Log,
+		ITxs:      make([]json.RawMessage, 0),
 	}
 
-	m := make(map[string][]json.RawMessage)
-	if strings.HasPrefix(string(res.Data), "{") {
-		m[res.TxType] = []json.RawMessage{res.Data}
-	} else {
-		result := gjson.Parse(string(res.Data))
-		result.ForEach(func(_, value gjson.Result) bool {
-			if _, ok := m[value.Get("type").String()]; ok {
-				m[value.Get("type").String()] = append(m[value.Get("type").String()], json.RawMessage(value.Get("data").String()))
-			} else {
-				m[value.Get("type").String()] = []json.RawMessage{json.RawMessage(value.Get("data").String())}
-			}
-			return true
-		})
+	for _, v := range mt.ITxs {
+		j, _ := json.Marshal(v)
+		res.ITxs = append(res.ITxs, j)
 	}
-	res.TxDetail = m
 
 	return res
 }

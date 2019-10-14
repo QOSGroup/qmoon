@@ -29,6 +29,16 @@ type Tx struct {
 	Log         string    `xorm:"TEXT"`
 	Time        time.Time `xorm:"-"`
 	TimeUnix    int64
+	ITxs        []*ITx `xorm:"-"`
+}
+
+type ITx struct {
+	Id       int64  `xorm:"pk autoincr BIGINT"`
+	Hash     string `xorm:"TEXT"`
+	Seq      int64  `xorm:"BIGINT"`
+	TxType   string `xorm:"TEXT"`
+	OriginTx string `xorm:"TEXT"`
+	JsonTx   string `xorm:"TEXT"`
 }
 
 func (t *Tx) BeforeInsert() {
@@ -57,6 +67,49 @@ func (t *Tx) Insert(chainID string) error {
 		return err
 	}
 
+	for _, itx := range t.ITxs {
+		_, err = x.Insert(itx)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (t *Tx) InsertOrUpdate(chainID string) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+
+	_, err = TxByHash(chainID, t.Hash)
+	if err != nil {
+		_, err = x.Insert(t)
+		if err != nil {
+			return err
+		}
+
+		for _, itx := range t.ITxs {
+			_, err = x.Insert(itx)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	_, err = x.Update(t)
+	if err != nil {
+		return err
+	}
+
+	for _, itx := range t.ITxs {
+		_, err = x.Update(itx)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -81,7 +134,18 @@ func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 	}
 
 	if opt.Address != "" {
-		sess = sess.Where("json_tx like ?", "%"+opt.Address+"%")
+		var itxs = make([]*ITx, 0)
+		sess = sess.Distinct("hash").Where("json_tx like ?", "%"+opt.Address+"%")
+		sess.Find(&itxs)
+
+		if len(itxs) > 0 {
+			var hashS = ""
+			for _, iTx := range itxs {
+				hashS += ", '" + iTx.Hash + "'"
+			}
+			hashS = hashS[2 : len(hashS)-1]
+			sess = sess.Where("hash like ?", "("+hashS+")")
+		}
 	}
 
 	if opt.TxType != "" {
@@ -111,6 +175,8 @@ func TxByHeightIndex(chainID string, height, index int64) (*Tx, error) {
 		return nil, errors.NotExist{Obj: "Tx"}
 	}
 
+	tx.ITxs, err = ITxByHash(chainID, tx.Hash)
+
 	return tx, nil
 }
 
@@ -130,5 +196,22 @@ func TxByHash(chainID string, hash string) (*Tx, error) {
 		return nil, errors.NotExist{Obj: "Tx"}
 	}
 
+	tx.ITxs, err = ITxByHash(chainID, hash)
+
 	return tx, nil
+}
+
+func ITxByHash(chainID string, hash string) ([]*ITx, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	itxs := make([]*ITx, 0)
+	err = x.Where("hash = ?", hash).Find(&itxs)
+
+	if err != nil {
+		return nil, errors.NotExist{Obj: "Tx"}
+	}
+
+	return itxs, nil
 }

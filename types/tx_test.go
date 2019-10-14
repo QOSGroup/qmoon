@@ -28,7 +28,7 @@ func TestCosmosTxParse(t *testing.T) {
 		return true
 	})
 
-	tx.TxDetail = m
+	tx.ITxs = m
 
 	t.Logf("---%+v", tx)
 }
