@@ -31,18 +31,18 @@ func TransferGin() gin.HandlerFunc {
 		ip := c.ClientIP()
 		logrus.WithField("model", "atm").WithField("ip", ip).Debug()
 
-		if err := ipCheck(ip, node.ChanID); err != nil {
+		if err := ipCheck(ip, node.ChainID); err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return
 		}
 
-		res, err := Withdraw(address, node.ChanID, node.BaseURL)
+		res, err := Withdraw(address, node.ChainID, node.BaseURL)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return
 		}
 
-		ipWithdraw(ip, node.ChanID)
+		ipWithdraw(ip, node.ChainID)
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", res))
 	}
