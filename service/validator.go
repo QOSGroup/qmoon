@@ -231,6 +231,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 	}
 
 	status_int8 := types.Active
+	fmt.Printf("val.status = ", val.Status)
 	if val.Status != "active" {
 		status_int8 = types.Inactive
 	}

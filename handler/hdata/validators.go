@@ -21,6 +21,7 @@ const (
 
 	validatorsCacheKey          = "validators"
 	validatorsBondTokenCacheKey = "validators_bond_tokens"
+	validatorKeyPrifix          = "validator_"
 )
 
 func init() {

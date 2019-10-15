@@ -100,9 +100,10 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			s.Validator(height, b.Header.Time)
+			// s.Validator(height, b.Header.Time)
 			height += 1
-			s.Proposals()
+			// 为什么要同步proposal？
+			// s.Proposals()
 		}
 	}
 
@@ -318,7 +319,6 @@ func (s QOS) stakingValidators() map[string]QOSStakingValidator {
 
 func (s QOS) Validator(height int64, t time.Time) error {
 	var vals []types.Validator
-	valMap := make(map[string]types.Validator)
 	//var vals_display []stake_types.ValidatorDisplayInfo
 	//var err error
 	//if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
@@ -328,25 +328,25 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(len(vals), " validators")
-	svs := s.stakingValidators()
+	// fmt.Println(len(vals), " validators")
+	// svs := s.stakingValidators()
 	for _, dist := range vals_display {
 		val, err := s.node.ConvertDisplayValidators(dist)
 		if err != nil {
 			log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
 			return err
 		}
-		if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
-			val.Name = sv.Description.Moniker
-			val.Website = sv.Description.Website
-			val.Logo = sv.Description.Logo
-			val.Details = sv.Description.Details
-			val.Commission = sv.Commission.Rate
-		}
-		fmt.Println("before Create ", val.Address, val.BondedTokens, val.SelfBond)
+		//if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
+		//	val.Name = sv.Description.Moniker
+		//	val.Website = sv.Description.Website
+		//	val.Logo = sv.Description.Logo
+		//	val.Details = sv.Description.Details
+		//	val.Commission = sv.Commission.Rate
+		//}
+		// fmt.Println("before Create ", val.Address, val.BondedTokens, val.SelfBond)
 		s.node.CreateValidator(val)
 
-		valMap[val.Address] = val
+		//valMap[val.Address] = val
 		vals = append(vals, val)
 	}
 
