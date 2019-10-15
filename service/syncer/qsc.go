@@ -81,7 +81,7 @@ func (s QSC) BlockLoop(ctx context.Context) error {
 				continue
 			}
 
-			s.Validator(height, b.Header.Time)
+			// s.Validator(height, b.Header.Time)
 
 			height += 1
 		}

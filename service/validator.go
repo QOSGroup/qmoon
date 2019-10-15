@@ -65,19 +65,19 @@ func (n Node) Validators() (types.Validators, error) {
 		return nil, err
 	}
 
-	var totoal int64
+	var total int64
 	var res types.Validators
 	for _, v := range mvs {
 		if int8(v.Status) == types.Active {
-			totoal += v.VotingPower
+			total += v.VotingPower
 		}
-		fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
+		// fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
 		res = append(res, *ConvertToValidator(v, latest.Height))
 	}
 
 	for i := 0; i < len(res); i++ {
 		if res[i].Status == types.Active {
-			res[i].Percent = fmt.Sprintf("%.5f", utils.Percent(uint64(res[i].VotingPower), uint64(totoal))*100)
+			res[i].Percent = fmt.Sprintf("%.5f", utils.Percent(uint64(res[i].VotingPower), uint64(total))*100)
 		} else {
 			res[i].Percent = "0"
 		}
