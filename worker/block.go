@@ -31,8 +31,8 @@ func SyncAllNodeBlock() {
 
 	needSync := map[string]*service.Node{}
 	for _, v := range nodes {
-		if v.ChanID != "" && v.BaseURL != "" {
-			needSync[v.ChanID] = v
+		if v.ChainID != "" && v.BaseURL != "" {
+			needSync[v.ChainID] = v
 		}
 	}
 

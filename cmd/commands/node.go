@@ -122,7 +122,7 @@ func queryNode(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		datas = append(datas, []string{res.Name, res.ChanID, res.NodeType, res.BaseURL})
+		datas = append(datas, []string{res.Name, res.ChainID, res.NodeType, res.BaseURL})
 		utils.PrintTable(cmd.OutOrStdout(), headers, datas)
 	} else {
 		res, err := service.AllNodes()
@@ -131,7 +131,7 @@ func queryNode(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, v := range res {
-			datas = append(datas, []string{v.Name, v.ChanID, v.NodeType, v.BaseURL})
+			datas = append(datas, []string{v.Name, v.ChainID, v.NodeType, v.BaseURL})
 		}
 
 		utils.PrintTable(cmd.OutOrStdout(), headers, datas)
