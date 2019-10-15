@@ -9,7 +9,7 @@ import (
 func (n Node) Proposals() (*types.ResultProposals, error) {
 	var result types.ResultProposals
 
-	mps, err := models.Proposals(n.ChanID)
+	mps, err := models.Proposals(n.ChainID)
 	if err != nil {
 		return nil, err
 	}

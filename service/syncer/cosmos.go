@@ -48,7 +48,7 @@ func (s COSMOS) RpcPeers(ctx context.Context) error {
 		u.Host = fmt.Sprintf("%s:%s", remoteIp, u.Port())
 		//peers = append(peers, u.String())
 
-		_ = models.CreateNetworkOrUpdate(s.node.ChanID, &models.Network{Remote: u.String()})
+		_ = models.CreateNetworkOrUpdate(s.node.ChainID, &models.Network{Remote: u.String()})
 	}
 
 	return nil
@@ -57,7 +57,7 @@ func (s COSMOS) RpcPeers(ctx context.Context) error {
 // BlockLoop 同步块
 func (s COSMOS) BlockLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeBlock) {
-		log.Printf("COSMOS [Sync] BlockLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("COSMOS [Sync] BlockLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer s.Unlock(LockTypeBlock)
@@ -155,7 +155,7 @@ func (s COSMOS) tx(b *types.Block) error {
 			mt.Log = txResult.Log
 		}
 		mt.Fee = v.Fee
-		if err := mt.Insert(s.node.ChanID); err != nil {
+		if err := mt.Insert(s.node.ChainID); err != nil {
 			log.Printf("tx insert data:%+v, err:%v", mt, err.Error())
 			return err
 		}
@@ -257,14 +257,14 @@ func (s COSMOS) Validator(height int64, t time.Time) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChanID, t, oldVals)
+	metric.ValidatorVotingPower(s.node.ChainID, t, oldVals)
 
 	return nil
 }
 
 func (s COSMOS) ConsensusStateLoop(ctx context.Context) error {
 	if !s.Lock(LockTypeConsensusState) {
-		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChainID)
 
 		return nil
 	}
@@ -293,7 +293,7 @@ func (s COSMOS) ConsensusStateLoop(ctx context.Context) error {
 
 func (s COSMOS) PeerLoop(ctx context.Context) error {
 	if !s.Lock(LockTypePeer) {
-		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer s.Unlock(LockTypePeer)
@@ -324,7 +324,7 @@ func (s COSMOS) PeerLoop(ctx context.Context) error {
 
 // SyncLock 同步时锁定，同一个时间只会有一个同步协程
 func (s COSMOS) Lock(key string) bool {
-	key = "lock_" + s.node.ChanID + "-" + key
+	key = "lock_" + s.node.ChainID + "-" + key
 
 	qs, err := models.RetrieveQmoonStatusByKey(key)
 	if err != nil {
@@ -355,7 +355,7 @@ func (s COSMOS) Lock(key string) bool {
 }
 
 func (s COSMOS) Unlock(key string) bool {
-	key = "lock_" + s.node.ChanID + "-" + key
+	key = "lock_" + s.node.ChainID + "-" + key
 
 	qs, err := models.RetrieveQmoonStatusByKey(key)
 	if err != nil {

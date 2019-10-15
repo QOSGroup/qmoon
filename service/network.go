@@ -32,7 +32,7 @@ func NewNetworkSpider(chainID string, remote string) *NetworkSpider {
 }
 
 func (n Node) ValidNodes() ([]*types.ChainNode, error) {
-	ns, err := models.Networks(n.ChanID, &models.NetworkOption{Status: 1})
+	ns, err := models.Networks(n.ChainID, &models.NetworkOption{Status: 1})
 	if err != nil {
 		return nil, err
 	}
@@ -51,12 +51,12 @@ func (n Node) ValidNodes() ([]*types.ChainNode, error) {
 }
 
 func (n Node) NetworkSpider(ctx context.Context) {
-	spider := NewNetworkSpider(n.ChanID, n.BaseURL)
+	spider := NewNetworkSpider(n.ChainID, n.BaseURL)
 	spider.wait[n.BaseURL] = &models.Network{
 		Remote: n.BaseURL,
 	}
 
-	ns, err := models.Networks(n.ChanID, &models.NetworkOption{})
+	ns, err := models.Networks(n.ChainID, &models.NetworkOption{})
 	if err == nil {
 		for _, v := range ns {
 			spider.wait[v.Remote] = &models.Network{

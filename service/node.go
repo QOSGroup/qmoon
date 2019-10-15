@@ -40,7 +40,7 @@ type Node struct {
 	Name        string          `json:"name"`    // name
 	BaseURL     string          `json:"baseUrl"` // base_url
 	SecretKey   string          `json:"-"`       // secret_key
-	ChanID      string          `json:"chanId"`
+	ChainID     string          `json:"chanId"`
 	NodeType    string          `json:"nodeType"`
 	NodeVersion version.Version `json:"nodeVersion"`
 	Routers     []Route         `json:"routers"`
@@ -68,7 +68,7 @@ func covertToNode(mnt *models.Node) *Node {
 		Name:        mnt.Name,
 		BaseURL:     mnt.BaseUrl,
 		SecretKey:   mnt.SecretKey,
-		ChanID:      mnt.ChainId,
+		ChainID:     mnt.ChainId,
 		NodeType:    mnt.NodeType,
 		NodeVersion: *nv,
 		Routers:     defaultRoute,

@@ -43,7 +43,7 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	if err3 == nil {
 		result.TotalTxs = lb.TotalTxs
 	}
-	result.ConsensusState.ChainID = n.ChanID
+	result.ConsensusState.ChainID = n.ChainID
 
 	if err3 == nil && err2 == nil {
 		cache.Set(chainStatusCache, result, time.Second*1)

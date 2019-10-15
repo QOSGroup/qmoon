@@ -93,7 +93,7 @@ func parseTmConsensusState(d json.RawMessage) (res *tmConsensusState, err error)
 }
 
 func (n Node) ConsensusState() (*types.ResultConsensusState, error) {
-	mcs, err := models.RetrieveConsensusState(n.ChanID)
+	mcs, err := models.RetrieveConsensusState(n.ChainID)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (n Node) UpdateConsensusState(cs *tmctypes.ResultConsensusState) error {
 		return err
 	}
 
-	mcs, err := models.RetrieveConsensusState(n.ChanID)
+	mcs, err := models.RetrieveConsensusState(n.ChainID)
 	if err != nil {
 		mcs = &models.ConsensusState{
 			Height:          tcs.Height,
@@ -121,7 +121,7 @@ func (n Node) UpdateConsensusState(cs *tmctypes.ResultConsensusState) error {
 			StartTime:       tcs.StartTime,
 		}
 
-		return mcs.Insert(n.ChanID)
+		return mcs.Insert(n.ChainID)
 	} else {
 		mcs.Height = tcs.Height
 		mcs.Round = tcs.Round
@@ -131,6 +131,6 @@ func (n Node) UpdateConsensusState(cs *tmctypes.ResultConsensusState) error {
 		mcs.PrecommitsNum = tcs.PrecommitsNum
 		mcs.PrecommitsValue = tcs.PrecommitsValue
 		mcs.StartTime = tcs.StartTime
-		return mcs.Update(n.ChanID)
+		return mcs.Update(n.ChainID)
 	}
 }

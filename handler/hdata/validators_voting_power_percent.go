@@ -52,7 +52,7 @@ func validatorsVotingPowerPercentGin() gin.HandlerFunc {
 				step = d
 			}
 		}
-		res, err := metric.QueryValidatorsVotingPowerPercent(node.ChanID, time.Unix(start, 0),
+		res, err := metric.QueryValidatorsVotingPowerPercent(node.ChainID, time.Unix(start, 0),
 			time.Unix(end, 0), step)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))

@@ -28,7 +28,7 @@ func convertToBlockValidator(bv *models.BlockValidator) *types.BlockValidator {
 
 // ListBlockValidatorByHeight 查询
 func (n Node) BlockValidatorsByHeight(height int64) ([]*types.BlockValidator, error) {
-	mbvs, err := models.BlockValidators(n.ChanID, &models.BlockValidatorOption{
+	mbvs, err := models.BlockValidators(n.ChainID, &models.BlockValidatorOption{
 		Height: height,
 	})
 	if err != nil {
@@ -45,7 +45,7 @@ func (n Node) BlockValidatorsByHeight(height int64) ([]*types.BlockValidator, er
 
 // ListBlockValidatorByAddress 查询
 func (n Node) BlockValidatorByAddress(address string, minHeight, maxHeight int64) ([]*types.BlockValidator, error) {
-	mbvs, err := models.BlockValidators(n.ChanID, &models.BlockValidatorOption{
+	mbvs, err := models.BlockValidators(n.ChainID, &models.BlockValidatorOption{
 		MinHeight: maxHeight, MaxHeight: maxHeight, ValidatorAddress: address,
 	})
 	if err != nil {
@@ -62,7 +62,7 @@ func (n Node) BlockValidatorByAddress(address string, minHeight, maxHeight int64
 
 // retrieveBlockValidator 单个查询
 func (n Node) retrieveBlockValidator(height int64, validatorAddress string) (*models.BlockValidator, error) {
-	mbvs, err := models.BlockValidators(n.ChanID, &models.BlockValidatorOption{
+	mbvs, err := models.BlockValidators(n.ChainID, &models.BlockValidatorOption{
 		Height:           height,
 		ValidatorAddress: validatorAddress,
 	})
@@ -102,7 +102,7 @@ func (n Node) saveBlockValidator(v *types.BlockValidator) error {
 			Accum:            v.Accum,
 		}
 
-		if err := mbv.Insert(n.ChanID); err != nil {
+		if err := mbv.Insert(n.ChainID); err != nil {
 			return err
 		}
 	}
@@ -137,7 +137,7 @@ func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
 				ValidatorAddress: v.Address,
 				CreatedAt:        t,
 			}
-			missing.Insert(n.ChanID)
+			missing.Insert(n.ChainID)
 		}
 	}
 

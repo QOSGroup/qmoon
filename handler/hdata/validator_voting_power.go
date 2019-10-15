@@ -53,7 +53,7 @@ func validatorVotingPowerGin() gin.HandlerFunc {
 				step = d
 			}
 		}
-		res, err := metric.QueryValidatorVotingPower(node.ChanID, address,
+		res, err := metric.QueryValidatorVotingPower(node.ChainID, address,
 			time.Unix(start, 0), time.Unix(end, 0), step)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
