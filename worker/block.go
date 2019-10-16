@@ -10,18 +10,7 @@ import (
 	"github.com/QOSGroup/qmoon/service/syncer"
 )
 
-var syncBlockIsRunning bool
-
-func SyncAllNodeBlock() {
-	if syncBlockIsRunning {
-		return
-	}
-
-	syncBlockIsRunning = true
-	defer func() {
-		syncBlockIsRunning = false
-	}()
-
+func syncAllNodeBlock() {
 	wg := &sync.WaitGroup{}
 
 	nodes, err := service.AllNodes()

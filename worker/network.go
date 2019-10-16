@@ -11,17 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var syncNetworkIsRunning bool
-
-func SyncAllNodeNetwork() {
-	if syncNetworkIsRunning {
-		return
-	}
-
-	syncNetworkIsRunning = true
-	defer func() {
-		syncNetworkIsRunning = false
-	}()
+func syncAllNodeNetwork() {
 
 	wg := sync.WaitGroup{}
 
