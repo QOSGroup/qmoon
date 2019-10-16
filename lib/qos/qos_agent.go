@@ -193,3 +193,17 @@ func (cc QosCli) QueryTotalValidatorBondTokens(nodeUrl string) (result string, e
 
 	return
 }
+
+func (cc QosCli) QueryDelegationsWithValidator(nodeUrl, validator string) (result []stake_types.DelegationQueryResult, err error) {
+	resp, err := http.Get(cc.remote + "/stake/validator/delegations?node_url=" + nodeUrl + "&validator=" + validator)
+	if err != nil {
+		return
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return
+	}
+
+	return
+}
