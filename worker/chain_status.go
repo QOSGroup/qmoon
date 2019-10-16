@@ -11,20 +11,9 @@ import (
 	"github.com/QOSGroup/qmoon/service/syncer"
 )
 
-var syncConsensusStateIsRunning bool
 
-func SyncAllNodeConsensusState() {
-	if syncConsensusStateIsRunning {
-		return
-	}
-
-	syncConsensusStateIsRunning = true
-	defer func() {
-		syncConsensusStateIsRunning = false
-	}()
-
+func syncAllNodeConsensusState() {
 	wg := sync.WaitGroup{}
-
 	nodes, err := service.AllNodes()
 	if err != nil {
 		return
@@ -45,7 +34,6 @@ func SyncAllNodeConsensusState() {
 			syncer.NewSyncer(node).ConsensusStateLoop(ctx)
 		}(v)
 	}
-
 	wg.Wait()
 	cancel()
 }

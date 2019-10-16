@@ -4,6 +4,10 @@ package syncer
 
 import (
 	"context"
+	"github.com/QOSGroup/qmoon/models"
+	"github.com/QOSGroup/qmoon/models/errors"
+	"log"
+	"os"
 	"time"
 
 	"github.com/QOSGroup/qmoon/lib"
@@ -24,6 +28,12 @@ const (
 	SyncUnlocked = "0"
 )
 
+var SYSTEM_NAME string
+
+func init() {
+	SYSTEM_NAME, _ = os.Hostname()
+}
+
 const (
 	LockTypeBlock          = "block"
 	LockTypeConsensusState = "consensus_state"
@@ -38,8 +48,8 @@ type Syncer interface {
 	ConsensusStateLoop(ctx context.Context) error
 	RpcPeers(ctx context.Context) error
 
-	Lock(key string) bool
-	Unlock(key string) bool
+	//Lock(key string) bool
+	//Unlock(key string) bool
 }
 
 func NewSyncer(node *service.Node) Syncer {
@@ -53,4 +63,28 @@ func NewSyncer(node *service.Node) Syncer {
 	default:
 		return QOS{node: node, tmcli: lib.TendermintClient(node.BaseURL)}
 	}
+}
+
+// SyncLock 同步时锁定，同一个时间只会有一个同步协程
+func Lock(key string) bool {
+	qs, err := models.RetrieveQmoonStatusByKey(key)
+	if err != nil {
+		log.Printf("Sync Lock err:%v", err.Error())
+		if errors.IsNotExist(err) {
+			qs = &models.QmoonStatus{
+				Key:   key,
+				Value: SYSTEM_NAME,
+			}
+			err := qs.Insert()
+			return err == nil
+		} else {
+			return false
+		}
+	}
+	return false
+}
+
+func Unlock(key string) bool {
+	err := models.DeleteKey(key)
+	return err == nil
 }
