@@ -186,7 +186,6 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			SelfBond:       vl.SelfBond,
 		}
 
-		fmt.Println("before insert ", mv.Address, mv.BondedTokens, mv.SelfBond)
 		if err := mv.Insert(n.ChainID); err != nil {
 			return err
 		}
@@ -209,11 +208,11 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.Commission = vl.Commission
 		mv.BondedTokens = vl.BondedTokens
 		mv.SelfBond = vl.SelfBond
-		fmt.Println("before update ", mv.Address, mv.BondedTokens, mv.SelfBond)
 		if err := mv.Update(n.ChainID); err != nil {
 			return err
 		}
 	}
+	fmt.Println("after create ", mv.Status)
 
 	return nil
 }
@@ -231,7 +230,6 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 	}
 
 	status_int8 := types.Active
-	fmt.Printf("val.status = ", val.Status)
 	if val.Status != "active" {
 		status_int8 = types.Inactive
 	}
@@ -262,6 +260,6 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
 	}
-	fmt.Printf("after convert ", vall.Address, vall.BondedTokens, vall.SelfBond)
+	fmt.Printf("after convert ", vall.Address, vall.Status)
 	return vall, nil
 }
