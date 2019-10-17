@@ -9,6 +9,7 @@ import (
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/lib/qos"
+	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -77,6 +78,6 @@ func validatorDelegationGin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", result))
+		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", stake_types.Delegations(result)))
 	}
 }
