@@ -130,6 +130,7 @@ type ResultBlock struct {
 
 type ResultDelagation struct {
 	Delegator string `json:"delegator"`
+	Amount    string `json:"amount"`
 	Compound  bool   `json:"compound"`
 }
 

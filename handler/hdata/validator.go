@@ -95,7 +95,7 @@ func validatorDelegationGin() gin.HandlerFunc {
 		result.Validator = service.ConvertToValidator(v, latest.Height)
 
 		for _, d := range dels {
-			delegation := types.ResultDelagation{Delegator: d.DelegatorAddr, Compound: d.IsCompound}
+			delegation := types.ResultDelagation{Delegator: d.DelegatorAddr, Amount: d.Amount, Compound: d.IsCompound}
 			j, _ := json.Marshal(delegation)
 			result.Delegations = append(result.Delegations, j)
 		}
