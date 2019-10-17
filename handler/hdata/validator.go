@@ -3,6 +3,7 @@
 package hdata
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -73,13 +74,14 @@ func validatorDelegationGin() gin.HandlerFunc {
 		}
 
 		address := lib.Bech32AddressToHex(c.Param("address"))
+		fmt.Println("validator ", address)
 		result, err := qos.NewQosCli("").QueryDelegationsWithValidator(node.BaseURL, address)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		delegations := stake_types.Delegations{}
-		delegations.DelagationList = result
-		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", delegations))
+		//delegations := stake_types.Delegations{}
+		//delegations.DelagationList = result
+		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", stake_types.Delegations(result)))
 	}
 }
