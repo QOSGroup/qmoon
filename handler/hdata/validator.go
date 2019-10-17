@@ -3,13 +3,15 @@
 package hdata
 
 import (
+	"encoding/json"
+	"github.com/QOSGroup/qmoon/models"
 	"net/http"
 	"strconv"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/lib/qos"
-	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
+	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
@@ -72,11 +74,32 @@ func validatorDelegationGin() gin.HandlerFunc {
 			return
 		}
 
-		result, err := qos.NewQosCli("").QueryDelegationsWithValidator(node.BaseURL, c.Param("address"))
+		dels, err := qos.NewQosCli("").QueryDelegationsWithValidator(node.BaseURL, c.Param("address"))
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", stake_types.Delegations(result)))
+
+		var result types.ResultValidator
+		v, err := models.ValidatorByStakeAddress(node.ChainID, c.Param("address"))
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCServerError("", err))
+			return
+		}
+
+		latest, err := node.LatestBlock()
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCServerError("", err))
+			return
+		}
+		result.Validator = service.ConvertToValidator(v, latest.Height)
+
+		for _, d := range dels {
+			delegation := types.ResultDelagation{Delegator: d.DelegatorAddr, Compound: d.IsCompound}
+			j, _ := json.Marshal(delegation)
+			result.Delegations = append(result.Delegations, j)
+		}
+
+		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", result))
 	}
 }

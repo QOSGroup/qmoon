@@ -40,8 +40,9 @@ type PriKey struct {
 }
 
 type ResultValidator struct {
-	Validator *Validator        `json:"validator"`
-	Blocks    []*BlockValidator `json:"blocks"`
+	Validator   *Validator        `json:"validator"`
+	Blocks      []*BlockValidator `json:"blocks"`
+	Delegations []json.RawMessage `json:"delegations"`
 }
 
 //func TxCN(t string, tx string, address string) string {
@@ -125,6 +126,11 @@ type ResultBlock struct {
 	Block      *ResultBlockBase  `json:"block"`
 	Txs        []*ResultTx       `json:"txs"`
 	Validators []*BlockValidator `json:"validators"`
+}
+
+type ResultDelagation struct {
+	Delegator string `json:"delegator"`
+	Compound  bool   `json:"compound"`
 }
 
 type Sequence struct {
