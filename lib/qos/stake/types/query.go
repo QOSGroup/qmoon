@@ -8,4 +8,6 @@ type DelegationQueryResult struct {
 	IsCompound               bool   `json:"is_compound"`
 }
 
-type Delegations []DelegationQueryResult
+type Delegations struct {
+	DelagationList []DelegationQueryResult `json:delegations`
+}

@@ -78,6 +78,8 @@ func validatorDelegationGin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", stake_types.Delegations(result)))
+		delegations := stake_types.Delegations{}
+		delegations.DelagationList = result
+		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", delegations))
 	}
 }
