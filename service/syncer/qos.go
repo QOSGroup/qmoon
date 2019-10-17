@@ -73,10 +73,10 @@ func (s QOS) RpcPeers(ctx context.Context) error {
 
 // BlockLoop 同步块
 func (s QOS) BlockLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypeBlock
+	key := "lock_" + s.node.ChainID + "-" + LockTypeBlock
 
 	if !Lock(key) {
-		log.Printf("[Sync] QOS BlockLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] QOS BlockLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -401,10 +401,10 @@ func (s QOS) Proposals() error {
 }
 
 func (s QOS) ConsensusStateLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypeConsensusState
+	key := "lock_" + s.node.ChainID + "-" + LockTypeConsensusState
 
 	if !Lock(key) {
-		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -431,9 +431,9 @@ func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 }
 
 func (s QOS) PeerLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypePeer
+	key := "lock_" + s.node.ChainID + "-" + LockTypePeer
 	if !Lock(key) {
-		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
