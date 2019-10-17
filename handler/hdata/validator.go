@@ -8,19 +8,26 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
+	"github.com/QOSGroup/qmoon/lib/qos"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 )
 
 const validatorUrl = "/validators/:address"
+const validatorDelegationUrl = "/validators/:address/delegation"
 
 func init() {
 	hdataHander[validatorUrl] = ValidatorGinRegister
+	hdataHander[validatorDelegationUrl] = ValidatorDelegationGinRegister
 }
 
 // ValidatorGinRegister 注册validator
 func ValidatorGinRegister(r *gin.Engine) {
 	r.GET(NodeProxy+validatorUrl, middleware.ApiAuthGin(), validatorGin())
+}
+
+func ValidatorDelegationGinRegister(r *gin.Engine) {
+	r.GET(NodeProxy+validatorDelegationUrl, middleware.ApiAuthGin(), validatorDelegationGin())
 }
 
 func validatorGin() gin.HandlerFunc {
@@ -52,6 +59,24 @@ func validatorGin() gin.HandlerFunc {
 		result.Validator = v
 		result.Blocks = bs
 
+		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", result))
+	}
+}
+
+func validatorDelegationGin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		node, err := GetNodeFromUrl(c)
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
+			return
+		}
+
+		address := lib.Bech32AddressToHex(c.Param("address"))
+		result, err := qos.NewQosCli("").QueryDelegationsWithValidator(node.BaseURL, address)
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCServerError("", err))
+			return
+		}
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", result))
 	}
 }
