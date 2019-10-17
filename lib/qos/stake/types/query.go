@@ -7,3 +7,5 @@ type DelegationQueryResult struct {
 	Amount                   string `json:"delegate_amount"`
 	IsCompound               bool   `json:"is_compound"`
 }
+
+type Delegations []DelegationQueryResult
