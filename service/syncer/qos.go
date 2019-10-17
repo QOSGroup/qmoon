@@ -401,16 +401,10 @@ func (s QOS) Proposals() error {
 }
 
 func (s QOS) ConsensusStateLoop(ctx context.Context) error {
-<<<<<<< HEAD
-	if !s.Lock(LockTypeConsensusState) {
-		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChainID)
-=======
 	key := "lock_" + s.node.ChanID + "-" + LockTypeConsensusState
 
 	if !Lock(key) {
 		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
->>>>>>> 2af9dd16ed559463f292c73d0018a29d2e07a0d3
-
 		return nil
 	}
 	defer Unlock(key)
