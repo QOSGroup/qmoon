@@ -166,6 +166,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 	if err != nil {
 		mv = &models.Validator{
 			Address:        vl.Address,
+			StakeAddress:   vl.StakeAddress,
 			PubKeyType:     vl.PubKeyType,
 			PubKeyValue:    vl.PubKeyValue,
 			VotingPower:    vl.VotingPower,
@@ -190,6 +191,9 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			return err
 		}
 	} else {
+		if mv.StakeAddress != vl.StakeAddress {
+			return types.NewValidatorAddressUnmatched(mv.StakeAddress, vl.Address)
+		}
 		mv.PubKeyType = vl.PubKeyType
 		mv.PubKeyValue = vl.PubKeyValue
 		mv.VotingPower = vl.VotingPower
@@ -248,6 +252,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Owner:          val.Owner,
 		ChainID:        n.Name,
 		Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
+		StakeAddress:   val.ConsAddress,
 		PubKeyType:     "tendermint/PubKeyEd25519",
 		PubKeyValue:    val.ConsPubKey,
 		VotingPower:    bondTokens_int64,
