@@ -72,3 +72,28 @@ func RetrieveQmoonStatusByKey(key string) (*QmoonStatus, error) {
 
 	return qs, nil
 }
+
+
+
+func DeleteKey(key string)  error{
+
+	var l QmoonStatus
+	_, err := basex.Where("key = ?", key).Delete(&l)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+
+
+func DeleteKeyBySystemName(systemname string)  error {
+	var l QmoonStatus
+	_, err := basex.Where("system_name = ?", systemname).Delete(&l)
+	if err != nil {
+		return err
+	}
+	return nil
+}

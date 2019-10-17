@@ -73,11 +73,13 @@ func (s QOS) RpcPeers(ctx context.Context) error {
 
 // BlockLoop 同步块
 func (s QOS) BlockLoop(ctx context.Context) error {
-	if !s.Lock(LockTypeBlock) {
-		log.Printf("[Sync] QOS BlockLoop %v err, has been locked.", s.node.ChainID)
+	key := "lock_" + s.node.ChanID + "-" + LockTypeBlock
+
+	if !Lock(key) {
+		log.Printf("[Sync] QOS BlockLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
-	defer s.Unlock(LockTypeBlock)
+	defer Unlock(key)
 
 	var height int64 = 1
 	latest, err := s.node.LatestBlock()
@@ -399,12 +401,19 @@ func (s QOS) Proposals() error {
 }
 
 func (s QOS) ConsensusStateLoop(ctx context.Context) error {
+<<<<<<< HEAD
 	if !s.Lock(LockTypeConsensusState) {
 		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChainID)
+=======
+	key := "lock_" + s.node.ChanID + "-" + LockTypeConsensusState
+
+	if !Lock(key) {
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
+>>>>>>> 2af9dd16ed559463f292c73d0018a29d2e07a0d3
 
 		return nil
 	}
-	defer s.Unlock(LockTypeConsensusState)
+	defer Unlock(key)
 
 	for {
 		time.Sleep(SyncConsensusStateDuration)
@@ -428,11 +437,12 @@ func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 }
 
 func (s QOS) PeerLoop(ctx context.Context) error {
-	if !s.Lock(LockTypePeer) {
-		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChainID)
+	key := "lock_" + s.node.ChanID + "-" + LockTypePeer
+	if !Lock(key) {
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
 		return nil
 	}
-	defer s.Unlock(LockTypePeer)
+	defer Unlock(key)
 
 	for {
 		time.Sleep(SyncPeerDuration)
@@ -456,55 +466,4 @@ func (s QOS) PeerLoop(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// SyncLock 同步时锁定，同一个时间只会有一个同步协程
-func (s QOS) Lock(key string) bool {
-	key = "lock_" + s.node.ChainID + "-" + key
-
-	qs, err := models.RetrieveQmoonStatusByKey(key)
-	if err != nil {
-		log.Printf("Sync Lock err:%v", err.Error())
-		if errors.IsNotExist(err) {
-			qs = &models.QmoonStatus{
-				Key:   key,
-				Value: SyncLocked,
-			}
-			err := qs.Insert()
-			return err == nil
-		} else {
-			return false
-		}
-	}
-
-	// 被锁住未超过最大值
-	if qs.Value == SyncLocked && qs.UpdatedAt.Add(maxLockDuration).After(time.Now()) {
-		return false
-	}
-
-	qs.Value = SyncLocked
-	if err := qs.Update(); err != nil {
-		return false
-	}
-
-	return true
-}
-
-func (s QOS) Unlock(key string) bool {
-	key = "lock_" + s.node.ChainID + "-" + key
-
-	qs, err := models.RetrieveQmoonStatusByKey(key)
-	if err != nil {
-		return true
-	}
-
-	qs.Value = SyncUnlocked
-
-	if err := qs.Update(); err != nil {
-		log.Printf("Sync Unlock err:%v", err.Error())
-
-		return false
-	}
-
-	return true
 }
