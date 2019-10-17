@@ -23,7 +23,7 @@ func (n Node) Fee(tx string) (*types.ResultFee, error) {
 	if tx == "" {
 		tx = models.DefaultFeeTx
 	}
-	mt, err := models.RetrieveFeeByTx(n.ChanID, tx)
+	mt, err := models.RetrieveFeeByTx(n.ChainID, tx)
 	if err != nil {
 		return nil, err
 	}

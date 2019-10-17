@@ -55,7 +55,7 @@ func validatorUptimeGin() gin.HandlerFunc {
 			}
 		}
 
-		res, err := metric.QueryValidatorUptime(node.ChanID, address,
+		res, err := metric.QueryValidatorUptime(node.ChainID, address,
 			time.Unix(start, 0), time.Unix(end, 0), step)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))

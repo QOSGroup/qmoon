@@ -16,12 +16,11 @@ import (
 	qostypes "github.com/QOSGroup/qos/module/stake/types"
 )
 
-func convertToValidator(bv *models.Validator, latestHeight int64) *types.Validator {
+func ConvertToValidator(bv *models.Validator, latestHeight int64) *types.Validator {
 	statusStr := "Active"
 	if bv.Status != 0 {
 		statusStr = "Inactive"
 	}
-
 	uptime := float64(bv.PrecommitNum*10000/(latestHeight-bv.FirstBlockHeight)) / 100.00
 
 	return &types.Validator{
@@ -61,24 +60,24 @@ func (n Node) Validators() (types.Validators, error) {
 	if err != nil {
 		return nil, err
 	}
-	mvs, err := models.Validators(n.ChanID)
+	mvs, err := models.Validators(n.ChainID)
 	if err != nil {
 		return nil, err
 	}
 
-	var totoal int64
+	var total int64
 	var res types.Validators
 	for _, v := range mvs {
 		if int8(v.Status) == types.Active {
-			totoal += v.VotingPower
+			total += v.VotingPower
 		}
-		fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
-		res = append(res, *convertToValidator(v, latest.Height))
+		// fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
+		res = append(res, *ConvertToValidator(v, latest.Height))
 	}
 
 	for i := 0; i < len(res); i++ {
 		if res[i].Status == types.Active {
-			res[i].Percent = fmt.Sprintf("%.5f", utils.Percent(uint64(res[i].VotingPower), uint64(totoal))*100)
+			res[i].Percent = fmt.Sprintf("%.5f", utils.Percent(uint64(res[i].VotingPower), uint64(total))*100)
 		} else {
 			res[i].Percent = "0"
 		}
@@ -91,7 +90,7 @@ func (n Node) Validators() (types.Validators, error) {
 
 // retrieveValidator 单个查询
 func (n Node) retrieveValidator(address string) (*models.Validator, error) {
-	mv, err := models.ValidatorByAddress(n.ChanID, address)
+	mv, err := models.ValidatorByAddress(n.ChainID, address)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +110,7 @@ func (n Node) RetrieveValidator(address string) (*types.Validator, error) {
 		return nil, err
 	}
 
-	return convertToValidator(mv, latest.Height), nil
+	return ConvertToValidator(mv, latest.Height), nil
 }
 
 func (n Node) UpdateValidatorBlock(address string, height int64, t time.Time) error {
@@ -124,7 +123,7 @@ func (n Node) UpdateValidatorBlock(address string, height int64, t time.Time) er
 			PrecommitNum:     1,
 		}
 
-		if err := mv.Insert(n.ChanID); err != nil {
+		if err := mv.Insert(n.ChainID); err != nil {
 			return err
 		}
 	} else {
@@ -136,7 +135,7 @@ func (n Node) UpdateValidatorBlock(address string, height int64, t time.Time) er
 			mv.PrecommitNum = mv.PrecommitNum + 1
 		}
 
-		if err := mv.Update(n.ChanID); err != nil {
+		if err := mv.Update(n.ChainID); err != nil {
 			return err
 		}
 	}
@@ -153,7 +152,7 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 			mv.InactiveTime = inactiveTime
 			mv.InactiveHeight = inactiveHeight
 
-			if err := mv.UpdateStatus(n.ChanID); err != nil {
+			if err := mv.UpdateStatus(n.ChainID); err != nil {
 				return err
 			}
 		}
@@ -167,6 +166,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 	if err != nil {
 		mv = &models.Validator{
 			Address:        vl.Address,
+			StakeAddress:   vl.StakeAddress,
 			PubKeyType:     vl.PubKeyType,
 			PubKeyValue:    vl.PubKeyValue,
 			VotingPower:    vl.VotingPower,
@@ -187,11 +187,13 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			SelfBond:       vl.SelfBond,
 		}
 
-		fmt.Println("before insert ", mv.Address, mv.BondedTokens, mv.SelfBond)
-		if err := mv.Insert(n.ChanID); err != nil {
+		if err := mv.Insert(n.ChainID); err != nil {
 			return err
 		}
 	} else {
+		if mv.StakeAddress != vl.StakeAddress {
+			return types.NewValidatorAddressUnmatched(mv.StakeAddress, vl.Address)
+		}
 		mv.PubKeyType = vl.PubKeyType
 		mv.PubKeyValue = vl.PubKeyValue
 		mv.VotingPower = vl.VotingPower
@@ -210,11 +212,11 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.Commission = vl.Commission
 		mv.BondedTokens = vl.BondedTokens
 		mv.SelfBond = vl.SelfBond
-		fmt.Println("before update ", mv.Address, mv.BondedTokens, mv.SelfBond)
-		if err := mv.Update(n.ChanID); err != nil {
+		if err := mv.Update(n.ChainID); err != nil {
 			return err
 		}
 	}
+	fmt.Println("after create ", mv.Status)
 
 	return nil
 }
@@ -250,6 +252,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Owner:          val.Owner,
 		ChainID:        n.Name,
 		Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
+		StakeAddress:   val.ConsAddress,
 		PubKeyType:     "tendermint/PubKeyEd25519",
 		PubKeyValue:    val.ConsPubKey,
 		VotingPower:    bondTokens_int64,
@@ -262,6 +265,6 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
 	}
-	fmt.Printf("after convert ", vall.Address, vall.BondedTokens, vall.SelfBond)
+	fmt.Printf("after convert ", vall.Address, vall.Status)
 	return vall, nil
 }

@@ -17,6 +17,7 @@ type Validator struct {
 	Owner              string    `xorm:"TEXT"`
 	ChainId            string    `xorm:"-"`
 	Address            string    `xorm:"unique TEXT"`
+	StakeAddress       string    `xorm:"unique TEXT"`
 	PubKeyType         string    `xorm:"TEXT"`
 	PubKeyValue        string    `xorm:"TEXT"`
 	Commission         string    `xorm:"TEXT"`
@@ -113,6 +114,24 @@ func ValidatorByAddress(chainID, address string) (*Validator, error) {
 		return nil, err
 	}
 	val := &Validator{Address: address}
+	has, err := x.Get(val)
+	if err != nil {
+		return nil, err
+	}
+
+	if !has {
+		return nil, errors.NotExist{Obj: "ValidatorLoop:" + address}
+	}
+
+	return val, nil
+}
+
+func ValidatorByStakeAddress(chainID, address string) (*Validator, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	val := &Validator{StakeAddress: address}
 	has, err := x.Get(val)
 	if err != nil {
 		return nil, err

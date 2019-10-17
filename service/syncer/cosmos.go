@@ -47,7 +47,7 @@ func (s COSMOS) RpcPeers(ctx context.Context) error {
 		u.Host = fmt.Sprintf("%s:%s", remoteIp, u.Port())
 		//peers = append(peers, u.String())
 
-		_ = models.CreateNetworkOrUpdate(s.node.ChanID, &models.Network{Remote: u.String()})
+		_ = models.CreateNetworkOrUpdate(s.node.ChainID, &models.Network{Remote: u.String()})
 	}
 
 	return nil
@@ -55,9 +55,9 @@ func (s COSMOS) RpcPeers(ctx context.Context) error {
 
 // BlockLoop 同步块
 func (s COSMOS) BlockLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypeBlock
+	key := "lock_" + s.node.ChainID + "-" + LockTypeBlock
 	if Lock(key) {
-		log.Printf("COSMOS [Sync] BlockLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("COSMOS [Sync] BlockLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -155,7 +155,7 @@ func (s COSMOS) tx(b *types.Block) error {
 			mt.Log = txResult.Log
 		}
 		mt.Fee = v.Fee
-		if err := mt.Insert(s.node.ChanID); err != nil {
+		if err := mt.Insert(s.node.ChainID); err != nil {
 			log.Printf("tx insert data:%+v, err:%v", mt, err.Error())
 			return err
 		}
@@ -257,15 +257,15 @@ func (s COSMOS) Validator(height int64, t time.Time) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChanID, t, oldVals)
+	metric.ValidatorVotingPower(s.node.ChainID, t, oldVals)
 
 	return nil
 }
 
 func (s COSMOS) ConsensusStateLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypeConsensusState
+	key := "lock_" + s.node.ChainID + "-" + LockTypeConsensusState
 	if !Lock(key) {
-		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -292,9 +292,9 @@ func (s COSMOS) ConsensusStateLoop(ctx context.Context) error {
 }
 
 func (s COSMOS) PeerLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypePeer
+	key := "lock_" + s.node.ChainID + "-" + LockTypePeer
 	if !Lock(key) {
-		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -322,4 +322,3 @@ func (s COSMOS) PeerLoop(ctx context.Context) error {
 
 	return nil
 }
-

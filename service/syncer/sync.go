@@ -19,6 +19,8 @@ const (
 	SyncConsensusStateDuration = time.Second * 2
 	SyncPeerDuration           = time.Second * 30
 	SyncValidator              = time.Second * 2
+
+	FastSyscThreshold = 100 // 本地高度和链高度相差值超过FastSyscThreshold时，启动fastsync mode
 )
 
 const maxLockDuration = time.Minute * 5

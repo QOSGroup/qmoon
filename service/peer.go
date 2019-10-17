@@ -28,7 +28,7 @@ func convertToPeer(mp *models.Peer) *types.ResultPeer {
 func (n Node) Peers() (*types.ResultPeers, error) {
 	var result types.ResultPeers
 
-	mps, err := models.Peers(n.ChanID, nil)
+	mps, err := models.Peers(n.ChainID, nil)
 	if err == nil {
 		for _, v := range mps {
 			result.NPeers++
@@ -52,7 +52,7 @@ func (n Node) CreatePeers(peers []tmtypes.Peer) error {
 			RecvStart:  v.ConnectionStatus.RecvMonitor.Start,
 		}
 
-		if err := p.Insert(n.ChanID); err != nil {
+		if err := p.Insert(n.ChainID); err != nil {
 			log.Printf("CreatePeers p:%+v, err:%s", v, err.Error())
 		}
 	}

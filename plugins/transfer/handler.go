@@ -38,7 +38,7 @@ func TransferGin() gin.HandlerFunc {
 			limit = int(d)
 		}
 
-		txs, err := ListByAddress(node.ChanID, address, offset, limit, &SearchOpt{Coin: coin})
+		txs, err := ListByAddress(node.ChainID, address, offset, limit, &SearchOpt{Coin: coin})
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))
 			return

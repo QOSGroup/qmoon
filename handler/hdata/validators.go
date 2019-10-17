@@ -21,6 +21,7 @@ const (
 
 	validatorsCacheKey          = "validators"
 	validatorsBondTokenCacheKey = "validators_bond_tokens"
+	validatorKeyPrifix          = "validator_"
 )
 
 func init() {
@@ -84,7 +85,6 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 		if err != nil {
 			return err
 		}
-		//fmt.Println("after convert in query ", validator.Address, validator.BondedTokens, validator.SelfBond)
 		node.CreateValidator(validator)
 	}
 	return nil

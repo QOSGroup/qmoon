@@ -65,7 +65,7 @@ func (s QOS) RpcPeers(ctx context.Context) error {
 		u.Host = fmt.Sprintf("%s:%s", remoteIp, u.Port())
 		//peers = append(peers, u.String())
 
-		_ = models.CreateNetworkOrUpdate(s.node.ChanID, &models.Network{Remote: u.String()})
+		_ = models.CreateNetworkOrUpdate(s.node.ChainID, &models.Network{Remote: u.String()})
 	}
 
 	return nil
@@ -73,10 +73,10 @@ func (s QOS) RpcPeers(ctx context.Context) error {
 
 // BlockLoop 同步块
 func (s QOS) BlockLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypeBlock
+	key := "lock_" + s.node.ChainID + "-" + LockTypeBlock
 
 	if !Lock(key) {
-		log.Printf("[Sync] QOS BlockLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] QOS BlockLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -102,9 +102,10 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			s.Validator(height, b.Header.Time)
+			// s.Validator(height, b.Header.Time)
 			height += 1
-			s.Proposals()
+			// 为什么要同步proposal？
+			// s.Proposals()
 		}
 	}
 
@@ -173,7 +174,7 @@ func (s QOS) tx(b *types.Block) error {
 			return err
 		}
 
-		if err := mt.InsertOrUpdate(s.node.ChanID); err != nil {
+		if err := mt.InsertOrUpdate(s.node.ChainID); err != nil {
 			return err
 		}
 
@@ -320,7 +321,6 @@ func (s QOS) stakingValidators() map[string]QOSStakingValidator {
 
 func (s QOS) Validator(height int64, t time.Time) error {
 	var vals []types.Validator
-	valMap := make(map[string]types.Validator)
 	//var vals_display []stake_types.ValidatorDisplayInfo
 	//var err error
 	//if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
@@ -330,25 +330,25 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(len(vals), " validators")
-	svs := s.stakingValidators()
+	// fmt.Println(len(vals), " validators")
+	// svs := s.stakingValidators()
 	for _, dist := range vals_display {
 		val, err := s.node.ConvertDisplayValidators(dist)
 		if err != nil {
 			log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
 			return err
 		}
-		if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
-			val.Name = sv.Description.Moniker
-			val.Website = sv.Description.Website
-			val.Logo = sv.Description.Logo
-			val.Details = sv.Description.Details
-			val.Commission = sv.Commission.Rate
-		}
-		fmt.Println("before Create ", val.Address, val.BondedTokens, val.SelfBond)
+		//if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
+		//	val.Name = sv.Description.Moniker
+		//	val.Website = sv.Description.Website
+		//	val.Logo = sv.Description.Logo
+		//	val.Details = sv.Description.Details
+		//	val.Commission = sv.Commission.Rate
+		//}
+		// fmt.Println("before Create ", val.Address, val.BondedTokens, val.SelfBond)
 		s.node.CreateValidator(val)
 
-		valMap[val.Address] = val
+		//valMap[val.Address] = val
 		vals = append(vals, val)
 	}
 
@@ -367,7 +367,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	//	}
 	//}
 
-	metric.ValidatorVotingPower(s.node.ChanID, t, vals)
+	metric.ValidatorVotingPower(s.node.ChainID, t, vals)
 
 	return nil
 }
@@ -393,7 +393,7 @@ func (s QOS) Proposals() error {
 		mt.VotingStartTime = pro.VotingStartTime
 		mt.VotingEndTime = pro.VotingEndTime
 	}
-	if err := mt.Insert(s.node.ChanID); err != nil {
+	if err := mt.Insert(s.node.ChainID); err != nil {
 		log.Printf("proposals insert data:%+v, err:%v", mt, err.Error())
 		return err
 	}
@@ -401,11 +401,10 @@ func (s QOS) Proposals() error {
 }
 
 func (s QOS) ConsensusStateLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypeConsensusState
+	key := "lock_" + s.node.ChainID + "-" + LockTypeConsensusState
 
 	if !Lock(key) {
-		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
-
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -432,9 +431,9 @@ func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 }
 
 func (s QOS) PeerLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypePeer
+	key := "lock_" + s.node.ChainID + "-" + LockTypePeer
 	if !Lock(key) {
-		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -462,4 +461,3 @@ func (s QOS) PeerLoop(ctx context.Context) error {
 
 	return nil
 }
-

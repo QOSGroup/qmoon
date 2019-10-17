@@ -44,7 +44,7 @@ func (s QSC) RpcPeers(ctx context.Context) error {
 		u.Host = fmt.Sprintf("%s:%s", remoteIp, u.Port())
 		//peers = append(peers, u.String())
 
-		_ = models.CreateNetworkOrUpdate(s.node.ChanID, &models.Network{Remote: u.String()})
+		_ = models.CreateNetworkOrUpdate(s.node.ChainID, &models.Network{Remote: u.String()})
 	}
 
 	return nil
@@ -52,10 +52,10 @@ func (s QSC) RpcPeers(ctx context.Context) error {
 
 // BlockLoop 同步块
 func (s QSC) BlockLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypeBlock
+	key := "lock_" + s.node.ChainID + "-" + LockTypeBlock
 
 	if !Lock(key) {
-		log.Printf("[Sync] BlockLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] BlockLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -82,7 +82,7 @@ func (s QSC) BlockLoop(ctx context.Context) error {
 				continue
 			}
 
-			s.Validator(height, b.Header.Time)
+			// s.Validator(height, b.Header.Time)
 
 			height += 1
 		}
@@ -141,7 +141,7 @@ func (s QSC) tx(b *types.Block) error {
 			mt.GasUsed = txResult.GasUsed
 			mt.Log = txResult.Log
 		}
-		if err := mt.Insert(s.node.ChanID); err != nil {
+		if err := mt.Insert(s.node.ChainID); err != nil {
 			log.Printf("tx insert data:%+v, err:%v", mt, err.Error())
 			return err
 		}
@@ -180,17 +180,16 @@ func (s QSC) Validator(height int64, t time.Time) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChanID, t, vals)
+	metric.ValidatorVotingPower(s.node.ChainID, t, vals)
 
 	return nil
 }
 
 func (s QSC) ConsensusStateLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypeConsensusState
+	key := "lock_" + s.node.ChainID + "-" + LockTypeConsensusState
 
 	if !Lock(key) {
-		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChanID)
-
+		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)
@@ -217,10 +216,10 @@ func (s QSC) ConsensusStateLoop(ctx context.Context) error {
 }
 
 func (s QSC) PeerLoop(ctx context.Context) error {
-	key := "lock_" + s.node.ChanID + "-" + LockTypePeer
+	key := "lock_" + s.node.ChainID + "-" + LockTypePeer
 
 	if !Lock(key) {
-		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChanID)
+		log.Printf("[Sync] PeerLoop %v err, has been locked.", s.node.ChainID)
 		return nil
 	}
 	defer Unlock(key)

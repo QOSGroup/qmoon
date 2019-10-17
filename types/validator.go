@@ -25,6 +25,7 @@ type Validator struct {
 	Owner            string             `json:"owner"`
 	ChainID          string             `json:"chain_id"`
 	Address          string             `json:"address"`
+	StakeAddress     string             `json:"stake_address"`
 	ConsPubKey       string             `json:"consensus_pubkey"` // the consensus public key of the validator; bech encoded in JSON
 	PubKeyType       string             `json:"pub_key_type"`
 	PubKeyValue      string             `json:"pub_key_value"`

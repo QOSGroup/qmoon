@@ -20,7 +20,7 @@ func (n Node) Missings(validator string) ([]*types.ResultMissing, error) {
 	if validator == "" {
 		return result, nil
 	}
-	mts, err := models.RetrieveMissings(n.ChanID, validator)
+	mts, err := models.RetrieveMissings(n.ChainID, validator)
 	if err != nil {
 		return nil, err
 	}

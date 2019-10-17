@@ -40,8 +40,9 @@ type PriKey struct {
 }
 
 type ResultValidator struct {
-	Validator *Validator        `json:"validator"`
-	Blocks    []*BlockValidator `json:"blocks"`
+	Validator   *Validator        `json:"validator"`
+	Blocks      []*BlockValidator `json:"blocks"`
+	Delegations []json.RawMessage `json:"delegations"`
 }
 
 //func TxCN(t string, tx string, address string) string {
@@ -94,7 +95,6 @@ type ResultTx struct {
 	Fee       string            `json:"fee"`
 	TxStatus  string            `json:"tx_status"`
 	Status    int               `json:"status"`
-	Data      json.RawMessage   `json:"data"` // data
 	Time      ResultTime        `json:"time"` // time
 	Log       string            `json:"log"`
 	CreatedAt ResultTime        `json:"created_at"` // created_at
@@ -103,18 +103,18 @@ type ResultTx struct {
 
 // ResultBlockBase 块信息
 type ResultBlockBase struct {
-	ID              int64      `json:"-"`
-	BlockID         string     `json:"block_id"`
-	ChainID         string     `json:"chain_id"`
-	Height          int64      `json:"height"`
-	NumTxs          int64      `json:"num_txs"`
-	TotalTxs        int64      `json:"total_txs"`
-	Data            string     `json:"data"`
-	Time            ResultTime `json:"time"`
-	DataHash        string     `json:"data_hash"`
-	ValidatorsHash  string     `json:"validators_hash"`
-	ProposerAddress string     `json:"proposer"`
-	CreatedAt       ResultTime `json:"-"`
+	ID             int64      `json:"-"`
+	BlockID        string     `json:"block_id"`
+	ChainID        string     `json:"chain_id"`
+	Height         int64      `json:"height"`
+	NumTxs         int64      `json:"num_txs"`
+	TotalTxs       int64      `json:"total_txs"`
+	Data           string     `json:"data"`
+	Time           ResultTime `json:"time"`
+	DataHash       string     `json:"data_hash"`
+	ValidatorsHash string     `json:"validators_hash"`
+	Proposer       *Validator `json:"proposer"`
+	CreatedAt      ResultTime `json:"-"`
 }
 
 type ResultBlockDuration struct {
@@ -126,6 +126,12 @@ type ResultBlock struct {
 	Block      *ResultBlockBase  `json:"block"`
 	Txs        []*ResultTx       `json:"txs"`
 	Validators []*BlockValidator `json:"validators"`
+}
+
+type ResultDelagation struct {
+	Delegator string `json:"delegator"`
+	Amount    string `json:"amount"`
+	Compound  bool   `json:"compound"`
 }
 
 type Sequence struct {

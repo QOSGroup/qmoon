@@ -25,7 +25,7 @@ func convertToGenesis(mg *models.Genesis) *Genesis {
 }
 
 func (n Node) RetrieveGenesis(chainID string) (*Genesis, error) {
-	mg, err := models.RetrieveGenesis(n.ChanID)
+	mg, err := models.RetrieveGenesis(n.ChainID)
 	if err != nil {
 		return nil, err
 	}

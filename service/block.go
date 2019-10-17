@@ -14,21 +14,20 @@ import (
 
 func convertToBlock(mb *models.Block) *types.ResultBlockBase {
 	return &types.ResultBlockBase{
-		ID:              mb.Id,
-		ChainID:         mb.ChainId,
-		Height:          mb.Height,
-		NumTxs:          mb.NumTxs,
-		TotalTxs:        mb.TotalTxs,
-		Time:            types.ResultTime(mb.Time),
-		DataHash:        mb.DataHash,
-		ValidatorsHash:  mb.ValidatorsHash,
-		ProposerAddress: mb.ProposerAddress,
+		ID:             mb.Id,
+		ChainID:        mb.ChainId,
+		Height:         mb.Height,
+		NumTxs:         mb.NumTxs,
+		TotalTxs:       mb.TotalTxs,
+		Time:           types.ResultTime(mb.Time),
+		DataHash:       mb.DataHash,
+		ValidatorsHash: mb.ValidatorsHash,
 	}
 }
 
 // Latest最新的块
 func (n Node) LatestBlock() (*types.ResultBlockBase, error) {
-	mbs, err := models.Blocks(n.ChanID, &models.BlockOption{Offset: 0, Limit: 1})
+	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Offset: 0, Limit: 1})
 	if err != nil {
 		return nil, err
 	}
@@ -36,13 +35,18 @@ func (n Node) LatestBlock() (*types.ResultBlockBase, error) {
 	if len(mbs) == 0 {
 		return nil, errors.New("not found")
 	}
-
-	return convertToBlock(mbs[0]), nil
+	latestblock := convertToBlock(mbs[0])
+	proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
+	if err != nil {
+		return nil, err
+	}
+	latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
+	return latestblock, nil
 }
 
 // Retrieve 块查询
 func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
-	mbs, err := models.Blocks(n.ChanID, &models.BlockOption{Height: height, Offset: 0, Limit: 1})
+	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Height: height, Offset: 0, Limit: 1})
 	if err != nil {
 		return nil, err
 	}
@@ -51,19 +55,31 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 		return nil, errors.New("not found")
 	}
 
-	return convertToBlock(mbs[0]), err
+	block := convertToBlock(mbs[0])
+	proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
+	if err != nil {
+		return nil, err
+	}
+	block.Proposer = ConvertToValidator(proposer, height)
+	return block, err
 }
 
 // Search 块查询
 func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.ResultBlockBase, error) {
-	mbs, err := models.Blocks(n.ChanID, &models.BlockOption{MinHeight: minHeight, MaxHeight: maxHeight, Offset: int(offset), Limit: int(limit)})
+	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{MinHeight: minHeight, MaxHeight: maxHeight, Offset: int(offset), Limit: int(limit)})
 	if err != nil {
 		return nil, err
 	}
 
 	var res []*types.ResultBlockBase
 	for _, v := range mbs {
-		res = append(res, convertToBlock(v))
+		blc := convertToBlock(v)
+		proposer, err := models.ValidatorByAddress(n.ChainID, v.ProposerAddress)
+		if err != nil {
+			return nil, err
+		}
+		blc.Proposer = ConvertToValidator(proposer, maxHeight)
+		res = append(res, blc)
 	}
 
 	return res, err
@@ -71,7 +87,7 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 
 // Search 最近N块平均打快时间
 func (n Node) BlockTimeAvg(blockNum int) (time.Duration, error) {
-	mbs, err := models.Blocks(n.ChanID, &models.BlockOption{Offset: 0, Limit: blockNum})
+	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Offset: 0, Limit: blockNum})
 	if err != nil {
 		return 0, err
 	}
@@ -90,9 +106,9 @@ func (n Node) BlockTimeAvg(blockNum int) (time.Duration, error) {
 	return time.Duration(duration / num), err
 }
 
-// HasTx 有交易的块
+// HasTx 有交易的块 这是干啥的
 func (n Node) HasTxBlocks(minHeight, maxHeight int64) ([]*types.ResultBlockBase, error) {
-	mbs, err := models.Blocks(n.ChanID, &models.BlockOption{
+	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{
 		MinHeight: minHeight, MaxHeight: maxHeight, NumTxs: 1})
 	if err != nil {
 		return nil, err
@@ -115,7 +131,7 @@ func (n Node) CreateBlock(b *types.Block) error {
 	block.DataHash = b.Header.DataHash
 	block.ValidatorsHash = b.Header.ValidatorsHash
 	block.ProposerAddress = b.Header.ProposerAddress
-	if err := block.Insert(n.ChanID); err != nil {
+	if err := block.Insert(n.ChainID); err != nil {
 		return err
 	}
 
@@ -127,5 +143,5 @@ func (n Node) CreateEvidence(b *types.Block) error {
 		return nil
 	}
 
-	return models.CreateEvidences(n.ChanID, b.EvidenceList)
+	return models.CreateEvidences(n.ChainID, b.EvidenceList)
 }

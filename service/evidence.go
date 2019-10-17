@@ -20,7 +20,7 @@ func (n Node) Evidences(validator string) ([]*types.ResultEvidence, error) {
 	if validator == "" {
 		return result, nil
 	}
-	mts, err := models.RetrieveEvidences(n.ChanID, validator)
+	mts, err := models.RetrieveEvidences(n.ChainID, validator)
 	if err != nil {
 		return nil, err
 	}

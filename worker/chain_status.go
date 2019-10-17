@@ -21,8 +21,8 @@ func syncAllNodeConsensusState() {
 
 	needSync := make(map[string]*service.Node)
 	for _, node := range nodes {
-		if node.ChanID != "" && node.BaseURL != "" {
-			needSync[node.ChanID] = node
+		if node.ChainID != "" && node.BaseURL != "" {
+			needSync[node.ChainID] = node
 		}
 	}
 

@@ -7,6 +7,11 @@ type (
 		receivedString     string
 		expectedStringType string
 	}
+
+	ValidatorAddressUnmatched struct {
+		hexAddress    string
+		bech32Address string
+	}
 )
 
 // New returns an error that formats as the given text.
@@ -32,4 +37,15 @@ func NewInvalidTypeError(received string, expectedType string) InvalidTypeError 
 
 func (e InvalidTypeError) Error() string {
 	return fmt.Sprintf("Wrong type: " + e.receivedString + " is not a " + e.expectedStringType)
+}
+
+func NewValidatorAddressUnmatched(hexAddress string, bech32Address string) ValidatorAddressUnmatched {
+	return ValidatorAddressUnmatched{
+		hexAddress:    hexAddress,
+		bech32Address: bech32Address,
+	}
+}
+
+func (e ValidatorAddressUnmatched) Error() string {
+	return fmt.Sprintf("HEX " + e.hexAddress + " and Bech32 " + e.bech32Address + " do not match")
 }
