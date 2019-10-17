@@ -17,7 +17,6 @@ type Validator struct {
 	Owner              string    `xorm:"TEXT"`
 	ChainId            string    `xorm:"-"`
 	Address            string    `xorm:"unique TEXT"`
-	StakeAddress       string    `xorm:"unique TEXT"`
 	PubKeyType         string    `xorm:"TEXT"`
 	PubKeyValue        string    `xorm:"TEXT"`
 	Commission         string    `xorm:"TEXT"`
@@ -33,8 +32,9 @@ type Validator struct {
 	InactiveHeight     int64 `xorm:"BIGINT"`
 	BondHeight         int64 `xorm:"BIGINT"`
 	PrecommitNum       int64
-	BondedTokens       int64 `xorm:"BIGINT"`
-	SelfBond           int64 `xorm:"BIGINT"`
+	BondedTokens       int64  `xorm:"BIGINT"`
+	SelfBond           int64  `xorm:"BIGINT"`
+	StakeAddress       string `xorm:"unique TEXT"`
 }
 
 func (val *Validator) BeforeInsert() {

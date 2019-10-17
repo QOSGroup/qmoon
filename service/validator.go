@@ -32,6 +32,7 @@ func ConvertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 		Owner:            bv.Owner,
 		ChainID:          bv.ChainId,
 		Address:          bv.Address,
+		StakeAddress:     bv.StakeAddress,
 		ConsPubKey:       "",
 		PubKeyType:       bv.PubKeyType,
 		PubKeyValue:      bv.PubKeyValue,
@@ -216,7 +217,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			return err
 		}
 	}
-	fmt.Println("after create ", mv.Status)
+	// fmt.Println("after create ", mv.Status)
 
 	return nil
 }
@@ -265,6 +266,6 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
 	}
-	fmt.Printf("after convert ", vall.Address, vall.Status)
+	// fmt.Printf("after convert ", vall.Address, vall.Status)
 	return vall, nil
 }
