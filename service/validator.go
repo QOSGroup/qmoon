@@ -164,6 +164,7 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 
 func (n Node) CreateValidator(vl types.Validator) error {
 	mv, err := n.retrieveValidator(vl.Address)
+	fmt.Println("retrieve err: ", err, " mv: ", mv)
 	if err != nil {
 		mv = &models.Validator{
 			Address:        vl.Address,
@@ -266,6 +267,6 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
 	}
-	fmt.Printf("after convert ", vall.Address, vall.Status)
+	fmt.Println("after convert ", vall.Address, vall.StakeAddress, vall.Status)
 	return vall, nil
 }
