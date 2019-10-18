@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/QOSGroup/qmoon/lib"
@@ -236,9 +237,9 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 	}
 
 	status_int8 := types.Active
-	//if val.Status != "active" {
-	//	status_int8 = types.Inactive
-	//}
+	if !strings.EqualFold(val.Status, "active") {
+		status_int8 = types.Inactive
+	}
 	inactive_int8 := int64(0)
 	if val.InactiveDesc != "" && utils.IsDigit(val.InactiveDesc) {
 		inactive_int8, err = strconv.ParseInt(val.InactiveDesc, 10, 8)
@@ -253,7 +254,8 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Website:        val.Description.Website,
 		Owner:          val.Owner,
 		ChainID:        n.Name,
-		Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
+		// Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
+		Address:	lib.Bech32AddressToHex(val.ConsPubKey),
 		StakeAddress:   val.OperatorAddress,
 		PubKeyType:     "tendermint/PubKeyEd25519",
 		PubKeyValue:    val.ConsPubKey,
