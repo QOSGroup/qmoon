@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/QOSGroup/qmoon/lib"
@@ -32,6 +33,7 @@ func ConvertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 		Owner:            bv.Owner,
 		ChainID:          bv.ChainId,
 		Address:          bv.Address,
+		StakeAddress:     bv.StakeAddress,
 		ConsPubKey:       "",
 		PubKeyType:       bv.PubKeyType,
 		PubKeyValue:      bv.PubKeyValue,
@@ -163,6 +165,7 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 
 func (n Node) CreateValidator(vl types.Validator) error {
 	mv, err := n.retrieveValidator(vl.Address)
+	fmt.Println("retrieve err: ", err, " mv: ", mv)
 	if err != nil {
 		mv = &models.Validator{
 			Address:        vl.Address,
@@ -186,7 +189,7 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			BondedTokens:   vl.BondedTokens,
 			SelfBond:       vl.SelfBond,
 		}
-
+		fmt.Println("new insert ", mv.Address, mv.Status)
 		if err := mv.Insert(n.ChainID); err != nil {
 			return err
 		}
@@ -212,11 +215,11 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		mv.Commission = vl.Commission
 		mv.BondedTokens = vl.BondedTokens
 		mv.SelfBond = vl.SelfBond
+		fmt.Println("update ", mv.Address, mv.Status)
 		if err := mv.Update(n.ChainID); err != nil {
 			return err
 		}
 	}
-	fmt.Println("after create ", mv.Status)
 
 	return nil
 }
@@ -234,7 +237,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 	}
 
 	status_int8 := types.Active
-	if val.Status != "active" {
+	if !strings.EqualFold(val.Status, "active") {
 		status_int8 = types.Inactive
 	}
 	inactive_int8 := int64(0)
@@ -251,8 +254,9 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Website:        val.Description.Website,
 		Owner:          val.Owner,
 		ChainID:        n.Name,
-		Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
-		StakeAddress:   val.ConsAddress,
+		// Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
+		Address:	lib.Bech32AddressToHex(val.ConsPubKey),
+		StakeAddress:   val.OperatorAddress,
 		PubKeyType:     "tendermint/PubKeyEd25519",
 		PubKeyValue:    val.ConsPubKey,
 		VotingPower:    bondTokens_int64,
@@ -265,6 +269,6 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
 	}
-	fmt.Printf("after convert ", vall.Address, vall.Status)
+	fmt.Println("after convert ", vall.Address, vall.StakeAddress, vall.Status)
 	return vall, nil
 }
