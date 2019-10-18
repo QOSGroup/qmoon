@@ -44,8 +44,21 @@ func validatorGin() gin.HandlerFunc {
 		address := lib.Bech32AddressToHex(c.Param("address"))
 		v, err := node.RetrieveValidator(address)
 		if err != nil {
-			c.JSON(http.StatusOK, types.RPCServerError("", err))
-			return
+			//c.JSON(http.StatusOK, types.RPCServerError("", err))
+			//return
+			vals_display, err := qos.NewQosCli("").QueryValidators(node.BaseURL)
+			if err != nil {
+				c.JSON(http.StatusOK, types.RPCServerError("", err))
+				return
+			}
+			for _, dist := range vals_display {
+				val, err := node.ConvertDisplayValidators(dist)
+				if err != nil {
+					c.JSON(http.StatusOK, types.RPCServerError("", err))
+					return
+				}
+				node.CreateValidator(val)
+			}
 		}
 
 		var minHeight, maxHeight int64
