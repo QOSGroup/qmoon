@@ -3,6 +3,7 @@
 package hdata
 
 import (
+	"fmt"
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
 	"net/http"
@@ -80,7 +81,7 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 		return err
 	}
 	for _, val := range vals {
-		//fmt.Println("in query display ", val.OperatorAddress, val.BondedTokens, val.SelfBond)
+		fmt.Println("in query display ", val.ConsAddress, val.Status)
 		validator, err := node.ConvertDisplayValidators(val)
 		if err != nil {
 			return err

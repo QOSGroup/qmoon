@@ -102,7 +102,7 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			// s.Validator(height, b.Header.Time)
+			s.Validator(height, b.Header.Time)
 			height += 1
 			// 为什么要同步proposal？
 			// s.Proposals()
