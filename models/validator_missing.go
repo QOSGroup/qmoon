@@ -10,7 +10,7 @@ const MISSINGLENGTH = 3600
 type ValidatorMissing struct {
 	ValidatorAddress string `xorm:"pk TEXT"`
 	Status           int8   `xorm:"INT"`
-	Votes            string `xorm:"BIT"`
+	Votes            string `xorm:"BIT VARYING"`
 }
 
 type ValidatorMissingHeight struct {
