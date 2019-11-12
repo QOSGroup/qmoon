@@ -6,7 +6,7 @@ import (
 )
 
 func (n Node) SubscribInflation() error {
-	url := "tcp" + n.BaseURL[4:len(n.BaseURL)-1]
+	url := "tcp" + n.BaseURL[4:len(n.BaseURL)]
 	_, events, err := events.SubscribeRemote(url, n.ChainID, "tm.event = 'mint' ")
 	if err != nil {
 		fmt.Println("Remote [%s] : '%s'", url, err)
