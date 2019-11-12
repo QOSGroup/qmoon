@@ -8,9 +8,15 @@ type (
 		expectedStringType string
 	}
 
-	ValidatorAddressUnmatched struct {
+	ValidatorAddressUnmatchedError struct {
 		hexAddress    string
 		bech32Address string
+	}
+
+	ExceedMaxlengthError struct {
+		variableName string
+		length       string
+		maxLength    string
 	}
 )
 
@@ -39,13 +45,25 @@ func (e InvalidTypeError) Error() string {
 	return fmt.Sprintf("Wrong type: " + e.receivedString + " is not a " + e.expectedStringType)
 }
 
-func NewValidatorAddressUnmatched(hexAddress string, bech32Address string) ValidatorAddressUnmatched {
-	return ValidatorAddressUnmatched{
+func NewValidatorAddressUnmatched(hexAddress string, bech32Address string) ValidatorAddressUnmatchedError {
+	return ValidatorAddressUnmatchedError{
 		hexAddress:    hexAddress,
 		bech32Address: bech32Address,
 	}
 }
 
-func (e ValidatorAddressUnmatched) Error() string {
+func (e ValidatorAddressUnmatchedError) Error() string {
 	return fmt.Sprintf("HEX " + e.hexAddress + " and Bech32 " + e.bech32Address + " do not match")
+}
+
+func NewExceedMaxlengthError(variableName string, length string, maxLength string) ExceedMaxlengthError {
+	return ExceedMaxlengthError{
+		variableName: variableName,
+		length:       length,
+		maxLength:    maxLength,
+	}
+}
+
+func (e ExceedMaxlengthError) Error() string {
+	return fmt.Sprintf("Variable " + e.variableName + " length " + e.length + " has exceed max length " + e.maxLength)
 }

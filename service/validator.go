@@ -249,13 +249,13 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 	}
 
 	vall := types.Validator{
-		Name:           val.Description.Moniker,
-		Logo:           val.Description.Logo,
-		Website:        val.Description.Website,
-		Owner:          val.Owner,
-		ChainID:        n.Name,
+		Name:    val.Description.Moniker,
+		Logo:    val.Description.Logo,
+		Website: val.Description.Website,
+		Owner:   val.Owner,
+		ChainID: n.Name,
 		// Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
-		Address:	lib.Bech32AddressToHex(val.ConsPubKey),
+		Address:        lib.Bech32AddressToHex(val.ConsPubKey),
 		StakeAddress:   val.OperatorAddress,
 		PubKeyType:     "tendermint/PubKeyEd25519",
 		PubKeyValue:    val.ConsPubKey,
