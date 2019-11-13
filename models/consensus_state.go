@@ -63,19 +63,28 @@ func RetrieveConsensusState(chainID string) (*ConsensusState, error) {
 	return cs, nil
 }
 
-func RetrieveVotesByHeight(chainID string, height int64) (string, error) {
+func RetrieveConsensusStateByHeight(chainID string, height string) (*ConsensusState, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
-		return "Not available", err
+		return nil, err
 	}
-	cs := &ConsensusState{Height:string(height)}
+	cs := &ConsensusState{Height:height}
 	has, err := x.Get(cs)
 	if err != nil {
-		return "Not available", err
+		return nil, err
 	}
 
 	if !has {
-		return "Not available", errors.NotExist{Obj: "ConsensusStateLoop"}
+		return nil, errors.NotExist{Obj: "ConsensusStateLoop"}
+	}
+
+	return cs, nil
+}
+
+func RetrieveVotesByHeight(chainID string, height int64) (string, error) {
+	cs, err := RetrieveConsensusStateByHeight(chainID, string(height))
+	if err != nil {
+		return "Not available", err
 	}
 
 	return string(cs.PrevotesNum) + "/" + string(cs.PrecommitsNum), nil

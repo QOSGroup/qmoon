@@ -416,6 +416,7 @@ func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 			return nil
 		default:
 			cs, err := s.tmcli.ConsensusState()
+			log.Printf("[Sync] ConsensusState %s", cs.RoundState.MarshalJSON())
 			if err != nil {
 				time.Sleep(time.Millisecond * 100)
 				continue
