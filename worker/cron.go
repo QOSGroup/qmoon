@@ -81,15 +81,13 @@ func startEventListener() {
 						for key := range eventData.Events {
 							switch key {
 							case "mint.height":
-								if n, err := strconv.ParseInt(eventData.Events[key][0], 10, 64); err == nil {
-									inf.Height = n
-								} else {
-									fmt.Println("[Event] Inflation height error : %s", eventData.Events[key][0])
+								for _, runeValue := range eventData.Events[key][0] {
+									inf.Height = int64(runeValue)
 								}
 								break
 							case "mint.tokens":
 								if n, err := strconv.ParseInt(eventData.Events[key][0], 10, 64); err == nil {
-								inf.Tokens = n
+									inf.Tokens = n
 								} else {
 									fmt.Println("[Event] Inflation tokens error : %s", eventData.Events[key][0])
 								}
