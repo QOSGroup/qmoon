@@ -115,6 +115,7 @@ type ResultBlockBase struct {
 	ValidatorsHash string     `json:"validators_hash"`
 	Proposer       *Validator `json:"proposer"`
 	CreatedAt      ResultTime `json:"-"`
+	Votes			string	`json:"votes"`
 }
 
 type ResultBlockDuration struct {

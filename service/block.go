@@ -41,6 +41,8 @@ func (n Node) LatestBlock() (*types.ResultBlockBase, error) {
 		return nil, err
 	}
 	latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
+	latestVote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
+	latestblock.Votes = latestVote
 	return latestblock, nil
 }
 
@@ -61,6 +63,8 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 		return nil, err
 	}
 	block.Proposer = ConvertToValidator(proposer, height)
+	vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
+	block.Votes = vote
 	return block, err
 }
 
@@ -79,6 +83,8 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 			return nil, err
 		}
 		blc.Proposer = ConvertToValidator(proposer, maxHeight)
+		vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
+		blc.Votes = vote
 		res = append(res, blc)
 	}
 

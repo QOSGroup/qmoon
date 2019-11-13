@@ -7,6 +7,7 @@ import (
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/service/syncer"
+	"github.com/tendermint/tendermint/rpc/client"
 	"os"
 	"strings"
 	"time"
@@ -54,12 +55,31 @@ func startEventListener() {
 		fmt.Errorf("No node find")
 		os.Exit(1)
 	}
-	for _, n := range nodes {
-		if strings.Index(n.Name, "cosmos") < 0 {
-			err = n.SubscribInflation()
-			if err != nil {
-				os.Exit(1)
+		for _, n := range nodes {
+			if strings.Index(n.Name, "cosmos") < 0 {
+				url := "tcp" + n.BaseURL[4:len(n.BaseURL)]
+
+				client := client.NewHTTP(url, "/websocket")
+				err := client.Start()
+				if err != nil {
+					fmt.Println("[Event] Can't start websocket client [%s] - '%s'", url, err)
+				}
+				defer client.Stop()
+				cancle, events, err := n.SubscribInflation(client)
+				defer cancle()
+				if err != nil {
+					fmt.Errorf("Exiting for error:", err)
+					os.Exit(1)
+				}
+				go func() {
+					for eventData := range events {
+						fmt.Println("[Event] Received event from [%s] - '%s'", url, eventData)
+						fmt.Println("[Event] event data: ", eventData.Data)
+						fmt.Println("[Event] events: ", eventData.Events)
+						// inf := models.Inflation{Height:eventData.Data, eventData.}
+					}
+				}()
 			}
 		}
-	}
+
 }
