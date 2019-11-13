@@ -10,7 +10,7 @@ import (
 
 func (n Node) SubscribInflation(client *client.HTTP) (
 	context.CancelFunc, <-chan tctypes.ResultEvent, error ) {
-	ctx, cancel := context.WithTimeout(context.Background(), 6 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10000 * time.Second)
 	query := "tm.event = 'NewBlock'"
 	events, err := client.Subscribe(ctx, n.ChainID, query)
 	if err != nil {

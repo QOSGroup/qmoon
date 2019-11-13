@@ -9,6 +9,7 @@ import (
 	"github.com/QOSGroup/qmoon/service/syncer"
 	"github.com/tendermint/tendermint/rpc/client"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -76,7 +77,28 @@ func startEventListener() {
 						fmt.Println("[Event] Received event from [%s] - '%s'", url, eventData)
 						fmt.Println("[Event] event data: ", eventData.Data)
 						fmt.Println("[Event] events: ", eventData.Events)
-						// inf := models.Inflation{Height:eventData.Data, eventData.}
+						inf := models.Inflation{}
+						for key := range eventData.Events {
+							switch key {
+							case "mint.height":
+								if n, err := strconv.ParseInt(eventData.Events[key][0], 10, 64); err == nil {
+									inf.Height = n
+								} else {
+									fmt.Println("[Event] Inflation height error : %s", eventData.Events[key][0])
+								}
+								break
+							case "mint.tokens":
+								if n, err := strconv.ParseInt(eventData.Events[key][0], 10, 64); err == nil {
+								inf.Tokens = n
+								} else {
+									fmt.Println("[Event] Inflation tokens error : %s", eventData.Events[key][0])
+								}
+								break
+							}
+						}
+						if (inf.Height>0 && inf.Tokens>0) {
+							inf.InsertOrUpdate(n.ChainID)
+						}
 					}
 				}()
 			}

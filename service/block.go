@@ -43,6 +43,12 @@ func (n Node) LatestBlock() (*types.ResultBlockBase, error) {
 	latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
 	latestVote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 	latestblock.Votes = latestVote
+	inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
+	if err != nil {
+		latestblock.Inflation = "Not Available"
+	} else {
+		latestblock.Inflation = string(inf.Tokens)
+	}
 	return latestblock, nil
 }
 
@@ -65,6 +71,12 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	block.Proposer = ConvertToValidator(proposer, height)
 	vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 	block.Votes = vote
+	inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
+	if err != nil {
+		block.Inflation = "Not Available"
+	} else {
+		block.Inflation = string(inf.Tokens)
+	}
 	return block, err
 }
 
@@ -85,6 +97,12 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 		blc.Proposer = ConvertToValidator(proposer, maxHeight)
 		vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 		blc.Votes = vote
+		inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
+		if err != nil {
+			blc.Inflation = "Not Available"
+		} else {
+			blc.Inflation = string(inf.Tokens)
+		}
 		res = append(res, blc)
 	}
 
