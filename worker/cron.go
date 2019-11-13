@@ -64,11 +64,11 @@ func startEventListener() {
 				if err != nil {
 					fmt.Println("[Event] Can't start websocket client [%s] - '%s'", url, err)
 				}
-				defer client.Stop()
-				cancle, events, err := n.SubscribInflation(client)
-				defer cancle()
+				//defer client.Stop()
+				_, events, err := n.SubscribInflation(client)
 				if err != nil {
 					fmt.Errorf("Exiting for error:", err)
+					client.Stop()
 					os.Exit(1)
 				}
 				go func() {
