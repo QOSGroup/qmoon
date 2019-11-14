@@ -75,7 +75,7 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	if err != nil {
 		block.Inflation = "Not Available"
 	} else {
-		block.Inflation = string(inf.Tokens)
+		block.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
 	return block, err
 }
@@ -101,7 +101,7 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 		if err != nil {
 			blc.Inflation = "Not Available"
 		} else {
-			blc.Inflation = string(inf.Tokens)
+			blc.Inflation = strconv.FormatInt(inf.Tokens, 10)
 		}
 		res = append(res, blc)
 	}

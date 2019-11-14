@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/QOSGroup/qmoon/models/errors"
+	"strconv"
 )
 
 type ConsensusState struct {
@@ -82,10 +83,10 @@ func RetrieveConsensusStateByHeight(chainID string, height string) (*ConsensusSt
 }
 
 func RetrieveVotesByHeight(chainID string, height int64) (string, error) {
-	cs, err := RetrieveConsensusStateByHeight(chainID, string(height))
+	cs, err := RetrieveConsensusStateByHeight(chainID, strconv.FormatInt(height, 10))
 	if err != nil {
 		return "Not available", err
 	}
 
-	return string(cs.PrevotesNum) + "/" + string(cs.PrecommitsNum), nil
+	return strconv.FormatInt(cs.PrevotesNum, 10) + "/" + strconv.FormatInt(cs.PrecommitsNum, 10), nil
 }
