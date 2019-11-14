@@ -6,6 +6,7 @@ import (
 	mint_types "github.com/QOSGroup/qmoon/lib/qos/mint/types"
 	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
 	base_types "github.com/QOSGroup/qmoon/lib/qos/types"
+	tm_types "github.com/tendermint/tendermint/types"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"net/http"
 	"strconv"
@@ -196,6 +197,20 @@ func (cc QosCli) QueryTotalValidatorBondTokens(nodeUrl string) (result string, e
 
 func (cc QosCli) QueryDelegationsWithValidator(nodeUrl, validator string) (result []stake_types.DelegationQueryResult, err error) {
 	resp, err := http.Get(cc.remote + "/stake/validator/delegations?node_url=" + nodeUrl + "&validator=" + validator)
+	if err != nil {
+		return
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (cc QosCli) QueryBlockByHeight(nodeUrl string, height int64) (result *tm_types.Block, err error) {
+	resp, err := http.Get(cc.remote + "/block?node_url=" + nodeUrl + "&height=" + strconv.FormatInt(height, 10))
 	if err != nil {
 		return
 	}

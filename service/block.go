@@ -6,6 +6,7 @@ package service
 
 import (
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/models"
@@ -41,13 +42,12 @@ func (n Node) LatestBlock() (*types.ResultBlockBase, error) {
 		return nil, err
 	}
 	latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
-	latestVote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
-	latestblock.Votes = latestVote
+	latestblock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 	inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
 	if err != nil {
 		latestblock.Inflation = "Not Available"
 	} else {
-		latestblock.Inflation = string(inf.Tokens)
+		latestblock.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
 	return latestblock, nil
 }
