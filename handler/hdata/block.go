@@ -15,7 +15,7 @@ import (
 )
 
 const blockUrl = "/block/:height"
-const latestBlockUrl = "/block/latest"
+const latestBlockUrl = "/latestblock"
 
 func init() {
 	hdataHander[blockUrl] = BlockGinRegister
