@@ -54,6 +54,8 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	lb, err3 := n.BlockByHeight(result.Height)
 	if err3 == nil {
 		result.TotalTxs = lb.TotalTxs
+		result.Proposer = lb.Proposer
+		result.Votes = lb.Votes
 	}
 	result.ConsensusState.ChainID = n.ChainID
 	if err3 == nil && err2 == nil {

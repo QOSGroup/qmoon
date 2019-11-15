@@ -189,6 +189,8 @@ type ResultStatus struct {
 	BlockTimeAvg    string                `json:"blockTimeAvg"`
 	Block			*ResultBlockBase 			`json:"block"`
 	CommunityFund	string				`json:"commuinity_fund"`
+	Proposer       *Validator			`json:"proposer"`
+	Votes			string				`json:"votes"`
 }
 
 type ResultAccount struct {
