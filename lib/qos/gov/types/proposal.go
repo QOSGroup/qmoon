@@ -1,12 +1,14 @@
 package types
 
 import (
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"time"
 )
 
 type Proposal struct {
 	ProposalContent   ProposalContent `json:"proposal_content"`   // Proposal content interface
 	ProposalID        int64           `json:"proposal_id"`        //  ID of the proposal
+	Type		string `json:"type"`
 	Status            string          `json:"proposal_status"`    //  Status of the Proposal {Pending, Active, Passed, Rejected}
 	FinalTallyResult  TallyResult     `json:"final_tally_result"` //  Result of Tallys
 	SubmitTime        time.Time       `json:"submit_time"`        //  Time of the block where TxGovSubmitProposal was included
@@ -18,7 +20,7 @@ type Proposal struct {
 }
 
 type ProposalContent struct {
-	Type        string `json:"title"`
+	Title        string `json:"title"`
 	Description string `json:"description"`
 	Deposit     string `json:"deposit"`
 }

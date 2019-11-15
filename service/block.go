@@ -6,8 +6,10 @@ package service
 
 import (
 	"errors"
+	"github.com/QOSGroup/qmoon/lib/qos"
 	"strconv"
 	"time"
+	"fmt"
 
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
@@ -78,6 +80,38 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 		block.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
 	return block, err
+}
+
+func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
+	block, err := qos.NewQosCli("").QueryBlockByHeight(n.BaseURL, height)
+	if err != nil {
+		return nil, err
+	}
+	resultBlock := types.ResultBlockBase {
+		ChainID: block.Header.ChainID,
+		Height: height,
+		NumTxs: int64(len(block.Txs)),
+		TotalTxs: block.TotalTxs,
+		Time: types.ResultTime(block.Time),
+		DataHash: block.DataHash.String(),
+		ValidatorsHash: block.ValidatorsHash.String(),
+		CreatedAt: types.ResultTime(block.Header.Time),
+	}
+	fmt.println("Proposer Add in block ", block.ProposerAddress.String())
+	proposer, err := models.ValidatorByAddress(n.ChainID, block.ProposerAddress.String())
+	if err != nil {
+		return nil, err
+	}
+	resultBlock.Proposer = ConvertToValidator(proposer, height)
+	vote, err := models.RetrieveVotesByHeight(n.ChainID, height)
+	resultBlock.Votes = vote
+	inf, err := models.InflationByHeight(n.ChainID, height)
+	if err != nil {
+		resultBlock.Inflation = "Not Available"
+	} else {
+		resultBlock.Inflation = strconv.FormatInt(inf.Tokens, 10)
+	}
+	return &resultBlock, err
 }
 
 // Search 块查询

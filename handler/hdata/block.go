@@ -56,8 +56,11 @@ func blockGin() gin.HandlerFunc {
 		} else {
 			b, err = node.RetrieveBlock(d)
 			if err != nil {
-				c.JSON(http.StatusOK, types.RPCServerError("", err))
-				return
+				b, err = node.BlockByHeight(d)
+				if err != nil {
+					c.JSON(http.StatusOK, types.RPCServerError("", err))
+					return
+				}
 			}
 		}
 		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)

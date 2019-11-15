@@ -393,7 +393,7 @@ func (s QOS) Proposals() error {
 		mt.VotingStartTime = pro.VotingStartTime
 		mt.VotingEndTime = pro.VotingEndTime
 	}
-	if err := mt.Insert(s.node.ChainID); err != nil {
+	if err := mt.InsertOrUpdate(s.node.ChainID); err != nil {
 		log.Printf("proposals insert data:%+v, err:%v", mt, err.Error())
 		return err
 	}

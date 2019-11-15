@@ -234,8 +234,36 @@ type ResultProposal struct {
 	VotingStartTime ResultTime `json:"voting_start_time"`
 	VotingEndTime   ResultTime `json:"voting_end_time"`
 	TotalDeposit    int64      `json:"total_deposit"`
+	Deposites		ResultDeposites `json:"deposites"`
+	Votes			ResultVotes	`json:"votes"`
+	TallyResult		ResultTallyResult `json:"tally_result"`
 }
 
 type ResultProposals struct {
 	Proposals []*ResultProposal `json:"proposals"`
+}
+
+type ResultVote struct {
+	Voter      string     `json:"voter"`       //  address of the voter
+	Option     string `json:"option"`      //  option from OptionSet chosen by the voter
+}
+
+type ResultVotes struct {
+	Votes []*ResultVote `json:"votes"`
+}
+
+type ResultDeposit struct {
+	Depositor  string `json:"depositor"`   //  Address of the depositor
+	Amount     string `json:"amount"`      //  Deposit amount
+}
+
+type ResultDeposits struct {
+	Deposits []*ResultDeposit `json:"deposites"`
+}
+
+type ResultTallyResult struct {
+	Yes        string `json:"yes"`
+	Abstain    string `json:"abstain"`
+	No         string `json:"no"`
+	NoWithVeto string `json:"no_with_veto"`
 }

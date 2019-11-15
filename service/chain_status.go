@@ -3,6 +3,7 @@
 package service
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/lib/cache"
@@ -23,10 +24,12 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	}
 
 	cs, err1 := n.ConsensusState()
+	latestHeight := int64(0)
 	if err1 != nil {
 		result.ConsensusState = &types.ResultConsensusState{}
 	} else {
 		result.ConsensusState = cs
+		latestHeight,_ = strconv.ParseInt(cs.Height, 10, 64)
 	}
 
 	vs, err2 := n.Validators()
@@ -39,7 +42,8 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 		result.BlockTimeAvg = d.String()
 	}
 
-	lb, err3 := n.LatestBlock()
+	// lb, err3 := n.LatestBlock()
+	lb, err3 := n.BlockByHeight(latestHeight)
 	if err3 == nil {
 		result.TotalTxs = lb.TotalTxs
 	}
