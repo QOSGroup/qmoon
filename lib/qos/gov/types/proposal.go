@@ -1,7 +1,6 @@
 package types
 
 import (
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"time"
 )
 

@@ -97,7 +97,7 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 		ValidatorsHash: block.ValidatorsHash.String(),
 		CreatedAt: types.ResultTime(block.Header.Time),
 	}
-	fmt.println("Proposer Add in block ", block.ProposerAddress.String())
+	fmt.Println("Proposer Add in block ", block.ProposerAddress.String())
 	proposer, err := models.ValidatorByAddress(n.ChainID, block.ProposerAddress.String())
 	if err != nil {
 		return nil, err

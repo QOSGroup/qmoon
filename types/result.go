@@ -234,7 +234,7 @@ type ResultProposal struct {
 	VotingStartTime ResultTime `json:"voting_start_time"`
 	VotingEndTime   ResultTime `json:"voting_end_time"`
 	TotalDeposit    int64      `json:"total_deposit"`
-	Deposites		ResultDeposites `json:"deposites"`
+	Deposites		ResultDeposits `json:"deposits"`
 	Votes			ResultVotes	`json:"votes"`
 	TallyResult		ResultTallyResult `json:"tally_result"`
 }

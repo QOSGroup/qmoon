@@ -384,12 +384,12 @@ func (s QOS) Proposals() error {
 		mt.ProposalID = pro.ProposalID
 		mt.Status = pro.Status
 		mt.SubmitTime = pro.SubmitTime
-		mt.Title = pro.ProposalContent.Type
+		mt.Title = pro.ProposalContent.Title
 		totalDeposit, err := strconv.ParseInt(pro.TotalDeposit, 10, 64)
 		if err == nil {
 			mt.TotalDeposit = totalDeposit
 		}
-		mt.Type = pro.ProposalContent.Type
+		mt.Type = pro.Type
 		mt.VotingStartTime = pro.VotingStartTime
 		mt.VotingEndTime = pro.VotingEndTime
 	}
