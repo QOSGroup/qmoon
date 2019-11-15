@@ -95,8 +95,8 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	resultBlock := types.ResultBlockBase {
 		ChainID: block.Header.ChainID,
 		Height: height,
-		NumTxs: int64(len(block.Txs)),
-		TotalTxs: block.TotalTxs,
+		NumTxs: block.Header.NumTxs,
+		TotalTxs: block.Header.TotalTxs,
 		Time: types.ResultTime(block.Time),
 		DataHash: block.DataHash.String(),
 		ValidatorsHash: block.ValidatorsHash.String(),
