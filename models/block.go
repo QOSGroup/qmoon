@@ -50,6 +50,25 @@ func (b *Block) Insert(chainID string) error {
 	return nil
 }
 
+func (b *Block) InsertIfNotExist(chainID string) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+	has, err := x.Exist(b)
+	if err != nil {
+		return err
+	}
+
+	if !has {
+		_, err = x.Insert(b)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 type BlockOption struct {
 	MinHeight     int64
 	MaxHeight     int64

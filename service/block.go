@@ -87,6 +87,11 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	if err != nil {
 		return nil, err
 	}
+	blockM := models.Block{Height:block.Height}
+	err = blockM.InsertIfNotExist(n.ChainID)
+	if err != nil {
+		return nil, err
+	}
 	resultBlock := types.ResultBlockBase {
 		ChainID: block.Header.ChainID,
 		Height: height,

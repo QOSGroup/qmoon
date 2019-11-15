@@ -117,6 +117,7 @@ type ResultBlockBase struct {
 	CreatedAt      ResultTime `json:"-"`
 	Votes			string	`json:"votes"`
 	Inflation		string 	`json:"inflation"`
+	Txs				ResultTx `json:"Txs"`
 }
 
 type ResultBlockDuration struct {
