@@ -65,6 +65,11 @@ func validatorsGin() gin.HandlerFunc {
 
 		for i := 0; i < len(vs); i++ {
 			vs[i].ConsPubKey = lib.PubkeyToBech32Address(node.Bech32PrefixConsPub(), vs[i].PubKeyType, vs[i].PubKeyValue)
+			//if v, ok := cache.Get(k); ok {
+			//	if result, ok = v.([]stake_types.ValidatorDisplayInfo); ok {
+			//		return
+			//	}
+			//}
 		}
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", vs))

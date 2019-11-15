@@ -108,7 +108,8 @@ func (n Node) UpdateConsensusState(cs *tmctypes.ResultConsensusState) error {
 		return err
 	}
 
-	mcs, err := models.RetrieveConsensusState(n.ChainID)
+	mcs, err := models.RetrieveConsensusStateByHeight(n.ChainID, tcs.Height)
+	//mcs, err := models.re
 	if err != nil {
 		mcs = &models.ConsensusState{
 			Height:          tcs.Height,
@@ -131,6 +132,7 @@ func (n Node) UpdateConsensusState(cs *tmctypes.ResultConsensusState) error {
 		mcs.PrecommitsNum = tcs.PrecommitsNum
 		mcs.PrecommitsValue = tcs.PrecommitsValue
 		mcs.StartTime = tcs.StartTime
+
 		return mcs.Update(n.ChainID)
 	}
 }

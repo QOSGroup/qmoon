@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/QOSGroup/qmoon/models/errors"
+	"strconv"
 )
 
 type ConsensusState struct {
@@ -61,4 +62,31 @@ func RetrieveConsensusState(chainID string) (*ConsensusState, error) {
 	}
 
 	return cs, nil
+}
+
+func RetrieveConsensusStateByHeight(chainID string, height string) (*ConsensusState, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	cs := &ConsensusState{Height:height}
+	has, err := x.Get(cs)
+	if err != nil {
+		return nil, err
+	}
+
+	if !has {
+		return nil, errors.NotExist{Obj: "ConsensusStateLoop"}
+	}
+
+	return cs, nil
+}
+
+func RetrieveVotesByHeight(chainID string, height int64) (string, error) {
+	cs, err := RetrieveConsensusStateByHeight(chainID, strconv.FormatInt(height, 10))
+	if err != nil {
+		return "Not available", err
+	}
+
+	return strconv.FormatInt(cs.PrevotesNum, 10) + "/" + strconv.FormatInt(cs.PrecommitsNum, 10), nil
 }

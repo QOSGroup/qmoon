@@ -384,16 +384,16 @@ func (s QOS) Proposals() error {
 		mt.ProposalID = pro.ProposalID
 		mt.Status = pro.Status
 		mt.SubmitTime = pro.SubmitTime
-		mt.Title = pro.ProposalContent.Type
+		mt.Title = pro.ProposalContent.Title
 		totalDeposit, err := strconv.ParseInt(pro.TotalDeposit, 10, 64)
 		if err == nil {
 			mt.TotalDeposit = totalDeposit
 		}
-		mt.Type = pro.ProposalContent.Type
+		mt.Type = pro.Type
 		mt.VotingStartTime = pro.VotingStartTime
 		mt.VotingEndTime = pro.VotingEndTime
 	}
-	if err := mt.Insert(s.node.ChainID); err != nil {
+	if err := mt.InsertOrUpdate(s.node.ChainID); err != nil {
 		log.Printf("proposals insert data:%+v, err:%v", mt, err.Error())
 		return err
 	}
@@ -416,6 +416,7 @@ func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 			return nil
 		default:
 			cs, err := s.tmcli.ConsensusState()
+			log.Printf("[Sync] ConsensusState")
 			if err != nil {
 				time.Sleep(time.Millisecond * 100)
 				continue

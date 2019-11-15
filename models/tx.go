@@ -41,6 +41,13 @@ type ITx struct {
 	JsonTx   string `xorm:"TEXT"`
 }
 
+type ITxAddress struct {
+	Id      int64  `xorm:"pk autoincr BIGINT"`
+	ItxHash string `xorm:"TEXT"`
+	TxHash  string `xorm:"TEXT"`
+	Address string `xorm:"TEXT"`
+}
+
 func (t *Tx) BeforeInsert() {
 	t.TimeUnix = t.Time.Unix()
 }
@@ -210,8 +217,37 @@ func ITxByHash(chainID string, hash string) ([]*ITx, error) {
 	err = x.Where("hash = ?", hash).Find(&itxs)
 
 	if err != nil {
-		return nil, errors.NotExist{Obj: "Tx"}
+		return nil, errors.NotExist{Obj: "ITx"}
 	}
 
 	return itxs, nil
+}
+
+func ITxByAddress(chainID string, address string) ([]*ITx, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	itxadds := make([]*ITxAddress, 0)
+	err = x.Where("address = ?", address).Find(&itxadds)
+	if err != nil {
+		return nil, errors.NotExist{Obj: "Address " + address}
+	}
+
+	if len(itxadds) > 0 {
+		hashString := ""
+		for _, itxadd := range itxadds {
+			hashString += ", '" + itxadd.ItxHash + "'"
+		}
+		hashString = hashString[2 : len(hashString)-1]
+
+		itxs := make([]*ITx, 0)
+		err = x.Where(" hash in (" + hashString + ")").Find(&itxs)
+		if err != nil {
+			return nil, errors.NotExist{Obj: "ITx " + hashString}
+		}
+		return itxs, nil
+	}
+	return nil, errors.NotExist{Obj: "Address " + address}
+
 }

@@ -20,7 +20,7 @@ const (
 func init() {
 	hdataHander[communityFeePoolUrl] = func(r *gin.Engine) {
 		r.GET(NodeProxy+communityFeePoolUrl, middleware.ApiAuthGin(), func(context *gin.Context) {
-			feePool, err := queryCommunityFeePool(context)
+			feePool, err := QueryCommunityFeePool(context)
 			if err != nil {
 				context.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
 				return
@@ -30,7 +30,7 @@ func init() {
 	}
 }
 
-func queryCommunityFeePool(context *gin.Context) (feePool string, err error) {
+func QueryCommunityFeePool(context *gin.Context) (feePool string, err error) {
 	k := communityFeePoolCacheKey
 	if v, ok := cache.Get(k); ok {
 		if feePool, ok = v.(string); ok {

@@ -50,6 +50,28 @@ func (n *Proposal) AfterSet(colName string, _ xorm.Cell) {
 	}
 }
 
+func (n *Proposal) InsertOrUpdate(chainID string) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+	has, err := x.Exist(&Proposal{ProposalID: n.ProposalID})
+	if err != nil {
+		return err
+	}
+
+	if has {
+		return n.Update(chainID)
+	}
+
+	_, err = x.Insert(n)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (n *Proposal) Insert(chainID string) error {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {

@@ -3,6 +3,7 @@
 package hdata
 
 import (
+	"github.com/QOSGroup/qmoon/lib/qos"
 	"net/http"
 	"strconv"
 
@@ -10,17 +11,24 @@ import (
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
+
 )
 
 const blockUrl = "/block/:height"
+const latestBlockUrl = "/latestblock"
 
 func init() {
 	hdataHander[blockUrl] = BlockGinRegister
+	hdataHander[latestBlockUrl] = LatestBlockGinRegister
 }
 
 // BlockGinRegister 注册block
 func BlockGinRegister(r *gin.Engine) {
 	r.GET(NodeProxy+blockUrl, middleware.ApiAuthGin(), blockGin())
+}
+
+func LatestBlockGinRegister(r *gin.Engine) {
+	r.GET(NodeProxy+latestBlockUrl, middleware.ApiAuthGin(), latestBlockGin())
 }
 
 func blockGin() gin.HandlerFunc {
@@ -48,8 +56,11 @@ func blockGin() gin.HandlerFunc {
 		} else {
 			b, err = node.RetrieveBlock(d)
 			if err != nil {
-				c.JSON(http.StatusOK, types.RPCServerError("", err))
-				return
+				b, err = node.BlockByHeight(d)
+				if err != nil {
+					c.JSON(http.StatusOK, types.RPCServerError("", err))
+					return
+				}
 			}
 		}
 		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
@@ -65,4 +76,35 @@ func blockGin() gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", resp))
 	}
+}
+
+func latestBlockGin() gin.HandlerFunc {
+	return blockGin()
+}
+
+func queryBlockIfNotExist(context *gin.Context, height int64) (*types.ResultBlockBase, error) {
+	node, err := GetNodeFromUrl(context)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := qos.NewQosCli("").QueryBlockByHeight(node.BaseURL, height)
+	if err != nil {
+		return nil, err
+	}
+
+	block := types.ResultBlockBase{
+		ChainID: result.ChainID,
+		Height: result.Height,
+		NumTxs: result.NumTxs,
+		TotalTxs: result.TotalTxs,
+		Data: "",
+		Time: types.ResultTime(result.Time),
+		DataHash: result.DataHash.String(),
+		ValidatorsHash: result.ValidatorsHash.String(),
+		CreatedAt: types.ResultTime(result.Time),
+	}
+
+
+	return &block, nil
 }
