@@ -53,7 +53,7 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	// lb, err3 := n.LatestBlock()
 	lb, err3 := n.BlockByHeight(result.Height)
 	if err3 == nil {
-		result.TotalTxs = status.NodeInfo.
+		result.TotalTxs = lb.TotalTxs
 		result.Proposer = lb.Proposer
 		result.Votes = lb.Votes
 	}
