@@ -31,6 +31,12 @@ func statusQueryGin() gin.HandlerFunc {
 		}
 
 		result, err := node.ChainStatus(false)
+
+
+		communityfund, err := QueryCommunityFeePool(c)
+		if err ==  nil {
+			result.CommunityFund = communityfund
+		}
 		//status, err := qos.NewQosCli("").QueryStatus(node.BaseURL)
 		//if err != nil {
 		//	c.JSON(http.StatusOK, types.RPCInternalError("Can't get status", err))

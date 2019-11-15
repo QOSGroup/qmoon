@@ -27,12 +27,17 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
 
 	cs, err1 := n.ConsensusState()
-	latestHeight := status.SyncInfo.LatestBlockHeight
+	result.Height = status.SyncInfo.LatestBlockHeight
 	if err1 != nil {
 		result.ConsensusState = &types.ResultConsensusState{}
 	} else {
 		result.ConsensusState = cs
 		// latestHeight,_ = strconv.ParseInt(cs.Height, 10, 64)
+	}
+
+	blc, err := n.BlockByHeight(result.Height)
+	if err == nil {
+		result.Block = blc
 	}
 
 	vs, err2 := n.Validators()
@@ -46,12 +51,11 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	}
 
 	// lb, err3 := n.LatestBlock()
-	lb, err3 := n.BlockByHeight(latestHeight)
+	lb, err3 := n.BlockByHeight(result.Height)
 	if err3 == nil {
 		result.TotalTxs = lb.TotalTxs
 	}
 	result.ConsensusState.ChainID = n.ChainID
-
 	if err3 == nil && err2 == nil {
 		cache.Set(chainStatusCache, result, time.Second*1)
 	}

@@ -187,6 +187,8 @@ type ResultStatus struct {
 	Height          int64                 `json:"height"`
 	TotalTxs        int64                 `json:"total_txs"`
 	BlockTimeAvg    string                `json:"blockTimeAvg"`
+	Block			*ResultBlockBase 			`json:"block"`
+	CommunityFund	string				`json:"commuinity_fund"`
 }
 
 type ResultAccount struct {
