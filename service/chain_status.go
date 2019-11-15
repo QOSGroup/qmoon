@@ -3,7 +3,7 @@
 package service
 
 import (
-	"strconv"
+	"github.com/QOSGroup/qmoon/lib/qos"
 	"time"
 
 	"github.com/QOSGroup/qmoon/lib/cache"
@@ -23,13 +23,16 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 		}
 	}
 
+
+	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
+
 	cs, err1 := n.ConsensusState()
-	latestHeight := int64(0)
+	latestHeight := status.SyncInfo.LatestBlockHeight
 	if err1 != nil {
 		result.ConsensusState = &types.ResultConsensusState{}
 	} else {
 		result.ConsensusState = cs
-		latestHeight,_ = strconv.ParseInt(cs.Height, 10, 64)
+		// latestHeight,_ = strconv.ParseInt(cs.Height, 10, 64)
 	}
 
 	vs, err2 := n.Validators()
