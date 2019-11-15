@@ -7,6 +7,8 @@ package service
 import (
 	"errors"
 	"github.com/QOSGroup/qmoon/lib/qos"
+	tmlib "github.com/QOSGroup/qmoon/lib/"
+
 	"strconv"
 	"time"
 	"fmt"
@@ -116,6 +118,15 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	} else {
 		resultBlock.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
+
+	go func(height int64) {
+		block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+		if err != nil {
+			return
+		}
+		n.CreateBlock(block)
+	}(height)
+
 	return &resultBlock, err
 }
 
@@ -144,6 +155,7 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 		}
 		res = append(res, blc)
 	}
+
 
 	return res, err
 }
@@ -194,7 +206,7 @@ func (n Node) CreateBlock(b *types.Block) error {
 	block.DataHash = b.Header.DataHash
 	block.ValidatorsHash = b.Header.ValidatorsHash
 	block.ProposerAddress = b.Header.ProposerAddress
-	if err := block.Insert(n.ChainID); err != nil {
+	if err := block.InsertIfNotExist(n.ChainID); err != nil {
 		return err
 	}
 
