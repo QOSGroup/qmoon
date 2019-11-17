@@ -47,7 +47,8 @@ func blockGin() gin.HandlerFunc {
 
 		var b *types.ResultBlockBase
 		if d == 0 {
-			b, err = node.LatestBlockFromCli()
+			// b, err = node.LatestBlockFromCli()
+			b, err = node.LatestBlock()
 			if err != nil {
 				c.JSON(http.StatusOK, types.RPCServerError("", err))
 				return

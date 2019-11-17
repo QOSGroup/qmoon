@@ -4,7 +4,6 @@ package service
 
 import (
 	"github.com/QOSGroup/qmoon/lib/cache"
-	"github.com/QOSGroup/qmoon/lib/qos"
 	"github.com/QOSGroup/qmoon/types"
 	"time"
 )
@@ -24,13 +23,15 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	}
 
 
-	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
-	if err != nil {
-		return nil, err
-	}
+	//status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	if status!=nil {
-		result.Height = status.SyncInfo.LatestBlockHeight
+	//if status!=nil {
+	bl, err := n.LatestBlock();
+	if err == nil {
+		result.Height = bl.Height
 		cache.Set(LatestHeightKey, result.Height,  time.Second*7)
 		blc, err := n.RetrieveBlock(result.Height)
 		if err == nil {
