@@ -8,7 +8,6 @@ import (
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/service/syncer"
 	"github.com/tendermint/tendermint/rpc/client"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -54,7 +53,8 @@ func startEventListener() {
 	nodes, err := service.AllNodes()
 	if err != nil {
 		fmt.Errorf("[Event] No node find")
-		os.Exit(1)
+		return
+		// os.Exit(1)
 	}
 		for _, n := range nodes {
 			if strings.Index(n.Name, "cosmos") < 0 {
@@ -71,7 +71,8 @@ func startEventListener() {
 				if err != nil {
 					fmt.Errorf("[Event] Exiting for error:", err)
 					client.Stop()
-					os.Exit(1)
+					return
+					// dos.Exit(1)
 				}
 				go func() {
 					for eventData := range events {

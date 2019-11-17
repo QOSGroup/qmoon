@@ -165,7 +165,6 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 
 func (n Node) CreateValidator(vl types.Validator) error {
 	mv, err := n.retrieveValidator(vl.Address)
-	fmt.Println("retrieve err: ", err, " mv: ", mv)
 	if err != nil {
 		mv = &models.Validator{
 			Address:        vl.Address,
