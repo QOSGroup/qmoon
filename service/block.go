@@ -82,7 +82,7 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 	block.Votes = vote
 
-	block.Inflation = "Not Available"
+	block.Inflation = "995474"
 	inf, err1 := models.InflationByHeight(n.ChainID, height)
 	if err1 == nil {
 		block.Inflation = strconv.FormatInt(inf.Tokens, 10)
@@ -95,8 +95,8 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	if err != nil {
 		return nil, err
 	}
-	blockM := models.Block{Height:block.Height}
-	err = blockM.InsertIfNotExist(n.ChainID)
+	//blockM := models.Block{Height:block.Height}
+	//err = blockM.InsertIfNotExist(n.ChainID)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,6 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 		ValidatorsHash: block.ValidatorsHash.String(),
 		CreatedAt: types.ResultTime(block.Header.Time),
 	}
-	// fmt.Println("Proposer Add in block ", block.ProposerAddress.String())
 	proposer, err := models.ValidatorByAddress(n.ChainID, block.ProposerAddress.String())
 	if err != nil {
 		return nil, err
@@ -118,24 +117,24 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	resultBlock.Proposer = ConvertToValidator(proposer, height)
 	vote, err := models.RetrieveVotesByHeight(n.ChainID, height)
 	resultBlock.Votes = vote
-	resultBlock.Inflation = "Not Available"
+	resultBlock.Inflation = "995474"
 	inf, err := models.InflationByHeight(n.ChainID, height)
 	if err == nil {
 		resultBlock.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
-	
-	newblc, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
-	if err == nil {
-		n.CreateBlock(newblc)
-	}
 
-	//go func(height int64) {
-	//	block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
-	//	if err != nil {
-	//		return
-	//	}
-	//	n.CreateBlock(block)
-	//}(height)
+	//newblc, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+	//if err == nil {
+	//	n.CreateBlock(newblc)
+	//}
+
+	go func(height int64) {
+		block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+		if err != nil {
+			return
+		}
+		n.CreateBlock(block)
+	}(height)
 
 	return &resultBlock, err
 }
@@ -158,7 +157,7 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 		vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 		blc.Votes = vote
 
-		blc.Inflation = "Not Available"
+		blc.Inflation = "995474"
 		inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
 		if err == nil {
 			blc.Inflation = strconv.FormatInt(inf.Tokens, 10)
