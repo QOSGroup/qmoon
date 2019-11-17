@@ -31,36 +31,65 @@ func convertToBlock(mb *models.Block) *types.ResultBlockBase {
 
 // Latest最新的块
 func (n Node) LatestBlock() (result *types.ResultBlockBase, err error) {
-	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
+	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Offset: 0, Limit: 1})
 	if err != nil {
 		return nil, err
 	}
-	//cs, err1 := n.ConsensusState()
-	//result.Height = status.SyncInfo.LatestBlockHeight
-	result, err = n.BlockByHeight(status.SyncInfo.LatestBlockHeight)
+
+	if len(mbs) == 0 {
+		return nil, errors.New("not found")
+	}
+	latestblock := convertToBlock(mbs[0])
+	proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
+	if err != nil {
+		return nil, err
+	}
+	latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
+	latestblock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
+	inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
+	if err != nil {
+		latestblock.Inflation = "Not Available"
+	} else {
+		latestblock.Inflation = strconv.FormatInt(inf.Tokens, 10)
+	}
+	return latestblock, nil
+}
+
+func (n Node) LatestBlockFromCli() (result *types.ResultBlockBase, err error) {
+	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
+	if err != nil {
+		return
+	}
+	height:=status.SyncInfo.LatestBlockHeight
+	b, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+	if err != nil {
+		return
+	}
+	n.CreateBlock(b)
+	result = &types.ResultBlockBase{
+		ChainID:b.Header.ChainID,
+		Height:b.Header.Height,
+		NumTxs:b.Header.NumTxs,
+		TotalTxs:b.Header.TotalTxs,
+		Time:types.ResultTime(b.Header.Time),
+		DataHash: b.Header.DataHash,
+		ValidatorsHash:b.Header.ValidatorsHash,
+		CreatedAt: types.ResultTime(b.Header.Time),
+	}
+	proposer, err := models.ValidatorByAddress(n.ChainID,b.Header.ProposerAddress)
+	if err != nil {
+		return
+	}
+	result.Proposer = ConvertToValidator(proposer, height)
+	vote, err := models.RetrieveVotesByHeight(n.ChainID,height)
+	result.Votes = vote
+
+	result.Inflation = "995474"
+	inf, err := models.InflationByHeight(n.ChainID, height)
+	if err == nil {
+		result.Inflation = strconv.FormatInt(inf.Tokens, 10)
+	}
 	return
-	//mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Offset: 0, Limit: 1})
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//if len(mbs) == 0 {
-	//	return nil, errors.New("not found")
-	//}
-	//latestblock := convertToBlock(mbs[0])
-	//proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
-	//latestblock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
-	//inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
-	//if err != nil {
-	//	latestblock.Inflation = "Not Available"
-	//} else {
-	//	latestblock.Inflation = strconv.FormatInt(inf.Tokens, 10)
-	//}
-	//return latestblock, nil
 }
 
 // Retrieve 块查询
