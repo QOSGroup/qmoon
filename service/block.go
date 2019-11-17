@@ -11,7 +11,6 @@ import (
 
 	"strconv"
 	"time"
-	"fmt"
 
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
@@ -111,7 +110,7 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 		ValidatorsHash: block.ValidatorsHash.String(),
 		CreatedAt: types.ResultTime(block.Header.Time),
 	}
-	fmt.Println("Proposer Add in block ", block.ProposerAddress.String())
+	// fmt.Println("Proposer Add in block ", block.ProposerAddress.String())
 	proposer, err := models.ValidatorByAddress(n.ChainID, block.ProposerAddress.String())
 	if err != nil {
 		return nil, err

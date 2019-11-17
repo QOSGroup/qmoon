@@ -18,10 +18,10 @@ func Start() {
 	//先删除自己的锁信息
 	models.DeleteKeyBySystemName(syncer.SYSTEM_NAME)
 
+	go startEventListener()
 	go startConsensusState()
 	go syncAllNodeBlock()
 	go startNetwork()
-	go startEventListener()
 }
 
 func startConsensusState() {
@@ -61,6 +61,7 @@ func startEventListener() {
 				url := "tcp" + n.BaseURL[4:len(n.BaseURL)]
 
 				client := client.NewHTTP(url, "/websocket")
+				fmt.Println("Starting listening to ", url, "/websocket")
 				err := client.Start()
 				if err != nil {
 					fmt.Println("[Event] Can't start websocket client [%s] - '%s'", url, err)
