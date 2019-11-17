@@ -129,7 +129,7 @@ func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
 	//		log.Printf("saveBlockValidator err:%v", err.Error())
 	//	}
 	//}
-	allVals, _ := n.Validators()
+	allVals, _ := n.Validators(0)
 	validatorsInDB:=make(map[string]*types.Validator)
 	for _, v := range allVals {
 		validatorsInDB[v.Address] = &v

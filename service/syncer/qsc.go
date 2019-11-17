@@ -166,7 +166,7 @@ func (s QSC) Validator(height int64, t time.Time) error {
 		valMap[v.Address] = v
 	}
 
-	allVals, err := s.node.Validators()
+	allVals, err := s.node.Validators(height)
 	if err == nil {
 		for _, v := range allVals {
 			if v.Status == types.Active {

@@ -6,9 +6,11 @@ import (
 	"github.com/QOSGroup/qmoon/lib/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
 	"github.com/QOSGroup/qmoon/types"
+	"time"
 )
 
 const chainStatusCache = "ChainStatusCache"
+const LatestHeightKey = "community_fee_pool_key"
 
 func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	result := &types.ResultStatus{}
@@ -29,7 +31,7 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 
 	if status!=nil {
 		result.Height = status.SyncInfo.LatestBlockHeight
-
+		cache.Set(LatestHeightKey, result.Height,  time.Second*7)
 		blc, err := n.BlockByHeight(result.Height)
 		if err == nil {
 			result.Block = blc
@@ -42,6 +44,11 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 			result.Votes = lb.Votes
 		}
 
+		vs, err2 := n.Validators(result.Height)
+		if err2 == nil {
+			result.TotalValidators = int64(len(vs))
+		}
+
 	}
 
 	cs, err1 := n.ConsensusState()
@@ -52,10 +59,7 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 		// latestHeight,_ = strconv.ParseInt(cs.Height, 10, 64)
 	}
 
-	vs, err2 := n.Validators()
-	if err2 == nil {
-		result.TotalValidators = int64(len(vs))
-	}
+
 
 	d, err := n.BlockTimeAvg(100)
 	if err == nil {
@@ -65,9 +69,8 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	// lb, err3 := n.LatestBlock()
 
 	result.ConsensusState.ChainID = n.ChainID
-	//if err3 == nil && err2 == nil {
-	//	cache.Set(chainStatusCache, result, time.Second*1)
-	//}
+
+	cache.Set(chainStatusCache, result, time.Second*1)
 
 	return result, nil
 }

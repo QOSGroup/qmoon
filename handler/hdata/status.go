@@ -32,6 +32,10 @@ func statusQueryGin() gin.HandlerFunc {
 
 		result, err := node.ChainStatus(false)
 
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCInternalError("", err))
+			return
+		}
 
 		communityfund, err := QueryCommunityFeePool(c)
 		if err ==  nil {

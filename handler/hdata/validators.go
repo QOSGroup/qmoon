@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
+	"github.com/QOSGroup/qmoon/service"
 	"net/http"
 	"time"
 
@@ -57,7 +58,19 @@ func validatorsGin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		vs, err := node.Validators()
+		vs := types.Validators{}
+		d, ok := cache.Get(service.LatestHeightKey)
+		if ok {
+			if v, okk := d.(int64); okk {
+				vs, err = node.Validators(v)
+			} else {
+				s, err := node.ChainStatus(false)
+				if err ==nil && s != nil {
+					node.Validators(s.Height)
+				}
+			}
+		}
+
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

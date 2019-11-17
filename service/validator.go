@@ -57,11 +57,11 @@ func ConvertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 }
 
 // Validators 查询链所有的validator
-func (n Node) Validators() (types.Validators, error) {
-	latest, err := n.LatestBlock()
-	if err != nil {
-		return nil, err
-	}
+func (n Node) Validators(height int64) (types.Validators, error) {
+	// latest, err := n.LatestBlock()
+	//if err != nil {
+	//	return nil, err
+	//}
 	mvs, err := models.Validators(n.ChainID)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (n Node) Validators() (types.Validators, error) {
 			total += v.VotingPower
 		}
 		// fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
-		res = append(res, *ConvertToValidator(v, latest.Height))
+		res = append(res, *ConvertToValidator(v, height))
 	}
 
 	for i := 0; i < len(res); i++ {

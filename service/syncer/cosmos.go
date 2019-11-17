@@ -243,7 +243,7 @@ func (s COSMOS) Validator(height int64, t time.Time) error {
 		valMap[v.Address] = v
 	}
 
-	oldVals, err := s.node.Validators()
+	oldVals, err := s.node.Validators(height)
 	if err == nil {
 		for _, v := range oldVals {
 			if v.Status == types.Active {
