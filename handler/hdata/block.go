@@ -55,6 +55,7 @@ func blockGin() gin.HandlerFunc {
 
 		} else {
 			b, err = node.RetrieveBlock(d)
+			// b, err = node.BlockByHeight(d)
 			if err != nil {
 				b, err = node.BlockByHeight(d)
 				if err != nil {

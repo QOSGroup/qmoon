@@ -1,6 +1,9 @@
 package models
 
-import "github.com/QOSGroup/qmoon/models/errors"
+import (
+	"github.com/QOSGroup/qmoon/models/errors"
+	"strconv"
+)
 
 type Inflation struct {
 	Height int64 `xorm:"BIGINT"`
@@ -20,7 +23,7 @@ func InflationByHeight(chainID string, height int64) (*Inflation, error) {
 	}
 
 	if !has {
-		return nil, errors.NotExist{Obj: "Inflation at " + string(height)}
+		return nil, errors.NotExist{Obj: "Inflation at " + strconv.FormatInt(height, 10)}
 	}
 
 	return inf, nil

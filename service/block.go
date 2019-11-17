@@ -7,7 +7,7 @@ package service
 import (
 	"errors"
 	"github.com/QOSGroup/qmoon/lib/qos"
-	tmlib "github.com/QOSGroup/qmoon/lib/"
+	tmlib "github.com/QOSGroup/qmoon/lib"
 
 	"strconv"
 	"time"
@@ -31,29 +31,37 @@ func convertToBlock(mb *models.Block) *types.ResultBlockBase {
 }
 
 // Latest最新的块
-func (n Node) LatestBlock() (*types.ResultBlockBase, error) {
-	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Offset: 0, Limit: 1})
+func (n Node) LatestBlock() (result *types.ResultBlockBase, err error) {
+	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
 	if err != nil {
 		return nil, err
 	}
-
-	if len(mbs) == 0 {
-		return nil, errors.New("not found")
-	}
-	latestblock := convertToBlock(mbs[0])
-	proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
-	if err != nil {
-		return nil, err
-	}
-	latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
-	latestblock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
-	inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
-	if err != nil {
-		latestblock.Inflation = "Not Available"
-	} else {
-		latestblock.Inflation = strconv.FormatInt(inf.Tokens, 10)
-	}
-	return latestblock, nil
+	//cs, err1 := n.ConsensusState()
+	//result.Height = status.SyncInfo.LatestBlockHeight
+	result, err = n.BlockByHeight(status.SyncInfo.LatestBlockHeight)
+	return
+	//mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Offset: 0, Limit: 1})
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//if len(mbs) == 0 {
+	//	return nil, errors.New("not found")
+	//}
+	//latestblock := convertToBlock(mbs[0])
+	//proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
+	//latestblock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
+	//inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
+	//if err != nil {
+	//	latestblock.Inflation = "Not Available"
+	//} else {
+	//	latestblock.Inflation = strconv.FormatInt(inf.Tokens, 10)
+	//}
+	//return latestblock, nil
 }
 
 // Retrieve 块查询
@@ -66,7 +74,7 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	if len(mbs) != 1 {
 		return nil, errors.New("not found")
 	}
-
+d
 	block := convertToBlock(mbs[0])
 	proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
 	if err != nil {
@@ -75,10 +83,10 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	block.Proposer = ConvertToValidator(proposer, height)
 	vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 	block.Votes = vote
-	inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
-	if err != nil {
-		block.Inflation = "Not Available"
-	} else {
+
+	block.Inflation = "Not Available"
+	inf, err1 := models.InflationByHeight(n.ChainID, height)
+	if err1 == nil {
 		block.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
 	return block, err
@@ -112,10 +120,9 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	resultBlock.Proposer = ConvertToValidator(proposer, height)
 	vote, err := models.RetrieveVotesByHeight(n.ChainID, height)
 	resultBlock.Votes = vote
+	resultBlock.Inflation = "Not Available"
 	inf, err := models.InflationByHeight(n.ChainID, height)
-	if err != nil {
-		resultBlock.Inflation = "Not Available"
-	} else {
+	if err == nil {
 		resultBlock.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
 
@@ -147,10 +154,10 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 		blc.Proposer = ConvertToValidator(proposer, maxHeight)
 		vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 		blc.Votes = vote
+
+		blc.Inflation = "Not Available"
 		inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
-		if err != nil {
-			blc.Inflation = "Not Available"
-		} else {
+		if err == nil {
 			blc.Inflation = strconv.FormatInt(inf.Tokens, 10)
 		}
 		res = append(res, blc)
