@@ -11,16 +11,16 @@ import (
 const chainStatusCache = "ChainStatusCache"
 const LatestHeightKey = "community_fee_pool_key"
 
-func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
+func (n Node) ChainStatus() (*types.ResultStatus, error) {
 	result := &types.ResultStatus{}
-	if cached {
-		d, ok := cache.Get(chainStatusCache)
-		if ok {
-			if v, okk := d.(*types.ResultStatus); okk {
-				return v, nil
-			}
-		}
-	}
+	//if cached {
+	//	d, ok := cache.Get(chainStatusCache)
+	//	if ok {
+	//		if v, okk := d.(*types.ResultStatus); okk {
+	//			return v, nil
+	//		}
+	//	}
+	//}
 
 
 	//status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
@@ -33,14 +33,13 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	if err == nil {
 		result.Height = bl.Height
 		cache.Set(LatestHeightKey, result.Height,  time.Second*7)
-		blc, err := n.RetrieveBlock(result.Height)
-		if err == nil {
-			result.Block = blc
-			result.TotalTxs = blc.TotalTxs
-			result.Proposer = blc.Proposer
-			result.Votes = blc.Votes
-		}
-
+		// blc, err := n.RetrieveBlock(result.Height)
+		//if err == nil {
+		result.Block = bl
+		result.TotalTxs = bl.TotalTxs
+		result.Proposer = bl.Proposer
+		result.Votes = bl.Votes
+		//}
 
 		vs, err2 := n.Validators(result.Height)
 		if err2 == nil {
@@ -68,7 +67,7 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 
 	result.ConsensusState.ChainID = n.ChainID
 
-	cache.Set(chainStatusCache, result, time.Second*1)
+	// cache.Set(chainStatusCache, result, time.Second*1)
 
 	return result, nil
 }

@@ -30,7 +30,7 @@ func statusQueryGin() gin.HandlerFunc {
 			return
 		}
 
-		result, err := node.ChainStatus(false)
+		result, err := node.ChainStatus()
 
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCInternalError("", err))

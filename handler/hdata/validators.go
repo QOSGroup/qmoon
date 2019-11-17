@@ -64,7 +64,7 @@ func validatorsGin() gin.HandlerFunc {
 			if v, okk := d.(int64); okk {
 				vs, err = node.Validators(v)
 			} else {
-				s, err := node.ChainStatus(false)
+				s, err := node.ChainStatus()
 				if err ==nil && s != nil {
 					node.Validators(s.Height)
 				}
