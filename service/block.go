@@ -123,14 +123,19 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	if err == nil {
 		resultBlock.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
+	
+	newblc, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+	if err == nil {
+		n.CreateBlock(newblc)
+	}
 
-	go func(height int64) {
-		block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
-		if err != nil {
-			return
-		}
-		n.CreateBlock(block)
-	}(height)
+	//go func(height int64) {
+	//	block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+	//	if err != nil {
+	//		return
+	//	}
+	//	n.CreateBlock(block)
+	//}(height)
 
 	return &resultBlock, err
 }
