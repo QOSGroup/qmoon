@@ -32,17 +32,14 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	if status!=nil {
 		result.Height = status.SyncInfo.LatestBlockHeight
 		cache.Set(LatestHeightKey, result.Height,  time.Second*7)
-		blc, err := n.BlockByHeight(result.Height)
+		blc, err := n.RetrieveBlock(result.Height)
 		if err == nil {
 			result.Block = blc
+			result.TotalTxs = blc.TotalTxs
+			result.Proposer = blc.Proposer
+			result.Votes = blc.Votes
 		}
 
-		lb, err3 := n.BlockByHeight(result.Height)
-		if err3 == nil {
-			result.TotalTxs = lb.TotalTxs
-			result.Proposer = lb.Proposer
-			result.Votes = lb.Votes
-		}
 
 		vs, err2 := n.Validators(result.Height)
 		if err2 == nil {

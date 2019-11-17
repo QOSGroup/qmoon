@@ -6,6 +6,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/QOSGroup/qmoon/lib/qos"
 	tmlib "github.com/QOSGroup/qmoon/lib"
 
@@ -139,6 +140,7 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 		ValidatorsHash: block.ValidatorsHash.String(),
 		CreatedAt: types.ResultTime(block.Header.Time),
 	}
+	fmt.Println("finding Proposer by address:", block.ProposerAddress.String())
 	proposer, err := models.ValidatorByAddress(n.ChainID, block.ProposerAddress.String())
 	if err == nil {
 		resultBlock.Proposer = ConvertToValidator(proposer, height)
