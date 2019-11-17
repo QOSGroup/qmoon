@@ -74,7 +74,6 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	if len(mbs) != 1 {
 		return nil, errors.New("not found")
 	}
-d
 	block := convertToBlock(mbs[0])
 	proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
 	if err != nil {
