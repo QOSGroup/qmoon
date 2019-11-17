@@ -111,12 +111,10 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 		CreatedAt: types.ResultTime(block.Header.Time),
 	}
 	proposer, err := models.ValidatorByAddress(n.ChainID, block.ProposerAddress.String())
-	if err != nil {
-		return nil, err
+	if err == nil {
+		resultBlock.Proposer = ConvertToValidator(proposer, height)
 	}
-	resultBlock.Proposer = ConvertToValidator(proposer, height)
-	vote, err := models.RetrieveVotesByHeight(n.ChainID, height)
-	resultBlock.Votes = vote
+	resultBlock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, height)
 	resultBlock.Inflation = "995474"
 	inf, err := models.InflationByHeight(n.ChainID, height)
 	if err == nil {
