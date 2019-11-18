@@ -226,7 +226,7 @@ func (cc QosCli) QueryBlockByHeight(nodeUrl string, height int64) (result *tm_ty
 	return
 }
 
-func (cc QosCli) QueryStatus(nodeUrl string) (result *ctypes.ResultStatus, err error) {
+func (cc QosCli) QueryStatus(nodeUrl string) (result *ctypes.SyncInfo, err error) {
 	status, err := http.Get(cc.remote + "/status?node_url=" + nodeUrl)
 	if err != nil {
 		return

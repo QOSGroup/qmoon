@@ -58,10 +58,10 @@ func (n Node) LatestBlock() (result *types.ResultBlockBase, err error) {
 
 func (n Node) LatestBlockHeight() (height int64, err error) {
 	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
-	if err != nil || status == nil || &status.SyncInfo ==  nil{
+	if err != nil || status == nil {
 		return 0, err
 	}
-	height = status.SyncInfo.LatestBlockHeight
+	height = status.LatestBlockHeight
 	return
 }
 

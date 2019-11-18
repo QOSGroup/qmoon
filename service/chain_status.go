@@ -4,7 +4,6 @@ package service
 
 import (
 	"github.com/QOSGroup/qmoon/lib/cache"
-	"github.com/QOSGroup/qmoon/lib/qos"
 	"github.com/QOSGroup/qmoon/types"
 	"time"
 )
@@ -22,15 +21,12 @@ func (n Node) ChainStatus() (*types.ResultStatus, error) {
 	//	}
 	//}
 
-	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
-	if err != nil {
+	latestheight, err := n.LatestBlockHeight()
+	if err != nil || latestheight == 0{
 		return nil, err
 	}
 
-	//bl, err := n.LatestBlock();
-	if status!=nil {
-	//if err == nil {
-		bl, err := n.BlockByHeight(status.SyncInfo.LatestBlockHeight)
+		bl, err := n.BlockByHeight(latestheight)
 		if err == nil {
 			result.Height = bl.Height
 			cache.Set(LatestHeightKey, result.Height,  time.Second*7)
@@ -44,8 +40,6 @@ func (n Node) ChainStatus() (*types.ResultStatus, error) {
 		if err2 == nil {
 			result.TotalValidators = int64(len(vs))
 		}
-
-	}
 
 	cs, err1 := n.ConsensusState()
 	if err1 != nil {
