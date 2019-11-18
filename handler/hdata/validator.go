@@ -100,12 +100,13 @@ func validatorDelegationGin() gin.HandlerFunc {
 			return
 		}
 
-		latest, err := node.LatestBlock()
+		// latest, err := node.LatestBlock()
+		latestheight, err := node.LatestBlockHeight()
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		result.Validator = service.ConvertToValidator(v, latest.Height)
+		result.Validator = service.ConvertToValidator(v, latestheight)
 
 		for _, d := range dels {
 			delegation := types.ResultDelagation{Delegator: d.DelegatorAddr, Amount: d.Amount, Compound: d.IsCompound}

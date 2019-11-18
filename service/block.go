@@ -56,15 +56,23 @@ func (n Node) LatestBlock() (result *types.ResultBlockBase, err error) {
 	return latestblock, nil
 }
 
-func (n Node) LatestBlockFromCli() (result *types.ResultBlockBase, err error) {
+func (n Node) LatestBlockHeight() (height int64, err error) {
 	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
-	if err != nil {
-		return
+	if err != nil || status == nil || &status.SyncInfo ==  nil{
+		return 0, err
 	}
-	height:=status.SyncInfo.LatestBlockHeight
+	height = status.SyncInfo.LatestBlockHeight
+	return
+}
+
+func (n Node) LatestBlockFromCli() (result *types.ResultBlockBase, err error) {
+	height, _:=n.LatestBlockHeight()
+	if err != nil || height == 0 {
+		return nil, err
+	}
 	b, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
 	if err != nil {
-		return
+		return nil, err
 	}
 	n.CreateBlock(b)
 	result = &types.ResultBlockBase{

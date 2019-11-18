@@ -2,8 +2,8 @@ module github.com/QOSGroup/qmoon
 
 require (
 	cloud.google.com/go v0.36.0 // indirect
-	github.com/QOSGroup/qbase v0.2.3-0.20190917080943-5c13010498cc
-	github.com/QOSGroup/qos v0.0.0-20190923023834-8669f2fea96c
+	github.com/QOSGroup/qbase v0.2.3-0.20190927065041-32eb90018d34
+	github.com/QOSGroup/qos v0.0.8
 	github.com/cosmos/cosmos-sdk v0.37.0
 	github.com/didip/tollbooth v4.0.0+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.0
@@ -25,7 +25,6 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v1.1.0
 	github.com/sirupsen/logrus v1.3.0
-	github.com/snowdiceX/events v0.0.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0

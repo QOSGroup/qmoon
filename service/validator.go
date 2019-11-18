@@ -102,8 +102,8 @@ func (n Node) retrieveValidator(address string) (*models.Validator, error) {
 
 // RetrieveValidator 单个查询
 func (n Node) RetrieveValidator(address string) (*types.Validator, error) {
-	latest, err := n.LatestBlock()
-	if err != nil {
+	latestheight, err := n.LatestBlockHeight()
+	if err != nil || latestheight == 0 {
 		return nil, err
 	}
 
@@ -112,7 +112,7 @@ func (n Node) RetrieveValidator(address string) (*types.Validator, error) {
 		return nil, err
 	}
 
-	return ConvertToValidator(mv, latest.Height), nil
+	return ConvertToValidator(mv, latestheight), nil
 }
 
 func (n Node) UpdateValidatorBlock(address string, height int64, t time.Time) error {

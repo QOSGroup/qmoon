@@ -60,8 +60,9 @@ func startEventListener() {
 			if strings.Index(n.Name, "cosmos") < 0 {
 				url := "tcp" + n.BaseURL[4:len(n.BaseURL)]
 
-				client := client.NewHTTP("tcp://47.103.78.91:26657", "/websocket")
-				fmt.Println("[Event] Starting listening to ", url, "/websocket")
+				// client := client.NewHTTP("tcp://47.103.78.91:26657", "/websocket")
+				client := client.NewHTTP(url, "/websocket")
+				// fmt.Println("[Event] Starting listening to ", url, "/websocket")
 				err := client.Start()
 				if err != nil {
 					fmt.Println("[Event] Can't start websocket client [%s] - '%s'", url, err)

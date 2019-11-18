@@ -82,9 +82,13 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 	defer Unlock(key)
 
 	var height int64 = 1
-	latest, err := s.node.LatestBlock()
-	if err == nil && latest != nil {
-		height = latest.Height + 1
+	// latest, err := s.node.LatestBlock()
+	//if err == nil && latest != nil {
+	//	height = latest.Height + 1
+	//}
+	latestheight, err := s.node.LatestBlockHeight()
+	if err == nil && latestheight != 0 {
+		height = latestheight + 1
 	}
 
 	for {

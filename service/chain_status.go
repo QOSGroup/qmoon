@@ -4,12 +4,12 @@ package service
 
 import (
 	"github.com/QOSGroup/qmoon/lib/cache"
+	"github.com/QOSGroup/qmoon/lib/qos"
 	"github.com/QOSGroup/qmoon/types"
 	"time"
 )
 
-const chainStatusCache = "ChainStatusCache"
-const LatestHeightKey = "community_fee_pool_key"
+const LatestHeightKey = "latest_height_key"
 
 func (n Node) ChainStatus() (*types.ResultStatus, error) {
 	result := &types.ResultStatus{}
@@ -22,24 +22,23 @@ func (n Node) ChainStatus() (*types.ResultStatus, error) {
 	//	}
 	//}
 
+	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
+	if err != nil {
+		return nil, err
+	}
 
-	//status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//if status!=nil {
-	bl, err := n.LatestBlock();
-	if err == nil {
-		result.Height = bl.Height
-		cache.Set(LatestHeightKey, result.Height,  time.Second*7)
-		// blc, err := n.RetrieveBlock(result.Height)
-		//if err == nil {
-		result.Block = bl
-		result.TotalTxs = bl.TotalTxs
-		result.Proposer = bl.Proposer
-		result.Votes = bl.Votes
-		//}
+	//bl, err := n.LatestBlock();
+	if status!=nil {
+	//if err == nil {
+		bl, err := n.BlockByHeight(status.SyncInfo.LatestBlockHeight)
+		if err == nil {
+			result.Height = bl.Height
+			cache.Set(LatestHeightKey, result.Height,  time.Second*7)
+			result.Block = bl
+			result.TotalTxs = bl.TotalTxs
+			result.Proposer = bl.Proposer
+			result.Votes = bl.Votes
+		}
 
 		vs, err2 := n.Validators(result.Height)
 		if err2 == nil {
