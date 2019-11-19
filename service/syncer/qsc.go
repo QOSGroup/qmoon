@@ -15,7 +15,6 @@ import (
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/service"
-	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -184,7 +183,6 @@ func (s QSC) Validator(height int64, t time.Time) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChainID, t, vals)
 
 	return nil
 }

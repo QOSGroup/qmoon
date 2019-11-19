@@ -30,9 +30,9 @@ func init() {
 	registerFlagsHttpServer(ServerCmd)
 	registerFlagsDb(ServerCmd)
 	ServerCmd.Flags().Int64(types.FlagMaxGas, 20000, "gas limit to set per tx")
-	ServerCmd.Flags().String(types.FlagInfluxdbServer, "http://localhost:8086", "influxdb server")
-	ServerCmd.Flags().String(types.FlagInfluxdbUser, "", "influxdb user")
-	ServerCmd.Flags().String(types.FlagInfluxdbPassword, "", "influxdb password")
+	//ServerCmd.Flags().String(types.FlagInfluxdbServer, "http://localhost:8086", "influxdb server")
+	//ServerCmd.Flags().String(types.FlagInfluxdbUser, "", "influxdb user")
+	//ServerCmd.Flags().String(types.FlagInfluxdbPassword, "", "influxdb password")
 }
 
 func initRouter(r *gin.Engine) {

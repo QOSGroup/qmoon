@@ -78,13 +78,12 @@ func (val *Validator) Insert(chainID string) error {
 	return nil
 }
 
-func (val *Validator) Update(chainID string) error {
+func (val *Validator) Update(chainID string, cols ...string) error {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return err
 	}
-
-	_, err = x.ID(val.Id).Update(val)
+	_, err = x.ID(val.Id).Cols(cols...).Update(val)
 	if err != nil {
 		return err
 	}
@@ -93,19 +92,7 @@ func (val *Validator) Update(chainID string) error {
 }
 
 func (val *Validator) UpdateStatus(chainID string) error {
-	x, err := GetNodeEngine(chainID)
-	if err != nil {
-		return err
-	}
-
-	_, err = x.ID(val.Id).
-		Cols("status", "inactive_code", "inactive_time_unix", "inactive_height").
-		Update(val)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return val.Update(chainID, "status", "inactive_code", "inactive_time_unix", "inactive_height")
 }
 
 func ValidatorByAddress(chainID, address string) (*Validator, error) {
@@ -152,3 +139,21 @@ func Validators(chainID string) ([]*Validator, error) {
 	var vals = make([]*Validator, 0)
 	return vals, x.Find(&vals)
 }
+
+func TotalVotingPower(chainID string) (int64, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return 0, err
+	}
+	var vals = make([]*Validator, 0)
+	err = x.Find(&vals)
+	if err != nil {
+		return 0, err
+	}
+	total := int64(0)
+	for _, val := range vals {
+		total += val.VotingPower
+	}
+	return total, nil
+}
+

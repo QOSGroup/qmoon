@@ -22,7 +22,6 @@ import (
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/service"
-	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/hashicorp/go-version"
@@ -371,7 +370,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	//	}
 	//}
 
-	metric.ValidatorVotingPower(s.node.ChainID, t, vals)
+	//metric.ValidatorVotingPower(s.node.ChainID, t, vals)
 
 	return nil
 }

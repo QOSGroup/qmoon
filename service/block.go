@@ -62,15 +62,17 @@ func (n Node) LatestBlockHeight() (height int64, err error) {
 		return 0, err
 	}
 	height = status.LatestBlockHeight
+	fmt.Println("Query latest height = ", height)
 	return
 }
 
 func (n Node) LatestBlockFromCli() (result *types.ResultBlockBase, err error) {
-	height, _:=n.LatestBlockHeight()
+	height, _ := n.LatestBlockHeight()
 	if err != nil || height == 0 {
 		return nil, err
 	}
 	b, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+	// b, err := n.BlockByHeight(height)
 	if err != nil {
 		return nil, err
 	}
@@ -130,26 +132,24 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 
 func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	block, err := qos.NewQosCli("").QueryBlockByHeight(n.BaseURL, height)
+	fmt.Println("Got Block: ", height, " @ ", block)
 	if err != nil {
 		return nil, err
 	}
 	//blockM := models.Block{Height:block.Height}
 	//err = blockM.InsertIfNotExist(n.ChainID)
-	if err != nil {
-		return nil, err
-	}
 	resultBlock := types.ResultBlockBase {
 		ChainID: block.Header.ChainID,
 		Height: height,
 		NumTxs: block.Header.NumTxs,
 		TotalTxs: block.Header.TotalTxs,
-		Time: types.ResultTime(block.Time),
+		Time: types.ResultTime(block.Header.Time),
 		DataHash: block.DataHash.String(),
 		ValidatorsHash: block.ValidatorsHash.String(),
 		CreatedAt: types.ResultTime(block.Header.Time),
 	}
-	fmt.Println("finding Proposer by address:", block.ProposerAddress.String())
-	proposer, err := models.ValidatorByAddress(n.ChainID, block.ProposerAddress.String())
+	fmt.Println("finding Proposer by address:", block.Header.ProposerAddress.String())
+	proposer, err := models.ValidatorByAddress(n.ChainID, block.Header.ProposerAddress.String())
 	if err == nil {
 		resultBlock.Proposer = ConvertToValidator(proposer, height)
 	}

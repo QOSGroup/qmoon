@@ -17,7 +17,6 @@ import (
 	cosmos_staking_types "github.com/QOSGroup/qmoon/lib/cosmos/x/staking/types"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/service"
-	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/sirupsen/logrus"
@@ -257,7 +256,7 @@ func (s COSMOS) Validator(height int64, t time.Time) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChainID, t, oldVals)
+	//metric.ValidatorVotingPower(s.node.ChainID, t, oldVals)
 
 	return nil
 }

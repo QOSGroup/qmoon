@@ -4,6 +4,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -105,6 +106,23 @@ func (n Node) saveBlockValidator(v *types.BlockValidator) error {
 		if err := mbv.Insert(n.ChainID); err != nil {
 			return err
 		}
+
+		go func() {
+			vh := &models.ValidatorHistoryRecord{
+				RecordTime: v.Timestamp.UTC().Unix(),
+				Address:v.ValidatorAddress,
+				VotingPower: v.VotingPower,
+				Status:0,
+			}
+			vh.Insert(n.ChainID)
+
+			if v.Height % 100000 == 0 {
+				err := models.PurgeOldValidatorHistory(n.ChainID, v.Timestamp.UTC().Unix() - 100000*6)
+				if err != nil {
+					fmt.Println("Purge failed: ", err)
+				}
+			}
+		}()
 	}
 
 	return nil
@@ -140,6 +158,16 @@ func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
 				CreatedAt:        t,
 			}
 			missing.Insert(n.ChainID)
+
+			go func() {
+				vh := &models.ValidatorHistoryRecord{
+					RecordTime: t.UTC().Unix(),
+					Address:v.Address,
+					VotingPower: v.VotingPower,
+					Status:1,
+				}
+				vh.Insert(n.ChainID)
+			}()
 		}
 	}
 	for _, v := range vars {

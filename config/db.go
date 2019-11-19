@@ -31,7 +31,7 @@ func DefaultDBConfig() *DBConfig {
 	return &DBConfig{
 		DriverName: "postgres",
 		User:       "postgres",
-		Password:   "",
+		Password:   "Postgres@",
 		Addr:       "localhost:5432",
 		Database:   "qmoon",
 	}
@@ -42,8 +42,8 @@ func TestDBConfig() *DBConfig {
 	return &DBConfig{
 		DriverName: "postgres",
 		User:       "postgres",
-		Password:   "",
+		Password:   "Postgres@",
 		Addr:       "localhost:5432",
-		Database:   "qmoon_test",
+		Database:   "qmoon",
 	}
 }
