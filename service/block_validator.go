@@ -107,22 +107,20 @@ func (n Node) saveBlockValidator(v *types.BlockValidator) error {
 			return err
 		}
 
-		go func() {
-			vh := &models.ValidatorHistoryRecord{
+		vh := &models.ValidatorHistoryRecord{
 				RecordTime: v.Timestamp.UTC().Unix(),
 				Address:v.ValidatorAddress,
 				VotingPower: v.VotingPower,
 				Status:0,
-			}
-			vh.Insert(n.ChainID)
+		}
+		vh.Insert(n.ChainID)
 
-			if v.Height % 100000 == 0 {
+		if v.Height % 100000 == 0 {
 				err := models.PurgeOldValidatorHistory(n.ChainID, v.Timestamp.UTC().Unix() - 100000*6)
 				if err != nil {
 					fmt.Println("Purge failed: ", err)
 				}
-			}
-		}()
+		}
 	}
 
 	return nil
@@ -159,15 +157,13 @@ func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
 			}
 			missing.Insert(n.ChainID)
 
-			go func() {
-				vh := &models.ValidatorHistoryRecord{
+			vh := &models.ValidatorHistoryRecord{
 					RecordTime: t.UTC().Unix(),
 					Address:v.Address,
 					VotingPower: v.VotingPower,
 					Status:1,
-				}
-				vh.Insert(n.ChainID)
-			}()
+			}
+			vh.Insert(n.ChainID)
 		}
 	}
 	for _, v := range vars {

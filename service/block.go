@@ -62,7 +62,6 @@ func (n Node) LatestBlockHeight() (height int64, err error) {
 		return 0, err
 	}
 	height = status.LatestBlockHeight
-	fmt.Println("Query latest height = ", height)
 	return
 }
 
@@ -139,39 +138,35 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	//blockM := models.Block{Height:block.Height}
 	//err = blockM.InsertIfNotExist(n.ChainID)
 	resultBlock := types.ResultBlockBase {
-		ChainID: block.Header.ChainID,
+		ChainID: block.Block.Header.ChainID,
 		Height: height,
-		NumTxs: block.Header.NumTxs,
-		TotalTxs: block.Header.TotalTxs,
-		Time: types.ResultTime(block.Header.Time),
-		DataHash: block.DataHash.String(),
-		ValidatorsHash: block.ValidatorsHash.String(),
-		CreatedAt: types.ResultTime(block.Header.Time),
+		NumTxs: block.Block.Header.NumTxs,
+		TotalTxs: block.Block.Header.TotalTxs,
+		Time: types.ResultTime(block.Block.Header.Time),
+		DataHash: block.Block.DataHash.String(),
+		ValidatorsHash: block.Block.ValidatorsHash.String(),
+		CreatedAt: types.ResultTime(block.Block.Header.Time),
 	}
-	fmt.Println("finding Proposer by address:", block.Header.ProposerAddress.String())
-	proposer, err := models.ValidatorByAddress(n.ChainID, block.Header.ProposerAddress.String())
-	if err == nil {
+	fmt.Println("finding Proposer by address:", block.Block.Header.ProposerAddress.String())
+	proposer, err0 := models.ValidatorByAddress(n.ChainID, block.Block.Header.ProposerAddress.String())
+	if err0 == nil {
 		resultBlock.Proposer = ConvertToValidator(proposer, height)
 	}
 	resultBlock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, height)
 	resultBlock.Inflation = "995474"
-	inf, err := models.InflationByHeight(n.ChainID, height)
-	if err == nil {
+	inf, err1 := models.InflationByHeight(n.ChainID, height)
+	if err1 == nil {
 		resultBlock.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
 
-	//newblc, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
-	//if err == nil {
-	//	n.CreateBlock(newblc)
-	//}
 
-	go func(height int64) {
-		block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
-		if err != nil {
-			return
-		}
-		n.CreateBlock(block)
-	}(height)
+	//go func(height int64) {
+	//	block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+	//	if err != nil {
+	//		return
+	//	}
+	//	// n.CreateBlock(block)
+	//}(height)
 
 	return &resultBlock, err
 }

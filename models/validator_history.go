@@ -83,10 +83,14 @@ func QueryValidatorVotingPowerPercent(chainID string, address string) ([]types.M
 	for _, vh :=  range bvs {
 		a,_ := decimal.NewFromString(strconv.FormatInt(vh.VotingPower * 100, 10))
 		b,_ := decimal.NewFromString(strconv.FormatInt(vh.TotalPower,10))
-		percent,_:= a.Div(b).Float64()
+		y := "Not Available"
+		if !b.IsZero() {
+			percent,_:= a.Div(b).Float64()
+			y = strconv.FormatFloat(percent,'f', -4, 32)
+		}
 		result = append(result, types.Matrix{
 			X:strconv.FormatInt(vh.RecordTime, 10),
-			Y:strconv.FormatFloat(percent,'f', -4, 32),
+			Y:y,
 		})
 	}
 	return result, err

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/QOSGroup/qbase/types"
+	gov_types "github.com/QOSGroup/qos/module/gov/types"
+
 )
 
 type ResultTime time.Time
@@ -230,18 +232,23 @@ type ResultMissing struct {
 
 // ResultProposal
 type ResultProposal struct {
-	ProposalID      int64      `json:"proposal_id"`
-	Title           string     `json:"title"`
-	Description     string     `json:"description"`
-	Type            string     `json:"type"`
-	Status          string     `json:"status"`
-	SubmitTime      ResultTime `json:"submit_time"`
-	VotingStartTime ResultTime `json:"voting_start_time"`
-	VotingEndTime   ResultTime `json:"voting_end_time"`
-	TotalDeposit    int64      `json:"total_deposit"`
-	Deposites		ResultDeposits `json:"deposits"`
-	Votes			ResultVotes	`json:"votes"`
-	TallyResult		ResultTallyResult `json:"tally_result"`
+
+	ProposalID int64 `json:"proposal_id"` //  ID of the proposal
+	Type string `json:"type"`
+	Title string `json:"title"`
+	Description string `json:"description"`
+	Level string `json:"level"`
+
+	Status           string `json:"proposal_status"`    //  Status of the Proposal
+	FinalTallyResult gov_types.TallyResult    `json:"final_tally_result"` //  Result of Tallys
+
+	SubmitTime     string     `json:"submit_time"`      //  Time of the block where TxGovSubmitProposal was included
+	DepositEndTime string     `json:"deposit_end_time"` // Time that the Proposal would expire if deposit amount isn't met
+	TotalDeposit   types.BigInt `json:"total_deposit"`    //  Current deposit on this proposal. Initial value is set at InitialDeposit
+
+	VotingStartTime   string `json:"voting_start_time"` //  Time of the block where MinDeposit was reached. -1 if MinDeposit is not reached
+	VotingStartHeight int64     `json:"voting_start_height"`
+	VotingEndTime     string `json:"voting_end_time"` // Time that the VotingPeriod for this proposal will end and votes will be tallied
 }
 
 type ResultProposals struct {

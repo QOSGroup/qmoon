@@ -56,7 +56,6 @@ func blockGin() gin.HandlerFunc {
 
 		} else {
 			b, err = node.RetrieveBlock(d)
-			// b, err = node.BlockByHeight(d)
 			if err != nil {
 				b, err = node.BlockByHeight(d)
 				if err != nil {
@@ -96,15 +95,15 @@ func queryBlockIfNotExist(context *gin.Context, height int64) (*types.ResultBloc
 	}
 
 	block := types.ResultBlockBase{
-		ChainID: result.ChainID,
-		Height: result.Height,
-		NumTxs: result.NumTxs,
-		TotalTxs: result.TotalTxs,
+		ChainID: result.Block.ChainID,
+		Height: result.Block.Height,
+		NumTxs: result.Block.NumTxs,
+		TotalTxs: result.Block.TotalTxs,
 		Data: "",
-		Time: types.ResultTime(result.Time),
-		DataHash: result.DataHash.String(),
-		ValidatorsHash: result.ValidatorsHash.String(),
-		CreatedAt: types.ResultTime(result.Time),
+		Time: types.ResultTime(result.Block.Time),
+		DataHash: result.Block.DataHash.String(),
+		ValidatorsHash: result.Block.ValidatorsHash.String(),
+		CreatedAt: types.ResultTime(result.Block.Time),
 	}
 
 

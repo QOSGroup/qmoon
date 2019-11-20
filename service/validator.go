@@ -22,7 +22,10 @@ func ConvertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 	if bv.Status != 0 {
 		statusStr = "Inactive"
 	}
-	uptime := float64(bv.PrecommitNum*10000/(latestHeight-bv.FirstBlockHeight)) / 100.00
+	uptime := 0.0
+	if latestHeight!=bv.FirstBlockHeight {
+		uptime = float64(bv.PrecommitNum*10000/(latestHeight-bv.FirstBlockHeight)) / 100.00
+	}
 
 	return &types.Validator{
 		Name:             bv.Name,
@@ -269,7 +272,6 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			mv.SelfBond = vl.SelfBond
 			cols = append(cols, "self_bond")
 		}
-		fmt.Println("update ", mv.Address, mv.Status)
 		if err := mv.Update(n.ChainID, cols...); err != nil {
 			return err
 		}
@@ -323,6 +325,5 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
 	}
-	fmt.Println("after convert ", vall.Address, vall.StakeAddress, vall.Status)
 	return vall, nil
 }

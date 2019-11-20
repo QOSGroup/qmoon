@@ -20,6 +20,7 @@ func (dc *DBConfig) DataSource() string {
 	case "mysql":
 		return fmt.Sprintf("%s:%s@tcp(%s)/%s", dc.User, dc.Password, dc.Addr, dc.Database)
 	case "postgres":
+		// postgres://postgres:@127.0.0.1/qmoon_aquarius-2001?sslmode=disable
 		return fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", dc.User, dc.Password, dc.Addr, dc.Database)
 	default:
 		return ""
