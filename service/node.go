@@ -3,14 +3,12 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	qbasetypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
-	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/hashicorp/go-version"
 	"github.com/tendermint/go-amino"
@@ -106,10 +104,6 @@ func CreateNode(name, baseURL, nodeType, nodeVersion, secretKey string) error {
 		return err
 	}
 
-	if err := metric.CreateDatabase(chainID); err != nil {
-		return errors.New("CreateDatabase:" + err.Error())
-	}
-
 	return nil
 }
 
@@ -126,11 +120,6 @@ func DeleteNodeByName(name string) error {
 	if err := models.DropDatabase(name); err != nil {
 		return err
 	}
-
-	if err := metric.DeleteDatabase(name); err != nil {
-		return err
-	}
-
 	return models.DeleteNodeByName(name)
 }
 

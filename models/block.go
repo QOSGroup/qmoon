@@ -85,6 +85,7 @@ func Blocks(chainID string, opt *BlockOption) ([]*Block, error) {
 	var bvs = make([]*Block, 0)
 
 	sess := x.NewSession()
+	defer sess.Clone()
 	if opt != nil {
 		if opt.Height != 0 {
 			sess = sess.Where("height = ?", opt.Height)

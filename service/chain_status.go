@@ -3,31 +3,26 @@
 package service
 
 import (
-	"github.com/QOSGroup/qmoon/lib/qos"
-	"time"
-
+	"fmt"
 	"github.com/QOSGroup/qmoon/lib/cache"
 	"github.com/QOSGroup/qmoon/types"
+	"time"
 )
 
-const chainStatusCache = "ChainStatusCache"
+const LatestHeightKey = "latest_height_key"
 
-func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
+func (n Node) ChainStatus() (*types.ResultStatus, error) {
 	result := &types.ResultStatus{}
-	if cached {
-		d, ok := cache.Get(chainStatusCache)
-		if ok {
-			if v, okk := d.(*types.ResultStatus); okk {
-				return v, nil
-			}
-		}
-	}
-
-
-	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
+	//if cached {
+	//	d, ok := cache.Get(chainStatusCache)
+	//	if ok {
+	//		if v, okk := d.(*types.ResultStatus); okk {
+	//			return v, nil
+	//		}
+	//	}
+	//}
 
 	cs, err1 := n.ConsensusState()
-	result.Height = status.SyncInfo.LatestBlockHeight
 	if err1 != nil {
 		result.ConsensusState = &types.ResultConsensusState{}
 	} else {
@@ -35,12 +30,23 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 		// latestHeight,_ = strconv.ParseInt(cs.Height, 10, 64)
 	}
 
-	blc, err := n.BlockByHeight(result.Height)
-	if err == nil {
-		result.Block = blc
+	latestheight, err := n.LatestBlockHeight()
+	if err != nil || latestheight == 0{
+		return nil, err
 	}
 
-	vs, err2 := n.Validators()
+	bl, err := n.BlockByHeight(latestheight)
+	fmt.Println("BlockByHeight ", latestheight, ", ", bl)
+	if err == nil {
+		result.Height = bl.Height
+		cache.Set(LatestHeightKey, result.Height,  time.Second*7)
+		result.Block = bl
+		result.TotalTxs = bl.TotalTxs
+		result.Proposer = bl.Proposer
+		result.Votes = bl.Votes
+	}
+
+	vs, err2 := n.Validators(result.Height)
 	if err2 == nil {
 		result.TotalValidators = int64(len(vs))
 	}
@@ -51,16 +57,10 @@ func (n Node) ChainStatus(cached bool) (*types.ResultStatus, error) {
 	}
 
 	// lb, err3 := n.LatestBlock()
-	lb, err3 := n.BlockByHeight(result.Height)
-	if err3 == nil {
-		result.TotalTxs = lb.TotalTxs
-		result.Proposer = lb.Proposer
-		result.Votes = lb.Votes
-	}
+
 	result.ConsensusState.ChainID = n.ChainID
-	if err3 == nil && err2 == nil {
-		cache.Set(chainStatusCache, result, time.Second*1)
-	}
+
+	// cache.Set(chainStatusCache, result, time.Second*1)
 
 	return result, nil
 }

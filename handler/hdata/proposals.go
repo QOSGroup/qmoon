@@ -11,8 +11,8 @@ import (
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	qos_types "github.com/QOSGroup/qmoon/lib/qos/gov/types"
 	"github.com/QOSGroup/qmoon/types"
+	qos_types "github.com/QOSGroup/qos/module/gov/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -96,7 +96,7 @@ func proposalsGin() gin.HandlerFunc {
 	}
 }
 
-func queryProposal(context *gin.Context) (proposal qos_types.Proposal, err error) {
+func queryProposal(context *gin.Context) (proposal types.ResultProposal, err error) {
 	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
 	if err != nil {
 		err = errors.New("pid is error")
@@ -105,7 +105,7 @@ func queryProposal(context *gin.Context) (proposal qos_types.Proposal, err error
 
 	k := fmt.Sprintf(proposalCacheKey, pId)
 	if v, ok := cache.Get(k); ok {
-		if proposal, ok = v.(qos_types.Proposal); ok {
+		if proposal, ok = v.(types.ResultProposal); ok {
 			return
 		}
 	}

@@ -1,11 +1,5 @@
 package models
 
-import (
-	"time"
-
-	"github.com/go-xorm/xorm"
-)
-
 type Proposal struct {
 	Id                  int64     `xorm:"pk autoincr BIGINT"`
 	ProposalID          int64     `xorm:"unique(proposal_proposal_idx) BIGINT"`
@@ -13,12 +7,9 @@ type Proposal struct {
 	Description         string    `xorm:"TEXT"`
 	Type                string    `xorm:"TEXT"`
 	Status              string    `xorm:"TEXT"`
-	SubmitTime          time.Time `xorm:"-"`
-	VotingStartTime     time.Time `xorm:"-"`
-	VotingEndTime       time.Time `xorm:"-"`
-	SubmitTimeUnix      int64
-	VotingStartTimeUnix int64
-	VotingEndTimeUnix   int64
+	SubmitTime          string `xorm:"-"`
+	VotingStartTime     string `xorm:"-"`
+	VotingEndTime       string `xorm:"-"`
 	TotalDeposit        int64  `xorm:"BIGINT"`
 	ChainID             string `xorm:"-"`
 	// UpdatedAt           time.Time `xorm:"-"`
@@ -27,28 +18,28 @@ type Proposal struct {
 	// CreatedAtUnix       int64
 }
 
-func (n *Proposal) BeforeInsert() {
-	n.SubmitTimeUnix = n.SubmitTime.Unix()
-	n.VotingStartTimeUnix = n.VotingStartTime.Unix()
-	n.VotingEndTimeUnix = n.VotingEndTime.Unix()
-}
-
-func (n *Proposal) BeforeUpdate() {
-	n.SubmitTimeUnix = n.SubmitTime.Unix()
-	n.VotingStartTimeUnix = n.VotingStartTime.Unix()
-	n.VotingEndTimeUnix = n.VotingEndTime.Unix()
-}
-
-func (n *Proposal) AfterSet(colName string, _ xorm.Cell) {
-	switch colName {
-	case "submit_time_unix":
-		n.SubmitTime = time.Unix(n.SubmitTimeUnix, 0).Local()
-	case "voting_start_time_unix":
-		n.VotingStartTime = time.Unix(n.VotingStartTimeUnix, 0).Local()
-	case "voting_end_time_unix":
-		n.VotingEndTime = time.Unix(n.VotingEndTimeUnix, 0).Local()
-	}
-}
+//func (n *Proposal) BeforeInsert() {
+//	n.SubmitTimeUnix = n.SubmitTime.Unix()
+//	n.VotingStartTimeUnix = n.VotingStartTime.Unix()
+//	n.VotingEndTimeUnix = n.VotingEndTime.Unix()
+//}
+//
+//func (n *Proposal) BeforeUpdate() {
+//	n.SubmitTimeUnix = n.SubmitTime.Unix()
+//	n.VotingStartTimeUnix = n.VotingStartTime.Unix()
+//	n.VotingEndTimeUnix = n.VotingEndTime.Unix()
+//}
+//
+//func (n *Proposal) AfterSet(colName string, _ xorm.Cell) {
+//	switch colName {
+//	case "submit_time_unix":
+//		n.SubmitTime = time.Unix(n.SubmitTimeUnix, 0).Local()
+//	case "voting_start_time_unix":
+//		n.VotingStartTime = time.Unix(n.VotingStartTimeUnix, 0).Local()
+//	case "voting_end_time_unix":
+//		n.VotingEndTime = time.Unix(n.VotingEndTimeUnix, 0).Local()
+//	}
+//}
 
 func (n *Proposal) InsertOrUpdate(chainID string) error {
 	x, err := GetNodeEngine(chainID)

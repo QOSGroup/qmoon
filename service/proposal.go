@@ -2,9 +2,7 @@ package service
 
 import (
 	"github.com/QOSGroup/qmoon/lib/qos"
-	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"strconv"
 )
 
 // Proposal proposal查询
@@ -15,22 +13,11 @@ func (n Node) Proposals() (*types.ResultProposals, error) {
 		return nil, err
 	}
 	for _, proposal := range proposals {
-		deposite, err := strconv.ParseInt(proposal.TotalDeposit, 10, 64)
-		if err != nil {
-			return nil, err
-		}
-		p := types.ResultProposal{
-			ProposalID: proposal.ProposalID,
-			Title:	proposal.ProposalContent.Title,
-			Description: proposal.ProposalContent.Description,
-			Type: proposal.Type,
-			Status: proposal.Status,
-			SubmitTime: types.ResultTime(proposal.SubmitTime),
-			VotingStartTime: types.ResultTime(proposal.VotingEndTime),
-			VotingEndTime: types.ResultTime(proposal.VotingEndTime),
-			TotalDeposit: deposite,
-		}
-		result.Proposals = append(result.Proposals, &p)
+		//deposite, err := strconv.ParseInt(proposal.TotalDeposit.String(), 10, 64)
+		//if err != nil {
+		//	return nil, err
+		//}
+		result.Proposals = append(result.Proposals, &proposal)
 	}
 	return &result, err
 }
@@ -40,22 +27,11 @@ func (n Node) ProposalByID(id int64) (*types.ResultProposal, error) {
 	if err != nil {
 		return nil, err
 	}
-	deposite, err := strconv.ParseInt(proposal.TotalDeposit, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	p := types.ResultProposal{
-		ProposalID: proposal.ProposalID,
-		Title:	proposal.ProposalContent.Title,
-		Description: proposal.ProposalContent.Description,
-		Type: proposal.Type,
-		Status: proposal.Status,
-		SubmitTime: types.ResultTime(proposal.SubmitTime),
-		VotingStartTime: types.ResultTime(proposal.VotingEndTime),
-		VotingEndTime: types.ResultTime(proposal.VotingEndTime),
-		TotalDeposit: deposite,
-	}
-	return &p, err
+	//deposite, err := strconv.ParseInt(proposal.TotalDeposit.String(), 10, 64)
+	//if err != nil {
+	//	return nil, err
+	//}
+	return &proposal, err
 }
 
 func (n Node) VotesByID(id int64) (*types.ResultVotes, error) {
@@ -66,8 +42,8 @@ func (n Node) VotesByID(id int64) (*types.ResultVotes, error) {
 	}
 	for _, vote := range votes {
 		v := types.ResultVote{
-			Voter: vote.Voter,
-			Option: vote.Option,
+			Voter: vote.Voter.String(),
+			Option: vote.Option.String(),
 		}
 		result.Votes = append(result.Votes, &v)
 	}
@@ -82,8 +58,8 @@ func (n Node) DepositesByID(id int64) (*types.ResultDeposits, error) {
 	}
 	for _, deposit := range deposits {
 		v := types.ResultDeposit{
-			Depositor: deposit.Depositor,
-			Amount: deposit.Amount,
+			Depositor: deposit.Depositor.String(),
+			Amount: deposit.Amount.String(),
 		}
 		result.Deposits = append(result.Deposits, &v)
 	}
@@ -91,16 +67,16 @@ func (n Node) DepositesByID(id int64) (*types.ResultDeposits, error) {
 }
 
 
-func convertToProposal(mp *models.Proposal) *types.ResultProposal {
-	return &types.ResultProposal{
-		ProposalID:      mp.ProposalID,
-		Title:           mp.Title,
-		Description:     mp.Description,
-		Type:            mp.Type,
-		Status:          mp.Status,
-		SubmitTime:      types.ResultTime(mp.SubmitTime),
-		VotingStartTime: types.ResultTime(mp.VotingStartTime),
-		VotingEndTime:   types.ResultTime(mp.VotingEndTime),
-		TotalDeposit:    mp.TotalDeposit,
-	}
-}
+//func convertToProposal(mp *models.Proposal) *types.ResultProposal {
+//	return &types.ResultProposal{
+//		ProposalID:      mp.ProposalID,
+//		Title:           mp.Title,
+//		Description:     mp.Description,
+//		Type:            mp.Type,
+//		Status:          mp.Status,
+//		SubmitTime:      types.ResultTime(mp.SubmitTime),
+//		VotingStartTime: types.ResultTime(mp.VotingStartTime),
+//		VotingEndTime:   types.ResultTime(mp.VotingEndTime),
+//		TotalDeposit:    mp.TotalDeposit,
+//	}
+//}

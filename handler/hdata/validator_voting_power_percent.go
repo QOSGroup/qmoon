@@ -3,16 +3,12 @@
 package hdata
 
 import (
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
-	"github.com/QOSGroup/qmoon/service/metric"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
-	"github.com/QOSGroup/qmoon/utils"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 const validatorVotingPowerPercentUrl = NodeProxy + "/validators/:address/votingPowerPercent"
@@ -35,26 +31,8 @@ func validatorVotingPowerPercentGin() gin.HandlerFunc {
 		}
 
 		address := lib.Bech32AddressToHex(c.Param("address"))
-		now := time.Now()
-		start := utils.NDaysAgo(now, 28).Unix()
-		end := now.Unix()
-		step := "1d"
 
-		if d, err := strconv.ParseInt(c.Query("start"), 10, 64); err == nil {
-			start = d
-		}
-		if d, err := strconv.ParseInt(c.Query("end"), 10, 64); err == nil {
-			end = d
-		}
-		if d := c.Query("step"); d != "" {
-			if utils.IsDigit(d) {
-				step = d + "s"
-			} else {
-				step = d
-			}
-		}
-		res, err := metric.QueryValidatorVotingPowerPercent(node.ChainID, address,
-			time.Unix(start, 0), time.Unix(end, 0), step)
+		res, err := models.QueryValidatorVotingPowerPercent(node.ChainID, address)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

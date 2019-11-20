@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/QOSGroup/qmoon/models/errors"
@@ -91,7 +92,8 @@ func DeleteKey(key string)  error{
 
 func DeleteKeyBySystemName(systemname string)  error {
 	var l QmoonStatus
-	_, err := basex.Where("system_name = ?", systemname).Delete(&l)
+	fmt.Println("delete lock", systemname)
+	_, err := basex.Where("value = ?", systemname).Delete(&l)
 	if err != nil {
 		return err
 	}

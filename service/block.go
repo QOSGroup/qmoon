@@ -6,10 +6,12 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/QOSGroup/qmoon/lib/qos"
+	tmlib "github.com/QOSGroup/qmoon/lib"
+
 	"strconv"
 	"time"
-	"fmt"
 
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
@@ -29,7 +31,7 @@ func convertToBlock(mb *models.Block) *types.ResultBlockBase {
 }
 
 // Latest最新的块
-func (n Node) LatestBlock() (*types.ResultBlockBase, error) {
+func (n Node) LatestBlock() (result *types.ResultBlockBase, err error) {
 	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Offset: 0, Limit: 1})
 	if err != nil {
 		return nil, err
@@ -54,6 +56,52 @@ func (n Node) LatestBlock() (*types.ResultBlockBase, error) {
 	return latestblock, nil
 }
 
+func (n Node) LatestBlockHeight() (height int64, err error) {
+	status, err := qos.NewQosCli("").QueryStatus(n.BaseURL)
+	if err != nil || status == nil {
+		return 0, err
+	}
+	height = status.LatestBlockHeight
+	return
+}
+
+func (n Node) LatestBlockFromCli() (result *types.ResultBlockBase, err error) {
+	height, _ := n.LatestBlockHeight()
+	if err != nil || height == 0 {
+		return nil, err
+	}
+	b, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+	// b, err := n.BlockByHeight(height)
+	if err != nil {
+		return nil, err
+	}
+	n.CreateBlock(b)
+	result = &types.ResultBlockBase{
+		ChainID:b.Header.ChainID,
+		Height:b.Header.Height,
+		NumTxs:b.Header.NumTxs,
+		TotalTxs:b.Header.TotalTxs,
+		Time:types.ResultTime(b.Header.Time),
+		DataHash: b.Header.DataHash,
+		ValidatorsHash:b.Header.ValidatorsHash,
+		CreatedAt: types.ResultTime(b.Header.Time),
+	}
+	proposer, err := models.ValidatorByAddress(n.ChainID,b.Header.ProposerAddress)
+	if err != nil {
+		return
+	}
+	result.Proposer = ConvertToValidator(proposer, height)
+	vote, err := models.RetrieveVotesByHeight(n.ChainID,height)
+	result.Votes = vote
+
+	result.Inflation = "995474"
+	inf, err := models.InflationByHeight(n.ChainID, height)
+	if err == nil {
+		result.Inflation = strconv.FormatInt(inf.Tokens, 10)
+	}
+	return
+}
+
 // Retrieve 块查询
 func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	mbs, err := models.Blocks(n.ChainID, &models.BlockOption{Height: height, Offset: 0, Limit: 1})
@@ -64,7 +112,6 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	if len(mbs) != 1 {
 		return nil, errors.New("not found")
 	}
-
 	block := convertToBlock(mbs[0])
 	proposer, err := models.ValidatorByAddress(n.ChainID, mbs[0].ProposerAddress)
 	if err != nil {
@@ -73,10 +120,10 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 	block.Proposer = ConvertToValidator(proposer, height)
 	vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 	block.Votes = vote
-	inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
-	if err != nil {
-		block.Inflation = "Not Available"
-	} else {
+
+	block.Inflation = "995474"
+	inf, err1 := models.InflationByHeight(n.ChainID, height)
+	if err1 == nil {
 		block.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
 	return block, err
@@ -84,38 +131,43 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 
 func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	block, err := qos.NewQosCli("").QueryBlockByHeight(n.BaseURL, height)
+	fmt.Println("Got Block: ", height, " @ ", block)
 	if err != nil {
 		return nil, err
 	}
-	blockM := models.Block{Height:block.Height}
-	err = blockM.InsertIfNotExist(n.ChainID)
-	if err != nil {
-		return nil, err
-	}
+	//blockM := models.Block{Height:block.Height}
+	//err = blockM.InsertIfNotExist(n.ChainID)
 	resultBlock := types.ResultBlockBase {
-		ChainID: block.Header.ChainID,
+		ChainID: block.Block.Header.ChainID,
 		Height: height,
-		NumTxs: int64(len(block.Txs)),
-		TotalTxs: block.TotalTxs,
-		Time: types.ResultTime(block.Time),
-		DataHash: block.DataHash.String(),
-		ValidatorsHash: block.ValidatorsHash.String(),
-		CreatedAt: types.ResultTime(block.Header.Time),
+		NumTxs: block.Block.Header.NumTxs,
+		TotalTxs: block.Block.Header.TotalTxs,
+		Time: types.ResultTime(block.Block.Header.Time),
+		DataHash: block.Block.DataHash.String(),
+		ValidatorsHash: block.Block.ValidatorsHash.String(),
+		CreatedAt: types.ResultTime(block.Block.Header.Time),
 	}
-	fmt.Println("Proposer Add in block ", block.ProposerAddress.String())
-	proposer, err := models.ValidatorByAddress(n.ChainID, block.ProposerAddress.String())
-	if err != nil {
-		return nil, err
+	fmt.Println("finding Proposer by address:", block.Block.Header.ProposerAddress.String())
+	proposer, err0 := models.ValidatorByAddress(n.ChainID, block.Block.Header.ProposerAddress.String())
+	if err0 == nil {
+		resultBlock.Proposer = ConvertToValidator(proposer, height)
 	}
-	resultBlock.Proposer = ConvertToValidator(proposer, height)
-	vote, err := models.RetrieveVotesByHeight(n.ChainID, height)
-	resultBlock.Votes = vote
-	inf, err := models.InflationByHeight(n.ChainID, height)
-	if err != nil {
-		resultBlock.Inflation = "Not Available"
-	} else {
+	resultBlock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, height)
+	resultBlock.Inflation = "995474"
+	inf, err1 := models.InflationByHeight(n.ChainID, height)
+	if err1 == nil {
 		resultBlock.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
+
+
+	//go func(height int64) {
+	//	block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
+	//	if err != nil {
+	//		return
+	//	}
+	//	// n.CreateBlock(block)
+	//}(height)
+
 	return &resultBlock, err
 }
 
@@ -136,14 +188,15 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 		blc.Proposer = ConvertToValidator(proposer, maxHeight)
 		vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
 		blc.Votes = vote
+
+		blc.Inflation = "995474"
 		inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
-		if err != nil {
-			blc.Inflation = "Not Available"
-		} else {
+		if err == nil {
 			blc.Inflation = strconv.FormatInt(inf.Tokens, 10)
 		}
 		res = append(res, blc)
 	}
+
 
 	return res, err
 }
@@ -194,7 +247,7 @@ func (n Node) CreateBlock(b *types.Block) error {
 	block.DataHash = b.Header.DataHash
 	block.ValidatorsHash = b.Header.ValidatorsHash
 	block.ProposerAddress = b.Header.ProposerAddress
-	if err := block.Insert(n.ChainID); err != nil {
+	if err := block.InsertIfNotExist(n.ChainID); err != nil {
 		return err
 	}
 

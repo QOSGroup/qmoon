@@ -7,10 +7,11 @@ import (
 	mint_types "github.com/QOSGroup/qmoon/lib/qos/mint/types"
 	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
 	base_types "github.com/QOSGroup/qmoon/lib/qos/types"
-	gov_types "github.com/QOSGroup/qmoon/lib/qos/gov/types"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tm_types "github.com/tendermint/tendermint/types"
 	"github.com/QOSGroup/qmoon/models/errors"
+	"github.com/QOSGroup/qmoon/types"
+	// gov_types "github.com/QOSGroup/qmoon/lib/qos/gov/types"
+	gov_types "github.com/QOSGroup/qos/module/gov/types"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"net/http"
 	"strconv"
 )
@@ -41,7 +42,7 @@ func (cc QosCli) QueryTx(nodeUrl, tx string) (result base_types.TxResponse, err 
 	return
 }
 
-func (cc QosCli) QueryProposals(nodeUrl string) (result []gov_types.Proposal, err error) {
+func (cc QosCli) QueryProposals(nodeUrl string) (result []types.ResultProposal, err error) {
 	resp, err := http.Get(cc.remote + "/gov/proposals?node_url=" + nodeUrl)
 	if err != nil {
 		return
@@ -56,7 +57,7 @@ func (cc QosCli) QueryProposals(nodeUrl string) (result []gov_types.Proposal, er
 	return
 }
 
-func (cc QosCli) QueryProposal(nodeUrl string, pId int64) (proposal gov_types.Proposal, err error) {
+func (cc QosCli) QueryProposal(nodeUrl string, pId int64) (proposal types.ResultProposal, err error) {
 	resp, err := http.Get(cc.remote + "/gov/proposal?node_url=" + nodeUrl + "&pId=" + strconv.FormatInt(pId, 10))
 	if err != nil {
 		return
@@ -212,7 +213,7 @@ func (cc QosCli) QueryDelegationsWithValidator(nodeUrl, validator string) (resul
 	return
 }
 
-func (cc QosCli) QueryBlockByHeight(nodeUrl string, height int64) (result *tm_types.Block, err error) {
+func (cc QosCli) QueryBlockByHeight(nodeUrl string, height int64) (result *ctypes.ResultBlock, err error) {
 	resp, err := http.Get(cc.remote + "/block?node_url=" + nodeUrl + "&height=" + strconv.FormatInt(height, 10))
 	if err != nil {
 		return
@@ -226,7 +227,7 @@ func (cc QosCli) QueryBlockByHeight(nodeUrl string, height int64) (result *tm_ty
 	return
 }
 
-func (cc QosCli) QueryStatus(nodeUrl string) (result *ctypes.ResultStatus, err error) {
+func (cc QosCli) QueryStatus(nodeUrl string) (result *ctypes.SyncInfo, err error) {
 	status, err := http.Get(cc.remote + "/status?node_url=" + nodeUrl)
 	if err != nil {
 		return

@@ -15,7 +15,6 @@ import (
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/service"
-	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -61,9 +60,13 @@ func (s QSC) BlockLoop(ctx context.Context) error {
 	defer Unlock(key)
 
 	var height int64 = 1
-	latest, err := s.node.LatestBlock()
-	if err == nil && latest != nil {
-		height = latest.Height + 1
+	//latest, err := s.node.LatestBlock()
+	//if err == nil && latest != nil {
+	//	height = latest.Height + 1
+	//}
+	latestheight, err := s.node.LatestBlockHeight()
+	if err == nil && latestheight != 0 {
+		height = latestheight + 1
 	}
 
 	for {
@@ -166,7 +169,7 @@ func (s QSC) Validator(height int64, t time.Time) error {
 		valMap[v.Address] = v
 	}
 
-	allVals, err := s.node.Validators()
+	allVals, err := s.node.Validators(height)
 	if err == nil {
 		for _, v := range allVals {
 			if v.Status == types.Active {
@@ -180,7 +183,6 @@ func (s QSC) Validator(height int64, t time.Time) error {
 			}
 		}
 	}
-	metric.ValidatorVotingPower(s.node.ChainID, t, vals)
 
 	return nil
 }

@@ -2,8 +2,8 @@ module github.com/QOSGroup/qmoon
 
 require (
 	cloud.google.com/go v0.36.0 // indirect
-	github.com/QOSGroup/qbase v0.2.3-0.20190917080943-5c13010498cc
-	github.com/QOSGroup/qos v0.0.0-20190923023834-8669f2fea96c
+	github.com/QOSGroup/qbase v0.2.3-0.20190927065041-32eb90018d34
+	github.com/QOSGroup/qos v0.0.8
 	github.com/cosmos/cosmos-sdk v0.37.0
 	github.com/didip/tollbooth v4.0.0+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.0
@@ -15,7 +15,6 @@ require (
 	github.com/go-xorm/xorm v0.7.1
 	github.com/google/go-querystring v1.0.0
 	github.com/hashicorp/go-version v1.1.0
-	github.com/influxdata/influxdb v1.7.5
 	github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/magiconair/properties v1.8.0
@@ -23,9 +22,8 @@ require (
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.8.1
-	github.com/prometheus/client_golang v1.1.0
+	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24
 	github.com/sirupsen/logrus v1.3.0
-	github.com/snowdiceX/events v0.0.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0

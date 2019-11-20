@@ -73,11 +73,13 @@ func init() {
 
 	nodeTables = append(nodeTables,
 		new(AtmIpRecord), new(AtmRecord),
-		new(Validator), new(BlockValidator), new(Peer),
+		new(Validator), new(BlockValidator), new(Peer), new(ValidatorHistoryRecord),
 		new(Block), new(Tx), new(ConsensusState), new(Genesis),
 		new(TmBlock), new(TxTransfer),
 		new(Fee), new(Evidence), new(Missing),
 		new(Network), new(Proposal),
+		new(ITx), new(ITxAddress),
+		new(Inflation),
 	)
 
 	gonicNames := []string{"SSL"}

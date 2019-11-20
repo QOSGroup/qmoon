@@ -8,7 +8,6 @@ import (
 	"github.com/QOSGroup/qmoon/service"
 	"github.com/QOSGroup/qmoon/service/syncer"
 	"github.com/tendermint/tendermint/rpc/client"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -18,10 +17,10 @@ func Start() {
 	//先删除自己的锁信息
 	models.DeleteKeyBySystemName(syncer.SYSTEM_NAME)
 
+	go startEventListener()
 	go startConsensusState()
 	go syncAllNodeBlock()
 	go startNetwork()
-	go startEventListener()
 }
 
 func startConsensusState() {
@@ -53,14 +52,17 @@ func startNetwork() {
 func startEventListener() {
 	nodes, err := service.AllNodes()
 	if err != nil {
-		fmt.Errorf("No node find")
-		os.Exit(1)
+		fmt.Errorf("[Event] No node find")
+		return
+		// os.Exit(1)
 	}
 		for _, n := range nodes {
 			if strings.Index(n.Name, "cosmos") < 0 {
 				url := "tcp" + n.BaseURL[4:len(n.BaseURL)]
 
+				// client := client.NewHTTP("tcp://47.103.78.91:26657", "/websocket")
 				client := client.NewHTTP(url, "/websocket")
+				// fmt.Println("[Event] Starting listening to ", url, "/websocket")
 				err := client.Start()
 				if err != nil {
 					fmt.Println("[Event] Can't start websocket client [%s] - '%s'", url, err)
@@ -68,15 +70,16 @@ func startEventListener() {
 				//defer client.Stop()
 				_, events, err := n.SubscribInflation(client)
 				if err != nil {
-					fmt.Errorf("Exiting for error:", err)
+					fmt.Errorf("[Event] Exiting for error:", err)
 					client.Stop()
-					os.Exit(1)
+					return
+					// dos.Exit(1)
 				}
 				go func() {
 					for eventData := range events {
 						fmt.Println("[Event] Received event from [%s] - '%s'", url, eventData)
-						fmt.Println("[Event] event data: ", eventData.Data)
-						fmt.Println("[Event] events: ", eventData.Events)
+						//	fmt.Println("[Event] event data: ", eventData.Data)
+						//	fmt.Println("[Event] events: ", eventData.Events)
 						inf := models.Inflation{}
 						for key := range eventData.Events {
 							switch key {

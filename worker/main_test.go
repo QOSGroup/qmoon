@@ -31,7 +31,3 @@ func TestMain(m *testing.M) {
 
 	m.Run()
 }
-
-func TestEvent(m *testing.M) {
-	go startEventListener()
-}

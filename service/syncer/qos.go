@@ -22,7 +22,6 @@ import (
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/plugins"
 	"github.com/QOSGroup/qmoon/service"
-	"github.com/QOSGroup/qmoon/service/metric"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"github.com/hashicorp/go-version"
@@ -74,6 +73,7 @@ func (s QOS) RpcPeers(ctx context.Context) error {
 // BlockLoop 同步块
 func (s QOS) BlockLoop(ctx context.Context) error {
 	key := "lock_" + s.node.ChainID + "-" + LockTypeBlock
+	fmt.Println("[Sync] Start Syncing blocks")
 
 	if !Lock(key) {
 		log.Printf("[Sync] QOS BlockLoop %v err, has been locked.", s.node.ChainID)
@@ -86,6 +86,10 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 	if err == nil && latest != nil {
 		height = latest.Height + 1
 	}
+	//latestheight, err := s.node.LatestBlockHeight()
+	//if err == nil && latestheight != 0 {
+	//	height = latestheight + 1
+	//}
 
 	for {
 		select {
@@ -102,7 +106,7 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			// s.Validator(height, b.Header.Time)
+			s.Validator(height, b.Header.Time)
 			height += 1
 			// 为什么要同步proposal？
 			// s.Proposals()
@@ -120,10 +124,14 @@ func (s QOS) block(b *types.Block) error {
 	}
 
 	err = s.tx(b)
-	// TODO delete block
+	if err != nil {
+		fmt.Println("parse tx err:", err)
+	}
 
 	err = s.node.SaveBlockValidator(b.Precommits)
-	// TODO delete block and tx
+	if err != nil {
+		fmt.Println("parse BlockValidator err:", err)
+	}
 
 	return nil
 }
@@ -220,9 +228,8 @@ func parseQosTx(blockHeader types.BlockHeader, t qbasetypes.Tx, mt *models.Tx) e
 
 	mt.Maxgas = std.MaxGas.Int64()
 
-	var iTx qbasetxs.ITx
 	i := int64(0)
-	for _, iTx = range std.ITxs {
+	for _, iTx := range std.ITxs {
 		var itx = &models.ITx{Hash: mt.Hash, Seq: i}
 		if err := parseQosITx(blockHeader, iTx, itx); err != nil {
 			return err
@@ -230,10 +237,6 @@ func parseQosTx(blockHeader types.BlockHeader, t qbasetypes.Tx, mt *models.Tx) e
 		mt.ITxs = append(mt.ITxs, itx)
 		i++
 	}
-
-	//if mt.TxType == "Unknown" {
-	//	mt.TxType = t.Type()
-	//}
 
 	return nil
 }
@@ -367,7 +370,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	//	}
 	//}
 
-	metric.ValidatorVotingPower(s.node.ChainID, t, vals)
+	//metric.ValidatorVotingPower(s.node.ChainID, t, vals)
 
 	return nil
 }
@@ -380,12 +383,12 @@ func (s QOS) Proposals() error {
 	}
 	mt := &models.Proposal{}
 	for _, pro := range prores {
-		mt.Description = pro.ProposalContent.Description
+		mt.Description = pro.Description
 		mt.ProposalID = pro.ProposalID
 		mt.Status = pro.Status
 		mt.SubmitTime = pro.SubmitTime
-		mt.Title = pro.ProposalContent.Title
-		totalDeposit, err := strconv.ParseInt(pro.TotalDeposit, 10, 64)
+		mt.Title = pro.Title
+		totalDeposit, err := strconv.ParseInt(pro.TotalDeposit.String(), 10, 64)
 		if err == nil {
 			mt.TotalDeposit = totalDeposit
 		}
