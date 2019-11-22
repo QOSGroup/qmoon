@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/QOSGroup/qmoon/utils"
 	"time"
 
 	"github.com/QOSGroup/qmoon/models/errors"
@@ -10,13 +11,13 @@ import (
 type Tx struct {
 	Id          int64  `xorm:"pk autoincr BIGINT"`
 	ChainId     string `xorm:"-"`
-	Height      int64  `xorm:"index(txs_height_idx) unique(txs_height_index_idx) BIGINT"`
+	Height      int64  `xorm:"index(txs_height_idx) BIGINT"`
 	TxType      string `xorm:"TEXT"`
-	Index       int64  `xorm:"unique(txs_height_index_idx) BIGINT"`
-	Hash        string
+	Index       int64  `xorm:"BIGINT"`
+	Hash        string `xorm:"unique(hash_idx) TEXT`
 	Maxgas      int64 `xorm:"BIGINT"`
 	GasWanted   int64
-	Fee         string
+	Fee         string `xorm:"TEXT"`
 	GasUsed     int64
 	QcpFrom     string    `xorm:"TEXT"`
 	QcpTo       string    `xorm:"TEXT"`
@@ -34,8 +35,8 @@ type Tx struct {
 
 type ITx struct {
 	Id       int64  `xorm:"pk autoincr BIGINT"`
-	Hash     string `xorm:"TEXT"`
-	Seq      int64  `xorm:"BIGINT"`
+	Hash     string `xorm:"unique(hash_seq_idx) TEXT"`
+	Seq      int64  `xorm:"unique(hash_seq_idx) BIGINT"`
 	TxType   string `xorm:"TEXT"`
 	OriginTx string `xorm:"TEXT"`
 	JsonTx   string `xorm:"TEXT"`
@@ -43,9 +44,9 @@ type ITx struct {
 
 type ITxAddress struct {
 	Id      int64  `xorm:"pk autoincr BIGINT"`
-	ItxHash string `xorm:"TEXT"`
-	TxHash  string `xorm:"TEXT"`
-	Address string `xorm:"TEXT"`
+	TxHash  string `xorm:"index(hash_seq_idx) TEXT"`
+	ITxSeq  int64 `xorm:"index(hash_seq_idx) BIGINT"`
+	Address string `xorm:"index(address_idx) TEXT"`
 }
 
 func (t *Tx) BeforeInsert() {
@@ -102,6 +103,19 @@ func (t *Tx) InsertOrUpdate(chainID string) error {
 			if err != nil {
 				return err
 			}
+
+			addrs := utils.FindAddressInJson(itx.JsonTx)
+			for _, addr := range addrs {
+				addITx := ITxAddress{
+					TxHash: itx.Hash,
+					ITxSeq: itx.Seq,
+					Address: addr,
+				}
+				_, err = x.Insert(addITx)
+				if err != nil {
+					return err
+				}
+			}
 		}
 		return nil
 	}
@@ -140,6 +154,7 @@ func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 		sess = sess.Where("height >= ?", opt.MinHeight).Where("height <= ?", opt.MaxHeight)
 	}
 
+	//TODO query i_tx_address instead
 	if opt.Address != "" {
 		var itxs = make([]*ITx, 0)
 		sess = sess.Distinct("hash").Where("json_tx like ?", "%"+opt.Address+"%")
@@ -229,7 +244,8 @@ func ITxByAddress(chainID string, address string) ([]*ITx, error) {
 		return nil, err
 	}
 	itxadds := make([]*ITxAddress, 0)
-	err = x.Where("address = ?", address).Find(&itxadds)
+	result := make([]*ITx,0)
+	err = x.Where("address like ?", address).Distinct("hash").Find(&itxadds)
 	if err != nil {
 		return nil, errors.NotExist{Obj: "Address " + address}
 	}
@@ -237,17 +253,42 @@ func ITxByAddress(chainID string, address string) ([]*ITx, error) {
 	if len(itxadds) > 0 {
 		hashString := ""
 		for _, itxadd := range itxadds {
-			hashString += ", '" + itxadd.ItxHash + "'"
+			hashString += ", '" + itxadd.TxHash + "'"
 		}
 		hashString = hashString[2 : len(hashString)-1]
 
-		itxs := make([]*ITx, 0)
-		err = x.Where(" hash in (" + hashString + ")").Find(&itxs)
+		err = x.Where(" hash in (" + hashString + ")").Find(&result)
 		if err != nil {
 			return nil, errors.NotExist{Obj: "ITx " + hashString}
 		}
-		return itxs, nil
+		//return result, nil
 	}
-	return nil, errors.NotExist{Obj: "Address " + address}
+	return result, nil
+}
 
+func TxByAddress(chainID string, address string, minHeight int64, maxHeight int64, offset int, limit int) ([]*Tx, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	itxadds := make([]*ITxAddress, 0)
+	result := make([]*Tx,0)
+	err = x.Where("address like ?", address).Distinct("hash").Limit(1000).Find(&itxadds)
+	if err != nil {
+		return nil, errors.NotExist{Obj: "Address " + address}
+	}
+
+	if len(itxadds) > 0 {
+		hashString := ""
+		for _, itxadd := range itxadds {
+			hashString += ", '" + itxadd.TxHash + "'"
+		}
+		hashString = hashString[2 : len(hashString)-1]
+		err = x.Where(" hash in ( ? ) and height between ? and ?", address, minHeight, maxHeight).Limit(limit, offset).Desc("height").Find(&result)
+		if err != nil {
+			return nil, errors.NotExist{Obj: "ITx " + hashString}
+		}
+		//return result, nil
+	}
+	return result, nil
 }

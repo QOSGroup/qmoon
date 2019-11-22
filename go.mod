@@ -15,7 +15,6 @@ require (
 	github.com/go-xorm/xorm v0.7.1
 	github.com/google/go-querystring v1.0.0
 	github.com/hashicorp/go-version v1.1.0
-	github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/magiconair/properties v1.8.0
 	github.com/mattn/go-runewidth v0.0.4 // indirect

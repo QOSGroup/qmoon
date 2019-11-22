@@ -193,6 +193,8 @@ type ResultStatus struct {
 	CommunityFund	string				`json:"commuinity_fund"`
 	Proposer       *Validator			`json:"proposer"`
 	Votes			string				`json:"votes"`
+	BondedTokens	int64				`json:"bonded_tokens"`
+	Circulation		int64				`json:"circulation"`
 }
 
 type ResultAccount struct {

@@ -3,9 +3,11 @@
 package service
 
 import (
-	"fmt"
 	"github.com/QOSGroup/qmoon/lib/cache"
+	"github.com/QOSGroup/qmoon/lib/qos"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
+	"strconv"
 	"time"
 )
 
@@ -13,21 +15,12 @@ const LatestHeightKey = "latest_height_key"
 
 func (n Node) ChainStatus() (*types.ResultStatus, error) {
 	result := &types.ResultStatus{}
-	//if cached {
-	//	d, ok := cache.Get(chainStatusCache)
-	//	if ok {
-	//		if v, okk := d.(*types.ResultStatus); okk {
-	//			return v, nil
-	//		}
-	//	}
-	//}
 
 	cs, err1 := n.ConsensusState()
 	if err1 != nil {
 		result.ConsensusState = &types.ResultConsensusState{}
 	} else {
 		result.ConsensusState = cs
-		// latestHeight,_ = strconv.ParseInt(cs.Height, 10, 64)
 	}
 
 	latestheight, err := n.LatestBlockHeight()
@@ -36,7 +29,6 @@ func (n Node) ChainStatus() (*types.ResultStatus, error) {
 	}
 
 	bl, err := n.BlockByHeight(latestheight)
-	fmt.Println("BlockByHeight ", latestheight, ", ", bl)
 	if err == nil {
 		result.Height = bl.Height
 		cache.Set(LatestHeightKey, result.Height,  time.Second*7)
@@ -56,11 +48,17 @@ func (n Node) ChainStatus() (*types.ResultStatus, error) {
 		result.BlockTimeAvg = d.String()
 	}
 
-	// lb, err3 := n.LatestBlock()
-
+	bonded, err := models.TotalVotingPower(n.ChainID)
+	if err == nil {
+		result.BondedTokens = bonded
+	}
+	applied, err := qos.NewQosCli("").QueryApplied(n.BaseURL)
+	if err == nil {
+		appliedInt, err := strconv.ParseInt(applied, 10, 64)
+		if err == nil {
+			result.Circulation = appliedInt
+		}
+	}
 	result.ConsensusState.ChainID = n.ChainID
-
-	// cache.Set(chainStatusCache, result, time.Second*1)
-
 	return result, nil
 }

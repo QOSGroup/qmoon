@@ -9,8 +9,8 @@ import (
 type BlockValidator struct {
 	Id               int64     `xorm:"pk autoincr BIGINT"`
 	ChainId          string    `xorm:"-"`
-	Height           int64     `xorm:"index(block_validators_height_idx) BIGINT"`
-	ValidatorAddress string    `xorm:"index TEXT"`
+	Height           int64     `xorm:"unique(height_val_address_idx) BIGINT"`
+	ValidatorAddress string    `xorm:"unique(height_val_address_height_idx) index(val_address_idx) TEXT"`
 	ValidatorIndex   int64     `xorm:"BIGINT"`
 	Type             int64     `xorm:"BIGINT"`
 	Round            int64     `xorm:"BIGINT"`

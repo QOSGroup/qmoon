@@ -8,8 +8,8 @@ import (
 
 type Missing struct {
 	Id               int64  `xorm:"pk autoincr BIGINT"`
-	ValidatorAddress string `xorm:"TEXT"`
-	Height           int64  `xorm:"BIGINT"`
+	Height           int64  `xorm:"unique(height_val_address_idx) BIGINT"`
+	ValidatorAddress string `xorm:"unique(height_val_address_idx) TEXT"`
 
 	CreatedAt     time.Time `xorm:"-"`
 	CreatedAtUnix int64

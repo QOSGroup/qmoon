@@ -8,7 +8,7 @@ import (
 type ConsensusState struct {
 	Id              int64  `xorm:"pk autoincr BIGINT"`
 	ChainId         string `xorm:"-"`
-	Height          string `xorm:"TEXT"`
+	Height          string `xorm:"unique(block_height) TEXT"`
 	Round           string `xorm:"TEXT"`
 	Step            string `xorm:"TEXT"`
 	PrevotesNum     int64  `xorm:"BIGINT"`

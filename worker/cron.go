@@ -70,14 +70,14 @@ func startEventListener() {
 				//defer client.Stop()
 				_, events, err := n.SubscribInflation(client)
 				if err != nil {
-					fmt.Errorf("[Event] Exiting for error:", err)
+					// fmt.Errorf("[Event] Exiting for error:", err)
 					client.Stop()
 					return
 					// dos.Exit(1)
 				}
 				go func() {
 					for eventData := range events {
-						fmt.Println("[Event] Received event from [%s] - '%s'", url, eventData)
+						// fmt.Println("[Event] Received event from [%s] - '%s'", url, eventData)
 						//	fmt.Println("[Event] event data: ", eventData.Data)
 						//	fmt.Println("[Event] events: ", eventData.Events)
 						inf := models.Inflation{}

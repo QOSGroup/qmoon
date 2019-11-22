@@ -9,8 +9,8 @@ import (
 
 type ValidatorHistoryRecord struct {
 	Id                 int64  `xorm:"pk autoincr BIGINT"`
-	RecordTime			int64	`xorm:"BIGINT"`
-	Address            string    `xorm:"unique TEXT"`
+	Height			int64	`xorm:"unique(height_address_idx) BIGINT"`
+	Address            string    `xorm:"unique(height_address_idx) TEXT"`
 	VotingPower        int64     `xorm:"BIGINT"`
 	TotalPower			int64 `xorm:"BIGINT"`
 	Status             int       `xorm:"INTEGER"`
@@ -22,11 +22,6 @@ func (vh *ValidatorHistoryRecord) Insert(chainID string) error {
 	if err != nil {
 		return err
 	}
-	total, err := TotalVotingPower(chainID)
-	if err!=nil || total==0{
-		return err
-	}
-	vh.TotalPower = total
 
 	_, err = x.Insert(vh)
 	if err != nil {
@@ -51,7 +46,7 @@ func ValidatorHistoryByAddress(chainID string, address string) ([]*ValidatorHist
 	return bvs, sess.Find(&bvs)
 }
 
-func PurgeOldValidatorHistory(chainID string, purgeTime int64) error {
+func PurgeOldValidatorHistory(chainID string, height int64) error {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return err
@@ -60,7 +55,7 @@ func PurgeOldValidatorHistory(chainID string, purgeTime int64) error {
 	sess := x.NewSession()
 	defer sess.Close()
 	var bvs = make([]*ValidatorHistoryRecord, 0)
-	n, err := sess.Where("record_time < ?", purgeTime).Delete(&bvs)
+	n, err := sess.Where("height < ?", height).Delete(&bvs)
 	fmt.Println("Purged old validators' history: ", n)
 	return err
 }
@@ -89,7 +84,7 @@ func QueryValidatorVotingPowerPercent(chainID string, address string) ([]types.M
 			y = strconv.FormatFloat(percent,'f', -4, 32)
 		}
 		result = append(result, types.Matrix{
-			X:strconv.FormatInt(vh.RecordTime, 10),
+			X:strconv.FormatInt(vh.Height, 10),
 			Y:y,
 		})
 	}
@@ -105,13 +100,13 @@ func QueryValidatorUptime(chainID string, address string)([]types.Matrix, error)
 	defer sess.Close()
 	var bvs = make([]*ValidatorHistoryRecord, 0)
 	var result = make([]types.Matrix, 0)
-	err = sess.Where(" address = ? ", address).Find(&bvs)
+	err = sess.Where(" address = ? ", address).Limit(100).Find(&bvs)
 	if err != nil {
 		return nil, err
 	}
 	for _, vh :=  range bvs {
 		result = append(result, types.Matrix{
-			X:strconv.FormatInt(vh.RecordTime, 10),
+			X:strconv.FormatInt(vh.Height, 10),
 			Y:strconv.FormatInt(int64(1-vh.Status), 10),
 		})
 	}

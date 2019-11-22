@@ -64,12 +64,12 @@ func queryInflationPhrases(context *gin.Context) (inflationPhrases []qos_mint_ty
 }
 
 func queryApplied(context *gin.Context) (applied string, err error) {
-	k := appliedCacheKey
-	if v, ok := cache.Get(k); ok {
-		if applied, ok = v.(string); ok {
-			return
-		}
-	}
+	//k := appliedCacheKey
+	//if v, ok := cache.Get(k); ok {
+	//	if applied, ok = v.(string); ok {
+	//		return
+	//	}
+	//}
 
 	node, err := GetNodeFromUrl(context)
 	if err != nil {
@@ -77,8 +77,8 @@ func queryApplied(context *gin.Context) (applied string, err error) {
 	}
 
 	applied, err = qos.NewQosCli("").QueryApplied(node.BaseURL)
-	if err == nil {
-		cache.Set(k, applied, time.Minute*5)
-	}
+	//if err == nil {
+	//	cache.Set(k, applied, time.Minute*5)
+	//}
 	return
 }

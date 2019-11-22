@@ -14,5 +14,7 @@ type Logger interface {
 }
 
 func New() Logger {
-	return logrus.New()
+	logger:=logrus.New()
+	logger.SetLevel(logrus.DebugLevel)
+	return logger
 }

@@ -59,34 +59,6 @@ func blockchainGin() gin.HandlerFunc {
 			minHeight = 1
 		}
 
-		//lb, err := node.LatestBlock()
-		//if err != nil {
-		//	c.JSON(http.StatusOK, types.RPCServerError("", err))
-		//	return
-		//}
-
-		//status, err := qos.NewQosCli("").QueryStatus(node.BaseURL)
-
-		//if err != nil && status!= nil {
-		//		c.JSON(http.StatusOK, types.RPCServerError("", err))
-		//		return
-		//}
-		//cs, err1 := n.ConsensusState()
-		//result.Height = status.SyncInfo.LatestBlockHeight
-		//result, err = n.BlockByHeight(status.SyncInfo.LatestBlockHeight)
-
-		//if maxHeight == 0 {
-		//	//maxHeight
-		//	//= status.SyncInfo.LatestBlockHeight
-		//	maxHeight = lb.Height
-		//}
-
-		// if maxHeight >= 20 {
-		// 	minHeight = maxHeight - 19
-		// } else {
-		// 	minHeight = 1
-		// }
-
 		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
 
 		limit, _ := strconv.ParseInt(c.Query("limit"), 10, 64)

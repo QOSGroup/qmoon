@@ -33,5 +33,5 @@ func TestBaseConfig() BaseConfig {
 
 // DefaultLogLevel returns a default log level of "error"
 func DefaultLogLevel() string {
-	return "info"
+	return "debug"
 }
