@@ -16,7 +16,7 @@ type Block struct {
 	ValidatorsNum   int64     `xorm:"BIGINT"`
 	ValidatorsTotal int64     `xorm:"BIGINT"`
 	ValidatorsHash  string    `xorm:"TEXT"`
-	ProposerAddress string    `xorm:"TEXT"`
+	ProposerAddress string    `xorm:"index(proposer_idx) TEXT"`
 	Time            time.Time `xorm:"-"`
 	TimeUnix        int64
 }
@@ -85,7 +85,7 @@ func Blocks(chainID string, opt *BlockOption) ([]*Block, error) {
 	var bvs = make([]*Block, 0)
 
 	sess := x.NewSession()
-	defer sess.Clone()
+	//defer sess.Close()
 	if opt != nil {
 		if opt.Height != 0 {
 			sess = sess.Where("height = ?", opt.Height)
@@ -104,5 +104,17 @@ func Blocks(chainID string, opt *BlockOption) ([]*Block, error) {
 		sess = sess.Limit(opt.Limit, opt.Offset)
 	}
 
+	return bvs, sess.OrderBy("height desc").Find(&bvs)
+}
+
+func BlocksByProposer(chainID string, proposerAdd string) ([]*Block, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	var bvs = make([]*Block, 0)
+	sess := x.NewSession()
+	//defer sess.Close()
+	sess = sess.Where("proposer_address = ?", proposerAdd).Limit(10)
 	return bvs, sess.OrderBy("height desc").Find(&bvs)
 }

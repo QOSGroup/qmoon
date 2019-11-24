@@ -93,16 +93,6 @@ func (n Node) Validators(height int64) (types.Validators, error) {
 	return res, err
 }
 
-// retrieveValidator 单个查询
-func (n Node) retrieveValidator(address string) (*models.Validator, error) {
-	mv, err := models.ValidatorByAddress(n.ChainID, address)
-	if err != nil {
-		return nil, err
-	}
-
-	return mv, nil
-}
-
 // RetrieveValidator 单个查询
 func (n Node) RetrieveValidator(address string) (*types.Validator, error) {
 	latestheight, err := n.LatestBlockHeight()
@@ -110,7 +100,21 @@ func (n Node) RetrieveValidator(address string) (*types.Validator, error) {
 		return nil, err
 	}
 
-	mv, err := n.retrieveValidator(address)
+	mv, err := models.ValidatorByAddress(n.ChainID, address)
+	if err != nil {
+		return nil, err
+	}
+
+	return ConvertToValidator(mv, latestheight), nil
+}
+
+func (n Node) RetrieveValidatorByStakingAddress(address string) (*types.Validator, error) {
+	latestheight, err := n.LatestBlockHeight()
+	if err != nil || latestheight == 0 {
+		return nil, err
+	}
+
+	mv, err := models.ValidatorByStakeAddress(n.ChainID, address)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +123,7 @@ func (n Node) RetrieveValidator(address string) (*types.Validator, error) {
 }
 
 func (n Node) UpdateValidatorBlock(address string, height int64, t time.Time) error {
-	mv, err := n.retrieveValidator(address)
+	mv, err := models.ValidatorByAddress(n.ChainID, address)
 	if err != nil {
 		mv = &models.Validator{
 			Address:          address,
@@ -149,7 +153,7 @@ func (n Node) UpdateValidatorBlock(address string, height int64, t time.Time) er
 }
 
 func (n Node) InactiveValidator(address string, status int, inactiveHeight int64, inactiveTime time.Time) error {
-	mv, err := n.retrieveValidator(address)
+	mv, err := models.ValidatorByAddress(n.ChainID, address)
 	if err == nil {
 		if mv.Status != status {
 			mv.Status = status
@@ -167,7 +171,7 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 }
 
 func (n Node) CreateValidator(vl types.Validator) error {
-	mv, err := n.retrieveValidator(vl.Address)
+	mv, err := models.ValidatorByAddress(n.ChainID, vl.Address)
 	if err != nil {
 		mv = &models.Validator{
 			Address:        vl.Address,

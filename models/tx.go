@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
 	"time"
 
@@ -245,7 +246,7 @@ func ITxByAddress(chainID string, address string) ([]*ITx, error) {
 	}
 	itxadds := make([]*ITxAddress, 0)
 	result := make([]*ITx,0)
-	err = x.Where("address like ?", address).Distinct("hash").Find(&itxadds)
+	err = x.Where("address like ?", address).Find(&itxadds)
 	if err != nil {
 		return nil, errors.NotExist{Obj: "Address " + address}
 	}
@@ -255,7 +256,7 @@ func ITxByAddress(chainID string, address string) ([]*ITx, error) {
 		for _, itxadd := range itxadds {
 			hashString += ", '" + itxadd.TxHash + "'"
 		}
-		hashString = hashString[2 : len(hashString)-1]
+		hashString = hashString[2 :]
 
 		err = x.Where(" hash in (" + hashString + ")").Find(&result)
 		if err != nil {
@@ -273,9 +274,10 @@ func TxByAddress(chainID string, address string, minHeight int64, maxHeight int6
 	}
 	itxadds := make([]*ITxAddress, 0)
 	result := make([]*Tx,0)
-	err = x.Where("address like ?", address).Distinct("hash").Limit(1000).Find(&itxadds)
+	err = x.Where("address like ?", address).Limit(1000).Find(&itxadds)
 	if err != nil {
-		return nil, errors.NotExist{Obj: "Address " + address}
+		//return nil, errors.NotExist{Obj: "Address " + address}
+		return nil, err
 	}
 
 	if len(itxadds) > 0 {
@@ -283,12 +285,87 @@ func TxByAddress(chainID string, address string, minHeight int64, maxHeight int6
 		for _, itxadd := range itxadds {
 			hashString += ", '" + itxadd.TxHash + "'"
 		}
-		hashString = hashString[2 : len(hashString)-1]
-		err = x.Where(" hash in ( ? ) and height between ? and ?", address, minHeight, maxHeight).Limit(limit, offset).Desc("height").Find(&result)
+		hashString = hashString[2 :]
+		if maxHeight > minHeight && minHeight > 0 {
+			err = x.Where(" hash in ( "+hashString+" ) and height between ? and ?", minHeight, maxHeight).Limit(limit, offset).Desc("height").Find(&result)
+		} else {
+			err = x.Where(" hash in ( "+hashString+" )").Limit(limit, offset).Desc("height").Find(&result)
+		}
 		if err != nil {
-			return nil, errors.NotExist{Obj: "ITx " + hashString}
+			//return nil, errors.NotExist{Obj: "ITx " + hashString}
+			return nil, err
 		}
 		//return result, nil
 	}
 	return result, nil
 }
+
+func TxByAddressAndType(chainID string, address string, minHeight int64, maxHeight int64, offset int, limit int, txTypes... string) ([]*types.ValidatorOperations, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	itxadds := make([]*ITxAddress, 0)
+
+	itxResult := make([]*ITx,0)
+	txResult := make([]*Tx,0)
+
+	result := make([]*types.ValidatorOperations, 0)
+
+	err = x.Where("address like ?", address).Limit(1000).Find(&itxadds)
+	if err != nil {
+		// return nil, errors.NotExist{Obj: "Address " + address}
+		return nil, err
+	}
+
+	if len(itxadds) > 0 {
+		hashString := ""
+		for _, itxadd := range itxadds {
+			hashString += ", '" + itxadd.TxHash + "'"
+		}
+		hashString = hashString[2 :]
+
+		typeString := ""
+		if len(txTypes) != 0 {
+			for _, t := range txTypes {
+				typeString += ", '" + t + "'"
+			}
+			typeString = typeString[2 :]
+			typeString = " and tx_type in (" + typeString +") "
+		}
+
+		if maxHeight > minHeight && minHeight > 0 {
+			err = x.Where(" hash in ( "+hashString+" )"+ typeString + " and height between ? and ?", minHeight, maxHeight).Limit(limit, offset).Desc("id").Find(&itxResult)
+		} else {
+			err = x.Where(" hash in ( "+hashString+" )"+ typeString).Limit(limit, offset).Desc("id").Find(&itxResult)
+		}
+		if err != nil {
+			//return nil, errors.NotExist{Obj: "ITx " + hashString}
+			return nil, err
+		}
+
+		if maxHeight > minHeight && minHeight > 0 {
+			err = x.Where(" hash in ( "+hashString+" ) and height between ? and ?", minHeight, maxHeight).Limit(limit, offset).Desc("height").Find(&txResult)
+		} else {
+			err = x.Where(" hash in ( "+hashString+" )").Limit(limit, offset).Desc("height").Find(&txResult)
+		}
+		if err != nil {
+			//return nil, errors.NotExist{Obj: "ITx " + hashString}
+			return nil, err
+		}
+
+		itxsMap := make(map[string]*ITx)
+		for _, itx :=range itxResult {
+			itxsMap[itx.Hash] = itx
+		}
+		for _, tx := range txResult {
+			if x, ok := itxsMap[tx.Hash]; ok {
+				result = append(result,
+					&types.ValidatorOperations{Height:tx.Height, Operation:x.TxType})
+			}
+		}
+	}
+	return result, nil
+}
+
+

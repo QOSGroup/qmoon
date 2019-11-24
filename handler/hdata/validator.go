@@ -41,8 +41,9 @@ func validatorGin() gin.HandlerFunc {
 			return
 		}
 
-		address := lib.Bech32AddressToHex(c.Param("address"))
-		v, err := node.RetrieveValidator(address)
+		//address := lib.Bech32AddressToHex(c.Param("address"))
+		stakingAddress := c.Param("address")
+		v, err := node.RetrieveValidatorByStakingAddress(stakingAddress)
 		if err != nil {
 			//c.JSON(http.StatusOK, types.RPCServerError("", err))
 			//return
@@ -59,6 +60,11 @@ func validatorGin() gin.HandlerFunc {
 				}
 				node.CreateValidator(val)
 			}
+			v, err = node.RetrieveValidatorByStakingAddress(stakingAddress)
+			if err != nil {
+				c.JSON(http.StatusOK, types.RPCServerError("", err))
+				return
+			}
 		}
 
 		var minHeight, maxHeight int64
@@ -67,11 +73,11 @@ func validatorGin() gin.HandlerFunc {
 
 		minHeightStr := c.Query("minHeight")
 		minHeight, _ = strconv.ParseInt(minHeightStr, 10, 64)
-		bs, err := node.BlockValidatorByAddress(address, minHeight, maxHeight)
+		bs, err := node.BlockValidatorByAddress(v.Address, minHeight, maxHeight)
 
 		var result types.ResultValidator
 
-		v.ConsPubKey = lib.PubkeyToBech32Address(node.Bech32PrefixConsPub(), v.PubKeyType, v.PubKeyValue)
+		//v.ConsPubKey = lib.PubkeyToBech32Address(node.Bech32PrefixConsPub(), v.PubKeyType, v.PubKeyValue)
 		result.Validator = v
 		result.Blocks = bs
 

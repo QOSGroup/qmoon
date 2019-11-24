@@ -91,6 +91,29 @@ func QueryValidatorVotingPowerPercent(chainID string, address string) ([]types.M
 	return result, err
 }
 
+func QueryValidatorVotingPower(chainID string, address string, limit int) ([]types.Matrix, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	sess := x.NewSession()
+	defer sess.Close()
+
+	var bvs = make([]*ValidatorHistoryRecord, 0)
+	var result = make([]types.Matrix, 0)
+	err = sess.Where(" address = ? ", address).Limit(limit, 0).Find(&bvs)
+	if err != nil {
+		return nil, err
+	}
+	for _, vh :=  range bvs {
+		result = append(result, types.Matrix{
+			X:strconv.FormatInt(vh.Height, 10),
+			Y:strconv.FormatInt(vh.VotingPower, 10),
+		})
+	}
+	return result, err
+}
+
 func QueryValidatorUptime(chainID string, address string)([]types.Matrix, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
@@ -100,7 +123,7 @@ func QueryValidatorUptime(chainID string, address string)([]types.Matrix, error)
 	defer sess.Close()
 	var bvs = make([]*ValidatorHistoryRecord, 0)
 	var result = make([]types.Matrix, 0)
-	err = sess.Where(" address = ? ", address).Limit(100).Find(&bvs)
+	err = sess.Where(" address = ? ", address).Limit(10000).Find(&bvs)
 	if err != nil {
 		return nil, err
 	}

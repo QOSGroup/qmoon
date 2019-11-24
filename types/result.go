@@ -133,6 +133,18 @@ type ResultBlock struct {
 	Validators []*BlockValidator `json:"validators"`
 }
 
+type ValidatorOperations struct{
+	Height int64 `json:"height"`
+	Operation string `json:"operation"`
+}
+
+type ResultValidatorStats struct {
+	Operations []*ValidatorOperations `json:"operations"`
+	Proposed []int64 `json:"proposeds_height""`
+	Missed []int64 `json:"misseds_height""`
+	Evidence []int64 `json:"evicences_height"`
+}
+
 type ResultDelagation struct {
 	Delegator string `json:"delegator"`
 	Amount    string `json:"amount"`

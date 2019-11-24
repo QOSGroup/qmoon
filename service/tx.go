@@ -95,12 +95,17 @@ func (n Node) TxByHash(hash string) (*types.ResultTx, error) {
 	return convertToTx(mt, ""), err
 }
 
-func (n Node) TxsByAddress(address string, minHeight int64, maxHeight int64, offset int, limit int)(result *types.ResultTxs, err error) {
+func (n Node) TxsByAddress(address string, minHeight int64, maxHeight int64, offset int, limit int, txTypes... string)(result *types.ResultTxs, err error) {
+	result = &types.ResultTxs{Txs:make([]*types.ResultTx,0)}
 	txs, err := models.TxByAddress(n.ChainID, address, minHeight, maxHeight, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 	for _, tx := range txs {
+		tx.ITxs, err = models.ITxByHash(n.ChainID, tx.Hash)
+		if err != nil {
+			return nil, err
+		}
 		result.Txs = append(result.Txs, convertToTx(tx, ""))
 	}
 	return
