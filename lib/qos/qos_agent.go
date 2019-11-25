@@ -226,6 +226,21 @@ func (cc QosCli) QueryDelegationsWithValidator(nodeUrl, validator string) (resul
 	return
 }
 
+func (cc QosCli) QueryDelegationsWithDelegator(nodeUrl, delegator string) (result []stake_types.DelegationQueryResult, err error) {
+	resp, err := http.Get(cc.remote + "/stake/delegator/delegations?node_url=" + nodeUrl + "&delegator=" + delegator)
+	if err != nil {
+		err = errors.New("Can't connect to node")
+		return
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (cc QosCli) QueryBlockByHeight(nodeUrl string, height int64) (result *ctypes.ResultBlock, err error) {
 	resp, err := http.Get(cc.remote + "/block?node_url=" + nodeUrl + "&height=" + strconv.FormatInt(height, 10))
 	if err != nil {

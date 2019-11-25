@@ -3,11 +3,12 @@
 package hdata
 
 import (
-	"fmt"
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
+	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/service"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
@@ -83,11 +84,12 @@ func validatorsGin() gin.HandlerFunc {
 
 		for i := 0; i < len(vs); i++ {
 			vs[i].ConsPubKey = lib.PubkeyToBech32Address(node.Bech32PrefixConsPub(), vs[i].PubKeyType, vs[i].PubKeyValue)
-			//if v, ok := cache.Get(k); ok {
-			//	if result, ok = v.([]stake_types.ValidatorDisplayInfo); ok {
-			//		return
-			//	}
-			//}
+			validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, vs[i].Address,1)
+			if err == nil && validatorHistory != nil {
+				vs[i].Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
+			}
+			_, vs[i].UptimeFloat, _ = models.QueryValidatorUptime(node.ChainID, vs[i].Address, 1000)
+			vs[i].Uptime = strconv.FormatFloat(vs[i].UptimeFloat, 'f', -2, 64)
 		}
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", vs))
@@ -105,7 +107,6 @@ func updateValidatorsFromAgent(context *gin.Context) error {
 		return err
 	}
 	for _, val := range vals {
-		fmt.Println("in query display ", val.OperatorAddress, val.Status)
 		validator, err := node.ConvertDisplayValidators(val)
 		if err != nil {
 			return err

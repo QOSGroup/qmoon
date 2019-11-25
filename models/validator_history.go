@@ -16,6 +16,16 @@ type ValidatorHistoryRecord struct {
 	Status             int       `xorm:"INTEGER"`
 }
 
+type ValidatorUptimeResult struct {
+	TimeUnix int64
+	Status int
+}
+
+type ValidatorVotingPowerResult struct {
+	TimeUnix int64
+	VotingPower int64
+	TotalPower int64
+}
 
 func (vh *ValidatorHistoryRecord) Insert(chainID string) error {
 	x, err := GetNodeEngine(chainID)
@@ -31,7 +41,7 @@ func (vh *ValidatorHistoryRecord) Insert(chainID string) error {
 	return nil
 }
 
-func ValidatorHistoryByAddress(chainID string, address string) ([]*ValidatorHistoryRecord, error) {
+func ValidatorHistoryByAddress(chainID string, address string, limit int) ([]*ValidatorHistoryRecord, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return nil, err
@@ -39,7 +49,7 @@ func ValidatorHistoryByAddress(chainID string, address string) ([]*ValidatorHist
 
 	sess := x.NewSession()
 	defer sess.Close()
-	sess = sess.Where("address = ?", address).Desc("record_time").Limit(24*12, 0)
+	sess = sess.Where("address = ?", address).Desc("height").Limit(limit)
 
 	var bvs = make([]*ValidatorHistoryRecord, 0)
 
@@ -69,9 +79,10 @@ func QueryValidatorVotingPowerPercent(chainID string, address string) ([]types.M
 	sess := x.NewSession()
 	defer sess.Close()
 
-	var bvs = make([]*ValidatorHistoryRecord, 0)
+	var bvs = make([]*ValidatorVotingPowerResult, 0)
 	var result = make([]types.Matrix, 0)
-	err = sess.Where(" address = ? ", address).Find(&bvs)
+	// err = sess.Where(" address = ? ", address).Find(&bvs)
+	err = sess.SQL("select b.time_unix, vh.voting_power, vh.total_power from block b, validator_history_record vh where vh.address= ? and b.height=vh.height", address).Find(&bvs)
 	if err != nil {
 		return nil, err
 	}
@@ -81,10 +92,10 @@ func QueryValidatorVotingPowerPercent(chainID string, address string) ([]types.M
 		y := "Not Available"
 		if !b.IsZero() {
 			percent,_:= a.Div(b).Float64()
-			y = strconv.FormatFloat(percent,'f', -4, 32)
+			y = strconv.FormatFloat(percent,'f', -2, 64)
 		}
 		result = append(result, types.Matrix{
-			X:strconv.FormatInt(vh.Height, 10),
+			X:strconv.FormatInt(vh.TimeUnix, 10),
 			Y:y,
 		})
 	}
@@ -99,39 +110,47 @@ func QueryValidatorVotingPower(chainID string, address string, limit int) ([]typ
 	sess := x.NewSession()
 	defer sess.Close()
 
-	var bvs = make([]*ValidatorHistoryRecord, 0)
+	var bvs = make([]*ValidatorVotingPowerResult, 0)
 	var result = make([]types.Matrix, 0)
-	err = sess.Where(" address = ? ", address).Limit(limit, 0).Find(&bvs)
+	//err = sess.Where(" address = ? ", address).Limit(limit, 0).Find(&bvs)
+	err = sess.SQL("select b.time_unix, vh.voting_power, vh.total_power from block b, validator_history_record vh where vh.address= ? and b.height=vh.height", address).Limit(limit).Find(&bvs)
+
 	if err != nil {
 		return nil, err
 	}
 	for _, vh :=  range bvs {
 		result = append(result, types.Matrix{
-			X:strconv.FormatInt(vh.Height, 10),
+			X:strconv.FormatInt(vh.TimeUnix, 10),
 			Y:strconv.FormatInt(vh.VotingPower, 10),
 		})
 	}
 	return result, err
 }
 
-func QueryValidatorUptime(chainID string, address string)([]types.Matrix, error) {
+func QueryValidatorUptime(chainID string, address string, limit int)(result []types.Matrix, percent float64, err error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
-		return nil, err
+		return nil, float64(0), err
 	}
 	sess := x.NewSession()
 	defer sess.Close()
-	var bvs = make([]*ValidatorHistoryRecord, 0)
-	var result = make([]types.Matrix, 0)
-	err = sess.Where(" address = ? ", address).Limit(10000).Find(&bvs)
+	var bvs = make([]*ValidatorUptimeResult, 0)
+	result = make([]types.Matrix, 0)
+	//err = sess.Where(" address = ? ", address).Limit(10000).Find(&bvs)
+	err = sess.SQL("select b.time_unix, vh.status from block b, validator_history_record vh from block b, validator_history_record vh where vh.address= ? and b.height=vh.height", address).Limit(limit).Find(&bvs)
 	if err != nil {
-		return nil, err
+		return nil, float64(0), err
 	}
+	total := float64(0)
+	missed := float64(0)
 	for _, vh :=  range bvs {
 		result = append(result, types.Matrix{
-			X:strconv.FormatInt(vh.Height, 10),
+			X:strconv.FormatInt(vh.TimeUnix, 10),
 			Y:strconv.FormatInt(int64(1-vh.Status), 10),
 		})
+		total += 1.0
+		missed += float64(1-vh.Status)
 	}
-	return result, err
+	percent = missed / total * 100
+	return result, percent, err
 }

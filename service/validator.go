@@ -22,10 +22,6 @@ func ConvertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 	if bv.Status != 0 {
 		statusStr = "Inactive"
 	}
-	uptime := 0.0
-	if latestHeight!=bv.FirstBlockHeight {
-		uptime = float64(bv.PrecommitNum*10000/(latestHeight-bv.FirstBlockHeight)) / 100.00
-	}
 
 	return &types.Validator{
 		Name:             bv.Name,
@@ -52,8 +48,6 @@ func ConvertToValidator(bv *models.Validator, latestHeight int64) *types.Validat
 		InactiveHeight:   bv.InactiveHeight,
 		BondHeight:       bv.BondHeight,
 		PrecommitNum:     bv.PrecommitNum,
-		Uptime:           fmt.Sprintf("%.2f%%", uptime),
-		UptimeFloat:      uptime,
 		BondedTokens:     bv.BondedTokens,
 		SelfBond:         bv.SelfBond,
 	}
@@ -76,8 +70,11 @@ func (n Node) Validators(height int64) (types.Validators, error) {
 		if int8(v.Status) == types.Active {
 			total += v.VotingPower
 		}
+		vv := ConvertToValidator(v, height)
+		_, vv.UptimeFloat, _ = models.QueryValidatorUptime(n.ChainID, v.Address, 1)
+		vv.Uptime = strconv.FormatFloat(vv.UptimeFloat, 'f', -2, 64)
 		// fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
-		res = append(res, *ConvertToValidator(v, height))
+		res = append(res, *vv)
 	}
 
 	for i := 0; i < len(res); i++ {
@@ -308,6 +305,16 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		}
 	}
 
+	hexAddress := lib.Bech32AddressToHex(val.ConsPubKey)
+	percent := "0.0"
+	vh, err := models.ValidatorHistoryByAddress(n.ChainID, hexAddress, 1)
+	if err == nil && vh != nil{
+		percent = strconv.FormatFloat(float64(vh[0].VotingPower)/float64(vh[0].TotalPower)*100, 'f', -2, 64)
+	}
+
+	_, uptimePercent, err := models.QueryValidatorUptime(n.ChainID, hexAddress, 1)
+	uptime := strconv.FormatFloat(uptimePercent, 'f', -2, 64)
+
 	vall := types.Validator{
 		Name:    val.Description.Moniker,
 		Logo:    val.Description.Logo,
@@ -315,7 +322,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Owner:   val.Owner,
 		ChainID: n.Name,
 		// Address:        lib.PubkeyToBech32Address(n.Bech32PrefixConsPub(), "tendermint/PubKeyEd25519", val.ConsPubKey),
-		Address:        lib.Bech32AddressToHex(val.ConsPubKey),
+		Address:        hexAddress,
 		StakeAddress:   val.OperatorAddress,
 		PubKeyType:     "tendermint/PubKeyEd25519",
 		PubKeyValue:    val.ConsPubKey,
@@ -328,6 +335,10 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Commission:     val.Commission.Rate,
 		BondedTokens:   bondTokens_int64,
 		SelfBond:       selfBond_int64,
+
+		Percent:	percent,
+		UptimeFloat: uptimePercent,
+		Uptime: uptime,
 	}
 	return vall, nil
 }
