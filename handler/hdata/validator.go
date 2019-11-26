@@ -82,7 +82,7 @@ func validatorGin() gin.HandlerFunc {
 		if err == nil && validatorHistory != nil {
 			v.Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
 		}
-		_, v.UptimeFloat, _ = models.QueryValidatorUptime(node.ChainID, v.Address, 1000)
+		_, v.UptimeFloat, _ = models.QueryValidatorUptime(node.ChainID, v.Address, 100)
 		v.Uptime = strconv.FormatFloat(v.UptimeFloat, 'f', -2, 64)
 
 		//v.ConsPubKey = lib.PubkeyToBech32Address(node.Bech32PrefixConsPub(), v.PubKeyType, v.PubKeyValue)
@@ -125,7 +125,7 @@ func validatorDelegationGin() gin.HandlerFunc {
 		if err == nil && validatorHistory != nil {
 			result.Validator.Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
 		}
-		_, result.Validator.UptimeFloat, _ = models.QueryValidatorUptime(node.ChainID, v.Address, 1000)
+		_, result.Validator.UptimeFloat, _ = models.QueryValidatorUptime(node.ChainID, v.Address, 100)
 		result.Validator.Uptime = strconv.FormatFloat(result.Validator.UptimeFloat, 'f', -2, 64)
 
 		for _, d := range dels {

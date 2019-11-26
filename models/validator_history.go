@@ -113,7 +113,7 @@ func QueryValidatorVotingPower(chainID string, address string, limit int) ([]typ
 	var bvs = make([]*ValidatorVotingPowerResult, 0)
 	var result = make([]types.Matrix, 0)
 	//err = sess.Where(" address = ? ", address).Limit(limit, 0).Find(&bvs)
-	err = sess.SQL("select b.time_unix, vh.voting_power, vh.total_power from block b, validator_history_record vh where vh.address= ? and b.height=vh.height", address).Limit(limit).Find(&bvs)
+	err = sess.SQL("select b.time_unix, vh.voting_power, vh.total_power from block b, validator_history_record vh where vh.address= ? and b.height=vh.height order by b.id desc limit " + strconv.FormatInt(int64(limit), 10), address).Find(&bvs)
 
 	if err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func QueryValidatorUptime(chainID string, address string, limit int)(result []ty
 	var bvs = make([]*ValidatorUptimeResult, 0)
 	result = make([]types.Matrix, 0)
 	//err = sess.Where(" address = ? ", address).Limit(10000).Find(&bvs)
-	err = sess.SQL("select b.time_unix, vh.status from block b, validator_history_record vh from block b, validator_history_record vh where vh.address= ? and b.height=vh.height", address).Limit(limit).Find(&bvs)
+	err = sess.SQL("select b.time_unix, vh.status from block b, validator_history_record vh where vh.address= ? and b.height=vh.height order by b.id desc limit " + strconv.FormatInt(int64(limit), 10), address).Find(&bvs)
 	if err != nil {
 		return nil, float64(0), err
 	}

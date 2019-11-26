@@ -13,11 +13,13 @@ import (
 )
 
 const validatorVotingPowerUrl = NodeProxy + "/validators/:address/votingPower"
+const validatorUptimeUrl = NodeProxy + "/validators/:address/uptime"
 const validatorStatUrl = NodeProxy + "/validators/:address/stats"
 
 func init() {
 	hdataHander[validatorVotingPowerUrl] = ValidatorVotingPowerGinRegister
 	hdataHander[validatorStatUrl] = validatorStatGinRegister
+	hdataHander[validatorUptimeUrl] = validatorUptimeGinRegister
 }
 
 func validatorStatGinRegister(r *gin.Engine) {
@@ -25,6 +27,9 @@ func validatorStatGinRegister(r *gin.Engine) {
 }
 func ValidatorVotingPowerGinRegister(r *gin.Engine) {
 	r.GET(validatorVotingPowerUrl, middleware.ApiAuthGin(), validatorVotingPowerGin())
+}
+func validatorUptimeGinRegister(r *gin.Engine) {
+	r.GET(validatorUptimeUrl, middleware.ApiAuthGin(), validatorUptimeGin())
 }
 
 func validatorStatGin() gin.HandlerFunc {
@@ -79,7 +84,30 @@ func validatorVotingPowerGin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		res, err := models.QueryValidatorVotingPower(node.ChainID, val.Address, 100)
+		res, err := models. QueryValidatorVotingPower(node.ChainID, val.Address, 100)
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCServerError("", err))
+			return
+		}
+
+		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", res))
+	}
+}
+
+func validatorUptimeGin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		node, err := GetNodeFromUrl(c)
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCMethodNotFoundError(""))
+			return
+		}
+
+		val, err := models.ValidatorByStakeAddress(node.ChainID, c.Param("address"));
+		if err != nil {
+			c.JSON(http.StatusOK, types.RPCServerError("", err))
+			return
+		}
+		res, _, err := models.QueryValidatorUptime(node.ChainID, val.Address, 100)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

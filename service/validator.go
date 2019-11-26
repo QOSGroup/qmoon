@@ -71,7 +71,7 @@ func (n Node) Validators(height int64) (types.Validators, error) {
 			total += v.VotingPower
 		}
 		vv := ConvertToValidator(v, height)
-		_, vv.UptimeFloat, _ = models.QueryValidatorUptime(n.ChainID, v.Address, 1)
+		_, vv.UptimeFloat, _ = models.QueryValidatorUptime(n.ChainID, v.Address, 100)
 		vv.Uptime = strconv.FormatFloat(vv.UptimeFloat, 'f', -2, 64)
 		// fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
 		res = append(res, *vv)
@@ -312,7 +312,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		percent = strconv.FormatFloat(float64(vh[0].VotingPower)/float64(vh[0].TotalPower)*100, 'f', -2, 64)
 	}
 
-	_, uptimePercent, err := models.QueryValidatorUptime(n.ChainID, hexAddress, 1)
+	_, uptimePercent, err := models.QueryValidatorUptime(n.ChainID, hexAddress, 100)
 	uptime := strconv.FormatFloat(uptimePercent, 'f', -2, 64)
 
 	vall := types.Validator{
