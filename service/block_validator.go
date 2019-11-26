@@ -5,11 +5,9 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
-	"time"
-
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
+	"log"
 )
 
 func convertToBlockValidator(bv *models.BlockValidator) *types.BlockValidator {
@@ -89,8 +87,8 @@ func (n Node) RetrieveBlockValidator(height int64, validatorAddress string) (*ty
 }
 
 func (n Node) saveBlockValidator(v *types.BlockValidator) error {
-	mbv, err := n.retrieveBlockValidator(v.Height, v.ValidatorAddress)
-	if err != nil {
+	mbv, err := n.retrieveBlockValidator(v.Height,v.ValidatorAddress)
+	if err != nil || mbv == nil {
 		mbv = &models.BlockValidator{
 			Height:           v.Height,
 			ValidatorAddress: v.ValidatorAddress,
@@ -108,7 +106,7 @@ func (n Node) saveBlockValidator(v *types.BlockValidator) error {
 		}
 
 		vh := &models.ValidatorHistoryRecord{
-				RecordTime: v.Timestamp.UTC().Unix(),
+				Height: v.Height,
 				Address:v.ValidatorAddress,
 				VotingPower: v.VotingPower,
 				Status:0,
@@ -127,25 +125,23 @@ func (n Node) saveBlockValidator(v *types.BlockValidator) error {
 }
 
 func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
+	if len(vars) <= 0 {
+		return nil
+	}
 	vm := make(map[string]*types.BlockValidator)
+
 	for _, v := range vars {
 		vm[v.ValidatorAddress] = v
 	}
 
-	var height int64
-	var t time.Time
-	//for _, v := range vars {
-	//	height = v.Height
-	//	t = v.Timestamp
-	//	if err := n.UpdateValidatorBlock(v.ValidatorAddress, v.Height, v.Timestamp); err != nil {
-	//		log.Printf("UpdateValidatorBlock err:%v", err.Error())
-	//	}
-	//
-	//	if err := n.saveBlockValidator(v); err != nil {
-	//		log.Printf("saveBlockValidator err:%v", err.Error())
-	//	}
-	//}
+	height := vars[0].Height
+	t := vars[0].Timestamp
+
 	allVals, _ := n.Validators(0)
+	total, err := models.TotalVotingPower(n.ChainID)
+	if err!=nil || total==0{
+		return err
+	}
 	validatorsInDB:=make(map[string]*types.Validator)
 	for _, v := range allVals {
 		validatorsInDB[v.Address] = &v
@@ -158,19 +154,38 @@ func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
 			missing.Insert(n.ChainID)
 
 			vh := &models.ValidatorHistoryRecord{
-					RecordTime: t.UTC().Unix(),
-					Address:v.Address,
+					Height: height,
+					Address: v.Address,
 					VotingPower: v.VotingPower,
-					Status:1,
+					TotalPower: total,
+					Status: 1,
 			}
-			vh.Insert(n.ChainID)
+			err = vh.Insert(n.ChainID)
+			if err!= nil {
+				fmt.Println("error insert block validator:", vh)
+			}
+		} else {
+
+			vh := &models.ValidatorHistoryRecord{
+				Height: height,
+				Address: v.Address,
+				VotingPower: v.VotingPower,
+				TotalPower: total,
+				Status: 0,
+			}
+			err = vh.Insert(n.ChainID)
+			if err!= nil {
+				fmt.Println("error insert block validator:", vh)
+			}
 		}
 	}
+
 	for _, v := range vars {
-		if _, ok := validatorsInDB[v.ValidatorAddress]; !ok {
-			if err := n.saveBlockValidator(v); err != nil {
-				log.Printf("saveBlockValidator err:%v", err.Error())
-			}
+		if _, ok := validatorsInDB[v.ValidatorAddress]; ok {
+			v.VotingPower = validatorsInDB[v.ValidatorAddress].VotingPower
+		}
+		if err := n.saveBlockValidator(v); err != nil {
+			log.Printf("saveBlockValidator err:%v", err.Error())
 		}
 	}
 

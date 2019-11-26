@@ -18,10 +18,10 @@ import (
 
 const (
 	proposalsUrl = "/proposals"
-	proposalUrl  = "/proposal"
-	votesUrl     = "/votes"
-	depositsUrl  = "/deposits"
-	tallyUrl     = "/tally"
+	proposalUrl  = "/proposal/:pid"
+	votesUrl     = "/votes/:pid"
+	depositsUrl  = "/deposits/:pid"
+	tallyUrl     = "/tally/:pid"
 
 	proposalCacheKey = "qos_proposal_key_%d"
 	votesCacheKey    = "qos_votes_key_%d"
@@ -33,6 +33,7 @@ func init() {
 	hdataHander[proposalsUrl] = proposalsGinRegister
 	hdataHander[proposalUrl] = func(r *gin.Engine) {
 		r.GET(NodeProxy+proposalUrl, middleware.ApiAuthGin(), func(context *gin.Context) {
+
 			proposal, err := queryProposal(context)
 			if err != nil {
 				context.JSON(http.StatusOK, types.RPCInvalidParamsError("", err))
@@ -97,9 +98,9 @@ func proposalsGin() gin.HandlerFunc {
 }
 
 func queryProposal(context *gin.Context) (proposal types.ResultProposal, err error) {
-	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
+	pId, err := strconv.ParseInt(context.Param("pid"), 10, 64)
 	if err != nil {
-		err = errors.New("pid is error")
+		err = errors.New("Can't find proposal id")
 		return
 	}
 
@@ -123,9 +124,9 @@ func queryProposal(context *gin.Context) (proposal types.ResultProposal, err err
 }
 
 func queryVotes(context *gin.Context) (votes qos_types.Votes, err error) {
-	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
+	pId, err := strconv.ParseInt(context.Param("pid"), 10, 64)
 	if err != nil {
-		err = errors.New("pid is error")
+		err = errors.New("Can't find proposal id")
 		return
 	}
 
@@ -148,9 +149,9 @@ func queryVotes(context *gin.Context) (votes qos_types.Votes, err error) {
 }
 
 func queryDeposits(context *gin.Context) (deposits qos_types.Deposits, err error) {
-	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
+	pId, err := strconv.ParseInt(context.Param("pid"), 10, 64)
 	if err != nil {
-		err = errors.New("pid is error")
+		err = errors.New("Can't find proposal id")
 		return
 	}
 
@@ -173,9 +174,9 @@ func queryDeposits(context *gin.Context) (deposits qos_types.Deposits, err error
 }
 
 func queryTally(context *gin.Context) (tally qos_types.TallyResult, err error) {
-	pId, err := strconv.ParseInt(context.Query("pId"), 10, 64)
+	pId, err := strconv.ParseInt(context.Param("pid"), 10, 64)
 	if err != nil {
-		err = errors.New("pid is error")
+		err = errors.New("Can't find proposal id")
 		return
 	}
 

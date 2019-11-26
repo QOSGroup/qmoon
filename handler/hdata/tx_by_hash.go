@@ -3,12 +3,11 @@
 package hdata
 
 import (
-	"net/http"
-
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 const txHashUrl = NodeProxy + "/txs/:hash"

@@ -6,9 +6,8 @@ package service
 
 import (
 	"errors"
-	"fmt"
-	"github.com/QOSGroup/qmoon/lib/qos"
 	tmlib "github.com/QOSGroup/qmoon/lib"
+	"github.com/QOSGroup/qmoon/lib/qos"
 
 	"strconv"
 	"time"
@@ -131,23 +130,37 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 
 func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	block, err := qos.NewQosCli("").QueryBlockByHeight(n.BaseURL, height)
-	fmt.Println("Got Block: ", height, " @ ", block)
-	if err != nil {
+	//fmt.Println("Got Block: ", height, " @ ", block)
+	if err != nil || block == nil {
 		return nil, err
 	}
 	//blockM := models.Block{Height:block.Height}
 	//err = blockM.InsertIfNotExist(n.ChainID)
+	numTxs := int64(0)
+	totalTxs := int64(0)
+	time:=types.ResultTime{}
+	dataHash := ""
+	validatorsHash := ""
+	createAt := types.ResultTime{}
+	if block.Block != nil {
+		numTxs = block.Block.Header.NumTxs
+		totalTxs = block.Block.Header.TotalTxs
+		time = types.ResultTime(block.Block.Header.Time)
+		dataHash = block.Block.DataHash.String()
+		validatorsHash = block.Block.ValidatorsHash.String()
+		createAt = types.ResultTime(block.Block.Header.Time)
+	}
 	resultBlock := types.ResultBlockBase {
 		ChainID: block.Block.Header.ChainID,
 		Height: height,
-		NumTxs: block.Block.Header.NumTxs,
-		TotalTxs: block.Block.Header.TotalTxs,
-		Time: types.ResultTime(block.Block.Header.Time),
-		DataHash: block.Block.DataHash.String(),
-		ValidatorsHash: block.Block.ValidatorsHash.String(),
-		CreatedAt: types.ResultTime(block.Block.Header.Time),
+		NumTxs: numTxs,
+		TotalTxs: totalTxs,
+		Time: time,
+		DataHash: dataHash,
+		ValidatorsHash: validatorsHash,
+		CreatedAt: createAt,
 	}
-	fmt.Println("finding Proposer by address:", block.Block.Header.ProposerAddress.String())
+	//fmt.Println("finding Proposer by address:", block.Block.Header.ProposerAddress.String())
 	proposer, err0 := models.ValidatorByAddress(n.ChainID, block.Block.Header.ProposerAddress.String())
 	if err0 == nil {
 		resultBlock.Proposer = ConvertToValidator(proposer, height)
@@ -158,16 +171,6 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	if err1 == nil {
 		resultBlock.Inflation = strconv.FormatInt(inf.Tokens, 10)
 	}
-
-
-	//go func(height int64) {
-	//	block, err := tmlib.TendermintClient(n.BaseURL).RetrieveBlock(&height)
-	//	if err != nil {
-	//		return
-	//	}
-	//	// n.CreateBlock(block)
-	//}(height)
-
 	return &resultBlock, err
 }
 

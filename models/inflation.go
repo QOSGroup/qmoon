@@ -6,7 +6,7 @@ import (
 )
 
 type Inflation struct {
-	Height int64 `xorm:"BIGINT"`
+	Height int64 `xorm:"unique(height_idx) BIGINT"`
 	Tokens int64 `xorm:"BIGINT"`
 }
 

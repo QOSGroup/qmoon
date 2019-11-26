@@ -10,8 +10,8 @@ import (
 
 type Evidence struct {
 	Id               int64  `xorm:"pk autoincr BIGINT"`
-	Height           int64  `xorm:"BIGINT"`
-	ValidatorAddress string `xorm:"TEXT"`
+	Height           int64  `xorm:"unique(height_val_address_idx) BIGINT"`
+	ValidatorAddress string `xorm:"unique(height_val_address_idx) TEXT"`
 	Hash             string `xorm:"TEXT"`
 	Data             string `xorm:"TEXT"`
 

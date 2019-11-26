@@ -40,21 +40,21 @@ func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 const maxLimit = 20
 
 // TxsByAddress 交易查询
-func (n Node) TxsByAddress(address string, tx string, minHeight, maxHeight int64, offset, limit int) ([]*types.ResultTx, error) {
-	mbs, err := models.Txs(n.ChainID, &models.TxOption{
-		TxType:    tx,
-		MinHeight: minHeight, MaxHeight: maxHeight, Address: address, Offset: offset, Limit: limit})
-	if err != nil {
-		return nil, err
-	}
-
-	var res []*types.ResultTx
-	for _, v := range mbs {
-		res = append(res, convertToTx(v, address))
-	}
-
-	return res, err
-}
+//func (n Node) TxsByAddress(address string, tx string, minHeight, maxHeight int64, offset, limit int) ([]*types.ResultTx, error) {
+//	mbs, err := models.Txs(n.ChainID, &models.TxOption{
+//		TxType:    tx,
+//		MinHeight: minHeight, MaxHeight: maxHeight, Address: address, Offset: offset, Limit: limit})
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	var res []*types.ResultTx
+//	for _, v := range mbs {
+//		res = append(res, convertToTx(v, address))
+//	}
+//
+//	return res, err
+//}
 
 // List 交易查询
 func (n Node) Txs(minHeight, maxHeight, offset, limit int64) ([]*types.ResultTx, error) {
@@ -93,6 +93,22 @@ func (n Node) TxByHash(hash string) (*types.ResultTx, error) {
 	}
 
 	return convertToTx(mt, ""), err
+}
+
+func (n Node) TxsByAddress(address string, minHeight int64, maxHeight int64, offset int, limit int, txTypes... string)(result *types.ResultTxs, err error) {
+	result = &types.ResultTxs{Txs:make([]*types.ResultTx,0)}
+	txs, err := models.TxByAddress(n.ChainID, address, minHeight, maxHeight, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+	for _, tx := range txs {
+		tx.ITxs, err = models.ITxByHash(n.ChainID, tx.Hash)
+		if err != nil {
+			return nil, err
+		}
+		result.Txs = append(result.Txs, convertToTx(tx, ""))
+	}
+	return
 }
 
 // TxSend

@@ -133,6 +133,18 @@ type ResultBlock struct {
 	Validators []*BlockValidator `json:"validators"`
 }
 
+type ValidatorOperations struct{
+	Height int64 `json:"height"`
+	Operation string `json:"operation"`
+}
+
+type ResultValidatorStats struct {
+	Operations []*ValidatorOperations `json:"operations"`
+	Proposed []int64 `json:"proposeds_height""`
+	Missed []int64 `json:"misseds_height""`
+	Evidence []int64 `json:"evicences_height"`
+}
+
 type ResultDelagation struct {
 	Delegator string `json:"delegator"`
 	Amount    string `json:"amount"`
@@ -193,6 +205,8 @@ type ResultStatus struct {
 	CommunityFund	string				`json:"commuinity_fund"`
 	Proposer       *Validator			`json:"proposer"`
 	Votes			string				`json:"votes"`
+	BondedTokens	int64				`json:"bonded_tokens"`
+	Circulation		int64				`json:"circulation"`
 }
 
 type ResultAccount struct {
