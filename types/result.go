@@ -138,11 +138,16 @@ type ValidatorOperations struct{
 	Operation string `json:"operation"`
 }
 
+type ResultHeightTime struct {
+	Height int64 `json:"height"`
+	Time string `json:"time"`
+}
+
 type ResultValidatorStats struct {
 	Operations []*ValidatorOperations `json:"operations"`
-	Proposed []int64 `json:"proposeds_height""`
-	Missed []int64 `json:"misseds_height""`
-	Evidence []int64 `json:"evicences_height"`
+	Proposed []*ResultHeightTime `json:"proposeds_height""`
+	Missed []*ResultHeightTime `json:"misseds_height""`
+	Evidence []*ResultHeightTime `json:"evicences_height"`
 }
 
 type ResultDelagation struct {
