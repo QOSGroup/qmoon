@@ -71,8 +71,11 @@ func (n Node) Validators(height int64) (types.Validators, error) {
 			total += v.VotingPower
 		}
 		vv := ConvertToValidator(v, height)
-		_, vv.UptimeFloat, _ = models.QueryValidatorUptime(n.ChainID, v.Address, 100)
-		vv.Uptime = strconv.FormatFloat(vv.UptimeFloat, 'f', -2, 64)
+		uptimePercent, _ := models.QueryValidatorUptime(n.ChainID, v.Address, 0,1)
+		if uptimePercent != nil && len(uptimePercent)>0 {
+			vv.UptimeFloat, _= strconv.ParseFloat(uptimePercent[0].Y, 64)
+			vv.Uptime = uptimePercent[0].Y
+		}
 		// fmt.Println("before final convert ", v.Address, v.BondedTokens, v.SelfBond)
 		res = append(res, *vv)
 	}
@@ -311,9 +314,13 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 	if err == nil && vh != nil{
 		percent = strconv.FormatFloat(float64(vh[0].VotingPower)/float64(vh[0].TotalPower)*100, 'f', -2, 64)
 	}
-
-	_, uptimePercent, err := models.QueryValidatorUptime(n.ChainID, hexAddress, 100)
-	uptime := strconv.FormatFloat(uptimePercent, 'f', -2, 64)
+	uptime := float64(0)
+	uptimepercent := "0.0"
+	uptimePercent, _ := models.QueryValidatorUptime(n.ChainID, hexAddress, 0,1)
+	if uptimePercent != nil && len(uptimePercent)>0 {
+		uptime, _ = strconv.ParseFloat(uptimePercent[0].Y, 64)
+		uptimepercent = uptimePercent[0].Y
+	}
 
 	vall := types.Validator{
 		Name:    val.Description.Moniker,
@@ -337,8 +344,8 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		SelfBond:       selfBond_int64,
 
 		Percent:	percent,
-		UptimeFloat: uptimePercent,
-		Uptime: uptime,
+		UptimeFloat: uptime,
+		Uptime: uptimepercent,
 	}
 	return vall, nil
 }

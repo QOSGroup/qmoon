@@ -36,9 +36,9 @@ func validatorStatGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		result := types.ResultValidatorStats{
 			Operations: make([]*types.ValidatorOperations, 0),
-			Proposed: make([]int64, 0),
-			Missed: make([]int64, 0),
-			Evidence:make([]int64, 0),
+			Proposed: make([]*types.ResultHeightTime, 0),
+			Missed: make([]*types.ResultHeightTime, 0),
+			Evidence:make([]*types.ResultHeightTime, 0),
 		}
 		node, err := GetNodeFromUrl(c)
 		if err != nil {
@@ -54,13 +54,19 @@ func validatorStatGin() gin.HandlerFunc {
 		prop, err := models.BlocksByProposer(node.ChainID,val.Address)
 		if err == nil && prop != nil && len(prop) > 0 {
 			for _, p := range prop {
-				result.Proposed = append(result.Proposed, p.Height)
+				result.Proposed = append(result.Proposed, &types.ResultHeightTime{p.Height, p.Time.Format("2006-01-02 15:04:05")})
 			}
 		}
 		missings, err := node.Missings(val.Address)
 		if err == nil && missings != nil && len(missings) > 0 {
 			for _, m := range missings {
-				result.Missed = append(result.Missed, m.Height)
+				result.Missed = append(result.Missed, &types.ResultHeightTime{m.Height, m.Time})
+			}
+		}
+		evidences, err := node.Evidences(val.Address)
+		if err == nil && evidences != nil && len(evidences) > 0 {
+			for _, e := range evidences {
+				result.Evidence = append(result.Evidence, &types.ResultHeightTime{e.Height, e.Time})
 			}
 		}
 
@@ -84,7 +90,7 @@ func validatorVotingPowerGin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		res, err := models. QueryValidatorVotingPower(node.ChainID, val.Address, 100)
+		res, err := models. QueryValidatorVotingPower(node.ChainID, val.Address, 720, 336) // query for upto 4 weeks, every 1 hour
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
@@ -107,7 +113,7 @@ func validatorUptimeGin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
-		res, _, err := models.QueryValidatorUptime(node.ChainID, val.Address, 100)
+		res, err := models.QueryValidatorUptime(node.ChainID, val.Address, 720,336) // query for upto 4 weeks, every 1 hour
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

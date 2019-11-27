@@ -88,8 +88,11 @@ func validatorsGin() gin.HandlerFunc {
 			if err == nil && validatorHistory != nil {
 				vs[i].Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
 			}
-			_, vs[i].UptimeFloat, _ = models.QueryValidatorUptime(node.ChainID, vs[i].Address, 100)
-			vs[i].Uptime = strconv.FormatFloat(vs[i].UptimeFloat, 'f', -2, 64)
+			uptimePercent, _ := models.QueryValidatorUptime(node.ChainID, vs[i].Address, 0,1)
+			if uptimePercent != nil && len(uptimePercent)>0 {
+				vs[i].UptimeFloat, _= strconv.ParseFloat(uptimePercent[0].Y, 64)
+				vs[i].Uptime = uptimePercent[0].Y
+			}
 		}
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", vs))

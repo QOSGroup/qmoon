@@ -8,6 +8,7 @@ import (
 	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/types"
 	"log"
+	"strconv"
 )
 
 func convertToBlockValidator(bv *models.BlockValidator) *types.BlockValidator {
@@ -113,11 +114,16 @@ func (n Node) saveBlockValidator(v *types.BlockValidator) error {
 		}
 		vh.Insert(n.ChainID)
 
-		if v.Height % 100000 == 0 {
-				err := models.PurgeOldValidatorHistory(n.ChainID, v.Timestamp.UTC().Unix() - 100000*6)
-				if err != nil {
-					fmt.Println("Purge failed: ", err)
-				}
+		// reserve for 3 month
+		if v.Height % 17280*3 == 0 {
+			err := models.PurgeOldValidatorHistory(n.ChainID, "where height < " + strconv.FormatInt(v.Height - 17280*3, 10))
+			if err != nil {
+				fmt.Println("Purge failed: ", err)
+			}
+			err = models.PurgeOldValidatorHistory(n.ChainID, "where height > 1000 and height % 720 != 0")
+			if err != nil {
+				fmt.Println("Purge failed: ", err)
+			}
 		}
 	}
 
