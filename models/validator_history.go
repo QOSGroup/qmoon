@@ -80,8 +80,8 @@ func PurgeOldValidatorHistory(chainID string, condition string) error {
 
 	sess := x.NewSession()
 	defer sess.Close()
-	var bvs = make([]*ValidatorHistoryRecord, 0)
-	n, err := sess.Where(condition).Delete(&bvs)
+	// var bvs = make([]*ValidatorHistoryRecord, 0)
+	n, err := sess.Exec("delete from validator_history_record " + condition)
 	fmt.Println("Purged old validators' history: ", n)
 	return err
 }
