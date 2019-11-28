@@ -114,17 +114,34 @@ func (n Node) saveBlockValidator(v *types.BlockValidator) error {
 		}
 		vh.Insert(n.ChainID)
 
-		// reserve for 3 month
-		if v.Height % 17280*3 == 0 {
-			err := models.PurgeOldValidatorHistory(n.ChainID, "where height < " + strconv.FormatInt(v.Height - 17280*3, 10))
+		// history(votingpower_percent+uptime) reserve for 4 month, thus 17280 * 30 * 4 = 2073600. over 2073600 blocks old, will be purged
+		// for blocks more than one week, we only need one block every 720 blocks, in between blocks will be purged. thus 2880. for 21 validators, 60480
+		// for blocks less than one week, we reserve every one of them, thus 17280 * 7 * 21 = 2540160, quite a lot.
+		if v.Height % (17280 * 30 * 3) == 0 {
+			err := models.PurgeOldValidatorHistory(n.ChainID, " where height < " + strconv.FormatInt(v.Height - 2073600, 10))
 			if err != nil {
-				fmt.Println("Purge failed: ", err)
-			}
-			err = models.PurgeOldValidatorHistory(n.ChainID, "where height > 1000 and height % 720 != 0")
-			if err != nil {
-				fmt.Println("Purge failed: ", err)
+				fmt.Println("Purge failed at ", v.Height, err)
 			}
 		}
+		if v.Height % (17280 * 7) == 0 {
+			err = models.PurgeOldValidatorHistory(n.ChainID, " where height < "+strconv.FormatInt(v.Height - 120960, 10)+" and height % 720 != 0")
+			if err != nil {
+				fmt.Println("Purge failed at ", v.Height, err)
+			}
+		}
+		// for test, purge it 4 hours old
+		//if v.Height % 2880 == 0 {
+		//	err := models.PurgeOldValidatorHistory(n.ChainID, " where height < " + strconv.FormatInt(v.Height - 2880, 10))
+		//	if err != nil {
+		//		fmt.Println("Purge failed at ", v.Height, err)
+		//	}
+		//}
+		//if v.Height % (720) == 0 {
+		//	err = models.PurgeOldValidatorHistory(n.ChainID, " where height < "+strconv.FormatInt(v.Height - 720, 10)+" and height % 12 != 0")
+		//	if err != nil {
+		//		fmt.Println("Purge failed at ", v.Height, err)
+		//	}
+		//}
 	}
 
 	return nil
