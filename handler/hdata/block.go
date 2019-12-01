@@ -4,6 +4,7 @@ package hdata
 
 import (
 	"github.com/QOSGroup/qmoon/lib/qos"
+	"github.com/QOSGroup/qmoon/models"
 	"net/http"
 	"strconv"
 
@@ -46,6 +47,8 @@ func blockGin() gin.HandlerFunc {
 		}
 
 		var b *types.ResultBlockBase
+		resp := &types.ResultBlock{}
+
 		if d == 0 {
 			b, err = node.LatestBlockFromCli()
 			// b, err = node.LatestBlock()
@@ -69,11 +72,32 @@ func blockGin() gin.HandlerFunc {
 
 		ts, _ := node.Txs(b.Height, b.Height, offset, limit)
 		vs, _ := node.BlockValidatorsByHeight(b.Height)
+		mv, _ := models.RetrieveMissingValidators(node.ChainID, d)
+		ev, _ := models.RetrieveEvidenceByHeight(node.ChainID, d)
+		//er := make([]*types.ResultEvidenceValidator, 0)
+		if ev != nil && len(ev) > 0 {
+			er := make([]*types.ResultEvidenceValidator, 0)
+			for _, e := range(ev) {
+				ve, err := node.RetrieveValidator(e.ValidatorAddress)
+				if err != nil {
+					continue
+				}
+				rev := types.ResultEvidenceValidator{
+					Height: e.Height,
+					Validator: ve,
+					Hash: e.Hash,
+					Data: e.Data,
+					CreatedAtUnix: e.CreatedAtUnix,
+				}
+				er = append(er, &rev)
+			}
+			resp.Evidences = er
+		}
 
-		resp := &types.ResultBlock{}
 		resp.Block = b
 		resp.Txs = ts
 		resp.Validators = vs
+		resp.Missings = mv
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", resp))
 	}

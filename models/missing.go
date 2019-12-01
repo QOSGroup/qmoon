@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/QOSGroup/qmoon/types"
 	"time"
 
 	"github.com/go-xorm/xorm"
@@ -45,6 +46,16 @@ func (n *Missing) Insert(chainID string) error {
 	}
 
 	return nil
+}
+
+func RetrieveMissingValidators(chainID string, height int64) ([]*types.Validator, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	//
+	var missingValidators = make([]*types.Validator, 0)
+	return missingValidators, x.SQL("select v.\"id\", v.\"name\", v.\"details\", v.\"identity\", v.\"logo\", v.\"website\", v.\"owner\", v.\"address\", v.\"pub_key_type\", v.\"pub_key_value\", v.\"commission\", v.\"voting_power\", v.\"accum\", v.\"first_block_height\", v.\"first_block_time_unix\", v.\"status\", v.\"inactive_code\", v.\"inactive_time_unix\", v.\"inactive_height\", v.\"bond_height\", v.\"precommit_num\", v.\"bonded_tokens\", v.\"self_bond\", v.\"stake_address\" from validator v, missing m where m.height = ? and m.validator_address = v.address;", height).Limit(10, 0).Find(&missingValidators)
 }
 
 func RetrieveMissings(chainID, validator string) ([]*Missing, error) {

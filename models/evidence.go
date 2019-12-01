@@ -3,7 +3,6 @@ package models
 import (
 	"time"
 
-	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/go-xorm/xorm"
 )
@@ -82,24 +81,33 @@ func CreateEvidences(chainID string, es types.EvidenceList) (err error) {
 	return err
 }
 
-func RetrieveEvidenceByHeight(chainID, validator string, height int64) (*Evidence, error) {
+func RetrieveEvidenceByHeight(chainID string, height int64) ([]*Evidence, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return nil, err
 	}
 
-	var evidences Evidence
-	has, err := x.Where("validator_address = ?", validator).Where("height = ?", height).Get(&evidences)
-	if err != nil {
-		return nil, err
-	}
+	var evidences = make([]*Evidence, 0)
+	//has, err := x.Where("height = ?", height).Get(&evidences)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//if !has {
+	//	return nil, errors.NotExist{Obj: "Evidence"}
+	//}
 
-	if !has {
-		return nil, errors.NotExist{Obj: "Evidence"}
-	}
-
-	return &evidences, nil
+	return evidences, x.Where("height = ?", height).Find(&evidences)
 }
+
+//func RetrieveEvidenceValidators(chainID string, height int64) ([]*types.Validator, error) {
+//	x, err := GetNodeEngine(chainID)
+//	if err != nil {
+//		return nil, err
+//	}
+//	var evidendeValidators = make([]*types.Validator, 0)
+//	return evidendeValidators, x.SQL("select v.\"id \", v.\"name \", v.\"details \", v.\"identity \", v.\"logo \", v.\"website \", v.\"owner \", v.\"address \", v.\"pub_key_type \", v.\"pub_key_value \", v.\"commission \", v.\"voting_power \", v.\"accum \", v.\"first_block_height \", v.\"first_block_time_unix \", v.\"status \", v.\"inactive_code \", v.\"inactive_time_unix \", v.\"inactive_height \", v.\"bond_height \", v.\"precommit_num \", v.\"bonded_tokens \", v.\"self_bond \", v.\"stake_address\" from validator v, evidence e where e.height = ? and e.validator_address = v.address;", height).Limit(10, 0).Find(&evidendeValidators)
+//}
 
 func RetrieveEvidences(chainID, validator string) ([]*Evidence, error) {
 	x, err := GetNodeEngine(chainID)

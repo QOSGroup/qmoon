@@ -21,7 +21,7 @@ func (vc *VerifyCode) BeforeInsert() {
 	vc.CreatedAtUnix = time.Now().Unix()
 }
 
-func (vc *VerifyCode) BeforeUpdate() {
+func (vc VerifyCode) BeforeUpdate() {
 	vc.CreatedAtUnix = time.Now().Unix()
 }
 

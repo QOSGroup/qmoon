@@ -7,7 +7,7 @@ import (
 )
 
 func TestTx(t *testing.T) {
-	proposals, err := NewQosCli("").QueryTx("47.103.78.91:26657", "443259A455F99566C901CD9A10F9541D26F8EED70B7480BD4F2312EC637A2876")
+	proposals, err := NewQosCli("").QueryTx("47.103.79.28:26657", "C4CE4728774B67C064DF3274063A9035C95D0E92AD3073C717047B7A48486CBD")
 	bytes, err := json.Marshal(proposals)
 	log.Printf("res:%+v, err:%+v", string(bytes), err)
 }
