@@ -5,9 +5,11 @@ package hdata
 import (
 	"github.com/QOSGroup/qmoon/handler/middleware"
 	"github.com/QOSGroup/qmoon/lib"
+	"github.com/QOSGroup/qmoon/lib/qos"
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 const txHashUrl = NodeProxy + "/txs/:hash"
@@ -35,6 +37,22 @@ func txHashGin() gin.HandlerFunc {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
 		}
+		if result.Status != 1 {
+			tx_msg, err := qos.NewQosCli("").QueryTx(node.BaseURL, hash)
+			// fmt.Println("tx_msg", tx_msg)
+			if err != nil {
+				c.JSON(http.StatusOK, types.RPCServerError("", err))
+				return
+			}
+			if tx_msg.RawLog == "" || tx_msg.Code == 0 || strings.Index(tx_msg.RawLog, "\"message\":\"") < 0{
+				result.TxStatus = "Can't find error message in the raw json";
+			} else {
+				result.Status = int(tx_msg.Code)
+				ss := strings.Split(tx_msg.RawLog, "\"message\":\"")
+				result.TxStatus = ss[1][:strings.Index(ss[1],"\"")]
+			}
+		}
+
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", result))
 	}

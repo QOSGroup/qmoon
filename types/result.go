@@ -131,6 +131,16 @@ type ResultBlock struct {
 	Block      *ResultBlockBase  `json:"block"`
 	Txs        []*ResultTx       `json:"txs"`
 	Validators []*BlockValidator `json:"validators"`
+	Missings   []*Validator		 `json:missings`
+	Evidences  []*ResultEvidenceValidator `json:evidence`
+}
+
+type ResultEvidenceValidator struct {
+	Height           int64  `json:"height"`
+	Validator *Validator 	`json:"validator"`
+	Hash             string `json:"hash"`
+	Data             string `json:"data"`
+	CreatedAtUnix int64	`json:"time"`
 }
 
 type ValidatorOperations struct{

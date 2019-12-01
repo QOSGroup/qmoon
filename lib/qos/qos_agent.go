@@ -6,7 +6,8 @@ import (
 	//"github.com/QOSGroup/qmoon/lib/qos/gov/types"
 	mint_types "github.com/QOSGroup/qmoon/lib/qos/mint/types"
 	stake_types "github.com/QOSGroup/qmoon/lib/qos/stake/types"
-	base_types "github.com/QOSGroup/qmoon/lib/qos/types"
+	//base_types "github.com/QOSGroup/qmoon/lib/qos/types"
+	//btypes "github.com/QOSGroup/qbase/types"
 	"github.com/QOSGroup/qmoon/models/errors"
 	"github.com/QOSGroup/qmoon/types"
 	// gov_types "github.com/QOSGroup/qmoon/lib/qos/gov/types"
@@ -27,15 +28,15 @@ func NewQosCli(remote string) QosCli {
 	return QosCli{remote: remote}
 }
 
-func (cc QosCli) QueryTx(nodeUrl, tx string) (result base_types.TxResponse, err error) {
-	resp, err := http.Get(cc.remote + "/block/tx?node_url=" + nodeUrl + "&tx=" + tx)
+func (cc QosCli) QueryTx(nodeUrl, tx string) (result types.TxResponseResult, err error) {
+	resp, err := http.Get(cc.remote + "/tx?node_url=" + nodeUrl + "&hash=" + tx)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
 	}
 
 	if resp.StatusCode != 200 {
-		err = errors.New(resp.Status)
+		err = errors.New("Can't connec to node: " + strconv.FormatInt(int64(resp.StatusCode), 10))
 		return
 	}
 
