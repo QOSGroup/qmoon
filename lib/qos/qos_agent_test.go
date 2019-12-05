@@ -13,7 +13,8 @@ func TestTx(t *testing.T) {
 }
 
 func TestQueryProposals(t *testing.T) {
-	proposals, err := NewQosCli("").QueryProposals("39.97.234.227:26657")
+	proposals, err := NewQosCli("").QueryProposals("47.103.79.28:26657")
+	//fmt.Println(proposals[0])
 	bytes, err := json.Marshal(proposals)
 	log.Printf("res:%+v, err:%+v", string(bytes), err)
 }
