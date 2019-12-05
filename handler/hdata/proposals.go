@@ -120,57 +120,91 @@ func queryProposal(context *gin.Context) (proposal types.ResultProposal, err err
 	if err == nil{
 		cache.Set(k, proposal, time.Minute*5)
 	}
+	proposal.Deposits, _  = queryDeposits(context)
+	proposal.Votes, _  = queryVotes(context)
 	return
 }
 
-func queryVotes(context *gin.Context) (votes qos_types.Votes, err error) {
+func queryVotes(context *gin.Context) ([]*types.ResultVote, error) {
 	pId, err := strconv.ParseInt(context.Param("pid"), 10, 64)
 	if err != nil {
 		err = errors.New("Can't find proposal id")
-		return
+		return nil, err
 	}
-
-	k := fmt.Sprintf(votesCacheKey, pId)
-	if v, ok := cache.Get(k); ok {
-		if votes, ok = v.(qos_types.Votes); ok {
-			return
-		}
-	}
+	//k := fmt.Sprintf(votesCacheKey, pId)
+	//if v, ok := cache.Get(k); ok {
+	//	if votes, ok = v.(qos_types.Votes); ok {
+	//		return
+	//	}
+	//}
 
 	node, err := GetNodeFromUrl(context)
 	if err != nil {
-		return
+		return nil, err
 	}
-	votes, err = qos.NewQosCli("").QueryVotes(node.BaseURL, pId)
-	if err == nil{
-		cache.Set(k, votes, time.Minute*5)
+	votes, err := qos.NewQosCli("").QueryVotes(node.BaseURL, pId)
+	result := make([]*types.ResultVote, 0)
+	for _, d := range(votes) {
+		option := "Empty"
+		switch (d.Option){
+		case qos_types.OptionEmpty:
+			option = "Empty"
+			break
+		case qos_types.OptionAbstain:
+			option = "Abstain"
+			break
+		case qos_types.OptionNo:
+			option = "No"
+			break
+		case qos_types.OptionNoWithVeto:
+			option = "No With Veto"
+			break
+		case qos_types.OptionYes:
+			option = "Yes"
+			break
+		}
+		vote := types.ResultVote{
+			Voter: d.Voter.String(),
+			Option: option,
+		}
+		result = append(result, &vote)
 	}
-	return
+	//if err == nil{
+	//	cache.Set(k, votes, time.Minute*5)
+	//}
+	return result, nil
 }
 
-func queryDeposits(context *gin.Context) (deposits qos_types.Deposits, err error) {
+func queryDeposits(context *gin.Context) ([]*types.ResultDeposit, error) {
 	pId, err := strconv.ParseInt(context.Param("pid"), 10, 64)
 	if err != nil {
-		err = errors.New("Can't find proposal id")
-		return
+		return nil, err
 	}
-
-	k := fmt.Sprintf(depositsCacheKey, pId)
-	if v, ok := cache.Get(k); ok {
-		if deposits, ok = v.(qos_types.Deposits); ok {
-			return
-		}
-	}
-
+	//
+	//k := fmt.Sprintf(depositsCacheKey, pId)
+	//if v, ok := cache.Get(k); ok {
+	//	if deposits, ok = v.(qos_types.Deposits); ok {
+	//		return
+	//	}
+	//}
+	//
 	node, err := GetNodeFromUrl(context)
 	if err != nil {
-		return
+		return nil, err
 	}
-	deposits, err = qos.NewQosCli("").QueryDeposits(node.BaseURL, pId)
-	if err == nil{
-		cache.Set(k, deposits, time.Minute*5)
+	deposits, err := qos.NewQosCli("").QueryDeposits(node.BaseURL, pId)
+	result := make([]*types.ResultDeposit, 0)
+	for _, d := range(deposits) {
+		deposit := types.ResultDeposit{
+			Depositor: d.Depositor.String(),
+			Amount: strconv.FormatInt(d.Amount.Int64(), 10),
+		}
+		result = append(result, &deposit)
 	}
-	return
+	//if err == nil{
+	//	cache.Set(k, deposits, time.Minute*5)
+	//}
+	return result, nil
 }
 
 func queryTally(context *gin.Context) (tally qos_types.TallyResult, err error) {

@@ -278,6 +278,8 @@ type ResultProposal struct {
 	VotingStartTime   string `json:"voting_start_time"` //  Time of the block where MinDeposit was reached. -1 if MinDeposit is not reached
 	VotingStartHeight int64     `json:"voting_start_height"`
 	VotingEndTime     string `json:"voting_end_time"` // Time that the VotingPeriod for this proposal will end and votes will be tallied
+	Deposits []*ResultDeposit `json:deposits`
+	Votes []*ResultVote `json:votes`
 }
 
 type ResultProposals struct {
