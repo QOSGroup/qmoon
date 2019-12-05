@@ -8,15 +8,13 @@ import (
 // Proposal proposal查询
 func (n Node) Proposals() (*types.ResultProposals, error) {
 	var result types.ResultProposals
+	result.Proposals = make([]*types.ResultProposal, 0)
 	proposals, err := qos.NewQosCli("").QueryProposals(n.BaseURL)
 	if err != nil {
 		return nil, err
 	}
-	for _, proposal := range proposals {
-		//deposite, err := strconv.ParseInt(proposal.TotalDeposit.String(), 10, 64)
-		//if err != nil {
-		//	return nil, err
-		//}
+	for i := len(proposals) - 1; i >= 0; i-- {
+		proposal := proposals[i]
 		result.Proposals = append(result.Proposals, &proposal)
 	}
 	return &result, err

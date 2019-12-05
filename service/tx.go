@@ -91,7 +91,6 @@ func (n Node) TxByHash(hash string) (*types.ResultTx, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return convertToTx(mt, ""), err
 }
 

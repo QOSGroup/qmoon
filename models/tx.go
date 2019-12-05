@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/QOSGroup/qmoon/types"
 	"github.com/QOSGroup/qmoon/utils"
+	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/models/errors"
@@ -15,7 +16,7 @@ type Tx struct {
 	Height      int64  `xorm:"index(txs_height_idx) BIGINT"`
 	TxType      string `xorm:"TEXT"`
 	Index       int64  `xorm:"BIGINT"`
-	Hash        string `xorm:"unique(hash_idx) TEXT`
+	Hash        string `xorm:"TEXT"` // index(hash_idx)
 	Maxgas      int64 `xorm:"BIGINT"`
 	GasWanted   int64
 	Fee         string `xorm:"TEXT"`
@@ -84,6 +85,19 @@ func (t *Tx) Insert(chainID string) error {
 	}
 
 	return nil
+}
+
+// please note that tx status code in db is the opesite to it in the chain
+func UpdateTxStatusByHash (chainID string, status int, hash string, gas_used int64, gas_wanted int64) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+	if status == 0 || status == 1 {
+		status = 1 - status
+	}
+	_, err = x.Exec("update tx set tx_status= " + strconv.FormatInt(int64(status), 10) + ", gas_used=" + strconv.FormatInt(gas_used, 10) + ", gas_wanted=" + strconv.FormatInt(gas_wanted, 10) + " where hash = ?", hash)
+	return err
 }
 
 func (t *Tx) InsertOrUpdate(chainID string) error {
