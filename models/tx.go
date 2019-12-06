@@ -16,7 +16,7 @@ type Tx struct {
 	Height      int64  `xorm:"index(txs_height_idx) BIGINT"`
 	TxType      string `xorm:"TEXT"`
 	Index       int64  `xorm:"BIGINT"`
-	Hash        string `xorm:"TEXT"` // index(hash_idx)
+	Hash        string `xorm:"index(hash_idx) TEXT"`
 	Maxgas      int64 `xorm:"BIGINT"`
 	GasWanted   int64
 	Fee         string `xorm:"TEXT"`

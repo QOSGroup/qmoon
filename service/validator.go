@@ -311,7 +311,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 	hexAddress := lib.Bech32AddressToHex(val.ConsPubKey)
 	percent := "0.0"
 	vh, err := models.ValidatorHistoryByAddress(n.ChainID, hexAddress, 1)
-	if err == nil && vh != nil{
+	if err == nil && vh != nil && len(vh) > 0 {
 		percent = strconv.FormatFloat(float64(vh[0].VotingPower)/float64(vh[0].TotalPower)*100, 'f', -2, 64)
 	}
 	uptime := float64(0)

@@ -50,15 +50,12 @@ func txHashGin() gin.HandlerFunc {
 				result.Status = 1
 				result.GasWanted = tx_msg.GasWanted
 				result.GasUsed = tx_msg.GasUsed
-				err = models.UpdateTxStatusByHash(node.ChainID, result.Status, hash, tx_msg.GasUsed, tx_msg.GasWanted)
+				err = models.UpdateTxStatusByHash(node.ChainID, int(tx_msg.Code), hash, tx_msg.GasUsed, tx_msg.GasWanted)
 			} else if result.GasUsed != tx_msg.GasUsed || result.GasWanted != tx_msg.GasWanted {
 				result.GasWanted = tx_msg.GasWanted
 				result.GasUsed = tx_msg.GasUsed
-				err = models.UpdateTxStatusByHash(node.ChainID, result.Status, hash, tx_msg.GasUsed, tx_msg.GasWanted)
-			}
-			if tx_msg.RawLog == "" || strings.Index(tx_msg.RawLog, "\"message\":\"") < 0{
-				result.TxStatus = "Can't find error message in transaction result";
 				result.Status = int(tx_msg.Code)
+				err = models.UpdateTxStatusByHash(node.ChainID, int(tx_msg.Code), hash, tx_msg.GasUsed, tx_msg.GasWanted)
 			} else {
 				result.Status = int(tx_msg.Code)
 				ss := strings.Split(tx_msg.RawLog, "\"message\":\"")
