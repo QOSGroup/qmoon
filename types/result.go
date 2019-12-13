@@ -86,6 +86,7 @@ type ResultValidator struct {
 //}
 
 type ResultTx struct {
+	Id		int64 	`json:"id"`
 	ChainID string `json:"chain_id"`
 	Hash    string `json:"hash"`
 	Height  int64  `json:"height"`

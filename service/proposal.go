@@ -25,6 +25,9 @@ func (n Node) ProposalByID(id int64) (*types.ResultProposal, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	proposal.Deposits, err = n.DepositesByID(id)
+	proposal.Votes, err = n.VotesByID(id)
 	//deposite, err := strconv.ParseInt(proposal.TotalDeposit.String(), 10, 64)
 	//if err != nil {
 	//	return nil, err
@@ -32,8 +35,8 @@ func (n Node) ProposalByID(id int64) (*types.ResultProposal, error) {
 	return &proposal, err
 }
 
-func (n Node) VotesByID(id int64) (*types.ResultVotes, error) {
-	var result types.ResultVotes
+func (n Node) VotesByID(id int64) ([]*types.ResultVote, error) {
+	result := make([]*types.ResultVote, 0)
 	votes, err := qos.NewQosCli("").QueryVotes(n.BaseURL, id)
 	if err != nil {
 		return nil, err
@@ -43,13 +46,13 @@ func (n Node) VotesByID(id int64) (*types.ResultVotes, error) {
 			Voter: vote.Voter.String(),
 			Option: vote.Option.String(),
 		}
-		result.Votes = append(result.Votes, &v)
+		result = append(result, &v)
 	}
-	return &result, err
+	return result, err
 }
 
-func (n Node) DepositesByID(id int64) (*types.ResultDeposits, error) {
-	var result types.ResultDeposits
+func (n Node) DepositesByID(id int64) ([]*types.ResultDeposit, error) {
+	result := make([]*types.ResultDeposit, 0)
 	deposits, err := qos.NewQosCli("").QueryDeposits(n.BaseURL, id)
 	if err != nil {
 		return nil, err
@@ -59,22 +62,7 @@ func (n Node) DepositesByID(id int64) (*types.ResultDeposits, error) {
 			Depositor: deposit.Depositor.String(),
 			Amount: deposit.Amount.String(),
 		}
-		result.Deposits = append(result.Deposits, &v)
+		result = append(result, &v)
 	}
-	return &result, err
+	return result, err
 }
-
-
-//func convertToProposal(mp *models.Proposal) *types.ResultProposal {
-//	return &types.ResultProposal{
-//		ProposalID:      mp.ProposalID,
-//		Title:           mp.Title,
-//		Description:     mp.Description,
-//		Type:            mp.Type,
-//		Status:          mp.Status,
-//		SubmitTime:      types.ResultTime(mp.SubmitTime),
-//		VotingStartTime: types.ResultTime(mp.VotingStartTime),
-//		VotingEndTime:   types.ResultTime(mp.VotingEndTime),
-//		TotalDeposit:    mp.TotalDeposit,
-//	}
-//}

@@ -13,6 +13,7 @@ import (
 
 func convertToTx(mt *models.Tx, address string) *types.ResultTx {
 	res := &types.ResultTx{
+		Id: 	mt.Id,
 		ChainID: mt.ChainId,
 		Hash:    mt.Hash,
 		Height:  mt.Height,
@@ -57,15 +58,15 @@ const maxLimit = 20
 //}
 
 // List 交易查询
-func (n Node) Txs(minHeight, maxHeight, offset, limit int64) ([]*types.ResultTx, error) {
-	mbs, err := models.Txs(n.ChainID, &models.TxOption{MinHeight: minHeight, MaxHeight: maxHeight, Offset: int(offset), Limit: int(limit)})
+func (n Node) Txs(height, minId, maxId, offset, limit int64) ([]*types.ResultTx, error) {
+	mbs, err := models.Txs(n.ChainID, &models.TxOption{Height: height, MinId: minId, MaxId: maxId, Offset: int(offset), Limit: int(limit)})
 	if err != nil {
 		return nil, err
 	}
 
 	var res []*types.ResultTx
 	for _, v := range mbs {
-		v.ITxs, err = models.ITxByHash(n.ChainID, v.Hash)
+		v.ITxs, err = models.ITxByHash(n.ChainID, v.Hash, 0, 0, limit, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -76,8 +77,8 @@ func (n Node) Txs(minHeight, maxHeight, offset, limit int64) ([]*types.ResultTx,
 }
 
 // Search 交易查询
-func (n Node) Tx(height, index int64) (*types.ResultTx, error) {
-	mt, err := models.TxByHeightIndex(n.ChainID, height, index)
+func (n Node) Tx(height, index, minId, maxId, limit, offset int64) (*types.ResultTx, error) {
+	mt, err := models.TxByHeightIndex(n.ChainID, height, index, minId, maxId, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -86,22 +87,22 @@ func (n Node) Tx(height, index int64) (*types.ResultTx, error) {
 }
 
 // Search 交易查询
-func (n Node) TxByHash(hash string) (*types.ResultTx, error) {
-	mt, err := models.TxByHash(n.ChainID, strings.ToUpper(hash))
+func (n Node) TxByHash(hash string, minId, maxId, limit, offset int64) (*types.ResultTx, error) {
+	mt, err := models.TxByHash(n.ChainID, strings.ToUpper(hash), minId, maxId, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	return convertToTx(mt, ""), err
 }
 
-func (n Node) TxsByAddress(address string, minHeight int64, maxHeight int64, offset int, limit int, txTypes... string)(result *types.ResultTxs, err error) {
+func (n Node) TxsByAddress(address string, minId int64, maxId int64, offset int, limit int, txTypes... string)(result *types.ResultTxs, err error) {
 	result = &types.ResultTxs{Txs:make([]*types.ResultTx,0)}
-	txs, err := models.TxByAddress(n.ChainID, address, minHeight, maxHeight, offset, limit)
+	txs, err := models.TxByAddress(n.ChainID, address, minId, maxId, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 	for _, tx := range txs {
-		tx.ITxs, err = models.ITxByHash(n.ChainID, tx.Hash)
+		tx.ITxs, err = models.ITxByHash(n.ChainID, tx.Hash, 0, 0, int64(limit), int64(offset))
 		if err != nil {
 			return nil, err
 		}

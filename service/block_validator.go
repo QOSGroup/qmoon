@@ -44,9 +44,9 @@ func (n Node) BlockValidatorsByHeight(height int64) ([]*types.BlockValidator, er
 }
 
 // ListBlockValidatorByAddress 查询
-func (n Node) BlockValidatorByAddress(address string, minHeight, maxHeight int64) ([]*types.BlockValidator, error) {
+func (n Node) BlockValidatorByAddress(address string, minHeight, maxHeight int64, offset int, limit int) ([]*types.BlockValidator, error) {
 	mbvs, err := models.BlockValidators(n.ChainID, &models.BlockValidatorOption{
-		MinHeight: maxHeight, MaxHeight: maxHeight, ValidatorAddress: address,
+		MinHeight: maxHeight, MaxHeight: maxHeight, ValidatorAddress: address, Offset: offset, Limit: limit,
 	})
 	if err != nil {
 		return nil, err

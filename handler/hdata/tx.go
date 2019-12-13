@@ -44,7 +44,12 @@ func txGin() gin.HandlerFunc {
 			return
 		}
 
-		result, err := node.Tx(height, index)
+		minId, _ := strconv.ParseInt(c.Query("minId"), 10, 64)
+		maxId, _ := strconv.ParseInt(c.Query("maxId"), 10, 64)
+		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
+		limit, _ := strconv.ParseInt(c.Query("limit"), 10, 64)
+
+		result, err := node.Tx(height, index, minId, maxId, limit, offset)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return

@@ -57,7 +57,7 @@ func (vh *ValidatorHistoryRecord) Insert(chainID string) error {
 	return nil
 }
 
-func ValidatorHistoryByAddress(chainID string, address string, limit int) ([]*ValidatorHistoryRecord, error) {
+func ValidatorHistoryByAddress(chainID string, address string, maxId int64, minId int64, limit int) ([]*ValidatorHistoryRecord, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return nil, err
@@ -65,6 +65,12 @@ func ValidatorHistoryByAddress(chainID string, address string, limit int) ([]*Va
 
 	sess := x.NewSession()
 	defer sess.Close()
+	if maxId > 0 {
+		sess = sess.Where("id < ?", maxId)
+	}
+	if minId > 0 {
+		sess = sess.Where("id > ?", maxId)
+	}
 	sess = sess.Where("address = ?", address).Desc("height").Limit(limit)
 
 	var bvs = make([]*ValidatorHistoryRecord, 0)
@@ -130,6 +136,10 @@ func QueryValidatorVotingPower(chainID string, address string, intervals int64, 
 	var result = make([]types.Matrix, 0)
 	if intervals > 0 {
 		err = sess.SQL("select b.time_unix, vh.voting_power, vh.total_power from block b, validator_history_record vh where vh.address= ? and vh.height % ? = 0 and b.height=vh.height order by b.id desc limit "+strconv.FormatInt(int64(limit), 10), address, intervals).Find(&bvs)
+		// When the result is too small( the network just started) return the most recent records
+		if len(bvs) < 2 {
+			return QueryValidatorVotingPower(chainID, address, 0, limit)
+		}
 	} else {
 		err = sess.SQL("select b.time_unix, vh.voting_power, vh.total_power from block b, validator_history_record vh where vh.address= ? and b.height=vh.height order by b.id desc limit "+strconv.FormatInt(int64(limit), 10), address).Find(&bvs)
 	}
@@ -157,6 +167,10 @@ func QueryValidatorUptime(chainID string, address string, intervals int64, limit
 	result = make([]types.Matrix, 0)
 	if intervals > 0 {
 		err = sess.SQL("select b.time_unix, vh.uptime_percent from block b, validator_history_record vh where vh.address= ? and vh.height % ? = 0 and b.height=vh.height order by b.id desc limit "+strconv.FormatInt(int64(limit), 10), address, intervals).Find(&bvs)
+		// When the result is too small( the network just started) return the most recent records
+		if len(bvs) < 2 {
+			return QueryValidatorUptime(chainID, address, 0, limit)
+		}
 	} else {
 		err = sess.SQL("select b.time_unix, vh.uptime_percent from block b, validator_history_record vh where vh.address= ? and b.height=vh.height order by b.id desc limit "+strconv.FormatInt(int64(limit), 10), address).Find(&bvs)
 	}

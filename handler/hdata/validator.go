@@ -67,18 +67,24 @@ func validatorGin() gin.HandlerFunc {
 			}
 		}
 
-		var minHeight, maxHeight int64
+		var minHeight, maxHeight, offset, limit int64
 		maxHeightStr := c.Query("maxHeight")
 		maxHeight, _ = strconv.ParseInt(maxHeightStr, 10, 64)
 
 		minHeightStr := c.Query("minHeight")
 		minHeight, _ = strconv.ParseInt(minHeightStr, 10, 64)
-		bs, err := node.BlockValidatorByAddress(v.Address, minHeight, maxHeight)
+
+		offsetStr := c.Query("offset")
+		offset, _ = strconv.ParseInt(offsetStr, 10, 64)
+
+		limitStr := c.Query("limit")
+		limit, _ = strconv.ParseInt(limitStr, 10, 64)
+		bs, err := node.BlockValidatorByAddress(v.Address, minHeight, maxHeight, int(offset), int(limit))
 
 		var result types.ResultValidator
 
 
-		validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, v.Address,1)
+		validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, v.Address, 0, 0,1)
 		if err == nil && validatorHistory != nil {
 			v.Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
 		}
@@ -124,7 +130,7 @@ func validatorDelegationGin() gin.HandlerFunc {
 			return
 		}
 		result.Validator = service.ConvertToValidator(v, latestheight)
-		validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, v.Address,1)
+		validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, v.Address, 0, 0, 1)
 		if err == nil && validatorHistory != nil {
 			result.Validator.Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
 		}

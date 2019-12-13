@@ -117,11 +117,13 @@ func queryProposal(context *gin.Context) (proposal types.ResultProposal, err err
 	}
 
 	proposal, err = qos.NewQosCli("").QueryProposal(node.BaseURL, pId)
+	if err == nil {
+		proposal.Deposits, err = queryDeposits(context)
+		proposal.Votes, err = queryVotes(context)
+	}
 	if err == nil{
 		cache.Set(k, proposal, time.Minute*5)
 	}
-	proposal.Deposits, _  = queryDeposits(context)
-	proposal.Votes, _  = queryVotes(context)
 	return
 }
 

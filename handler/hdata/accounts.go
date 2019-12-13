@@ -67,12 +67,9 @@ func accountTxsGin() gin.HandlerFunc {
 		}
 
 		address := c.Param("address")
-		var minHeight, maxHeight int64
-		maxHeightStr := c.Query("maxHeight")
-		maxHeight, _ = strconv.ParseInt(maxHeightStr, 10, 64)
+		maxId, _ := strconv.ParseInt(c.Query("maxHeight"), 10, 64)
 
-		minHeightStr := c.Query("minHeight")
-		minHeight, _ = strconv.ParseInt(minHeightStr, 10, 64)
+		minId, _ := strconv.ParseInt(c.Query("minHeight"), 10, 64)
 
 		offset, limit := 0, 20
 
@@ -84,7 +81,7 @@ func accountTxsGin() gin.HandlerFunc {
 			limit = int(d)
 		}
 
-		ts, err := node.TxsByAddress(address, minHeight, maxHeight, offset, limit)
+		ts, err := node.TxsByAddress(address, minId, maxId, offset, limit)
 		if err != nil {
 			c.JSON(http.StatusOK, types.RPCServerError("", err))
 			return
@@ -137,7 +134,7 @@ func accountDelegationsGin() gin.HandlerFunc {
 				}
 			}
 
-			validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, v.Address,1)
+			validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, v.Address, 0,0,1)
 			if err == nil && validatorHistory != nil {
 				v.Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
 			}

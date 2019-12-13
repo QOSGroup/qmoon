@@ -324,6 +324,7 @@ func (s QOS) stakingValidators() map[string]QOSStakingValidator {
 
 func (s QOS) Validator(height int64, t time.Time) error {
 	var vals []types.Validator
+	valsMap := make(map[string]types.Validator)
 	//var vals_display []stake_types.ValidatorDisplayInfo
 	//var err error
 	//if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
@@ -350,25 +351,19 @@ func (s QOS) Validator(height int64, t time.Time) error {
 		//}
 		// fmt.Println("before Create ", val.Address, val.BondedTokens, val.SelfBond)
 		s.node.CreateValidator(val)
-
+		valsMap[val.Address] = val
 		//valMap[val.Address] = val
 		vals = append(vals, val)
 	}
 
-	//allVals, err := s.node.Validators()
-	//if err == nil {
-	//	for _, v := range allVals {
-	//		if v.Status == types.Active {
-	//			if _, ok := valMap[v.Address]; !ok {
-	//				_ = s.node.InactiveValidator(v.Address, int(types.Inactive), height, time.Time{})
-	//			}
-	//		} else {
-	//			if _, ok := valMap[v.Address]; ok {
-	//				_ = s.node.InactiveValidator(v.Address, int(types.Active), height, time.Time{})
-	//			}
-	//		}
-	//	}
-	//}
+	mvs, err := models.Validators(s.node.ChainID)
+	if err == nil {
+		for _, v := range mvs {
+			if _, ok := valsMap[v.Address]; !ok {
+				v.Del(s.node.ChainID)
+			}
+		}
+	}
 
 	//metric.ValidatorVotingPower(s.node.ChainID, t, vals)
 

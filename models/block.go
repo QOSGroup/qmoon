@@ -91,8 +91,12 @@ func Blocks(chainID string, opt *BlockOption) ([]*Block, error) {
 			sess = sess.Where("height = ?", opt.Height)
 		}
 
-		if opt.MinHeight != 0 && opt.MaxHeight != 0 {
-			sess = sess.Where("height >= ?", opt.MinHeight).Where("height <= ?", opt.MaxHeight)
+		if opt.MinHeight != 0 {
+			sess = sess.Where("id > ?", opt.MinHeight)
+		}
+
+		if opt.MaxHeight != 0 {
+			sess = sess.Where("id < ?", opt.MaxHeight)
 		}
 
 		if opt.NumTxs != 0 {
@@ -104,7 +108,7 @@ func Blocks(chainID string, opt *BlockOption) ([]*Block, error) {
 		sess = sess.Limit(opt.Limit, opt.Offset)
 	}
 
-	return bvs, sess.OrderBy("height desc").Find(&bvs)
+	return bvs, sess.OrderBy("id desc").Find(&bvs)
 }
 
 func BlocksByProposer(chainID string, proposerAdd string) ([]*Block, error) {
