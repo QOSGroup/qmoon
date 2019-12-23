@@ -45,7 +45,7 @@ func (n Node) LatestBlock() (result *types.ResultBlockBase, err error) {
 		return nil, err
 	}
 	latestblock.Proposer = ConvertToValidator(proposer, latestblock.Height)
-	latestblock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
+	latestblock.Votes, _ = n.RetrieveVotesByHeight(mbs[0].Height)
 	inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
 	if err != nil {
 		latestblock.Inflation = "Not Available"
@@ -90,7 +90,7 @@ func (n Node) LatestBlockFromCli() (result *types.ResultBlockBase, err error) {
 		return
 	}
 	result.Proposer = ConvertToValidator(proposer, height)
-	vote, err := models.RetrieveVotesByHeight(n.ChainID,height)
+	vote, err := n.RetrieveVotesByHeight(height)
 	result.Votes = vote
 
 	result.Inflation = "995474"
@@ -117,7 +117,7 @@ func (n Node) RetrieveBlock(height int64) (*types.ResultBlockBase, error) {
 		return nil, err
 	}
 	block.Proposer = ConvertToValidator(proposer, height)
-	vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
+	vote, err := n.RetrieveVotesByHeight(mbs[0].Height)
 	block.Votes = vote
 
 	block.Inflation = "995474"
@@ -165,7 +165,7 @@ func (n Node) BlockByHeight(height int64) (*types.ResultBlockBase, error) {
 	if err0 == nil {
 		resultBlock.Proposer = ConvertToValidator(proposer, height)
 	}
-	resultBlock.Votes, _ = models.RetrieveVotesByHeight(n.ChainID, height)
+	resultBlock.Votes, _ = n.RetrieveVotesByHeight(height)
 	resultBlock.Inflation = "995474"
 	inf, err1 := models.InflationByHeight(n.ChainID, height)
 	if err1 == nil {
@@ -189,7 +189,7 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 			return nil, err
 		}
 		blc.Proposer = ConvertToValidator(proposer, maxHeight)
-		vote, err := models.RetrieveVotesByHeight(n.ChainID, mbs[0].Height)
+		vote, err := n.RetrieveVotesByHeight(mbs[0].Height)
 		blc.Votes = vote
 
 		blc.Inflation = "995474"
@@ -264,3 +264,18 @@ func (n Node) CreateEvidence(b *types.Block) error {
 
 	return models.CreateEvidences(n.ChainID, b.EvidenceList)
 }
+
+
+func (n Node) RetrieveVotesByHeight(height int64) (string, error) {
+	cs, err := models.RetrieveConsensusStateByHeight(n.ChainID, strconv.FormatInt(height, 10))
+	if err != nil {
+		return "Not available", err
+	}
+	vals, err := n.ValidatorCntByHeight(height)
+	if vals == 0 || err != nil {
+		return "Not available", err
+	}
+
+	return strconv.FormatInt(vals, 10) + "/" + strconv.FormatInt(cs.PrecommitsNum, 10), nil
+}
+

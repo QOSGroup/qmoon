@@ -85,7 +85,7 @@ func Blocks(chainID string, opt *BlockOption) ([]*Block, error) {
 	var bvs = make([]*Block, 0)
 
 	sess := x.NewSession()
-	//defer sess.Close()
+	defer sess.Close()
 	if opt != nil {
 		if opt.Height != 0 {
 			sess = sess.Where("height = ?", opt.Height)
@@ -118,7 +118,7 @@ func BlocksByProposer(chainID string, proposerAdd string) ([]*Block, error) {
 	}
 	var bvs = make([]*Block, 0)
 	sess := x.NewSession()
-	//defer sess.Close()
+	defer sess.Close()
 	sess = sess.Where("proposer_address = ?", proposerAdd).Limit(10)
 	return bvs, sess.OrderBy("height desc").Find(&bvs)
 }

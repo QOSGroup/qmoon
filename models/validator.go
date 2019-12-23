@@ -100,7 +100,7 @@ func UpdateBondtime(chainID string) error {
 	if err != nil {
 		return err
 	}
-	_, err = x.Exec("update validator set first_block_time_unix=b.time_unix from validator v, block b where v.bond_height=b.height;")
+	_, err = x.Exec(" update validator set first_block_time_unix=b.time_unix from validator v, block b where (v.bond_height=b.height and v.bond_height != 0) or (v.bond_height=0 and b.height=1);")
 	return err
 }
 

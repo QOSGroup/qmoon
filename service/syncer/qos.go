@@ -403,7 +403,7 @@ func (s QOS) ConsensusStateLoop(ctx context.Context) error {
 
 	if !Lock(key) {
 		log.Printf("[Sync] ConsensusStateLoop %v err, has been locked.", s.node.ChainID)
-		return nil
+		//return nil
 	}
 	defer Unlock(key)
 

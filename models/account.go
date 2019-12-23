@@ -155,6 +155,7 @@ func (a *Account) DeleteSession() error {
 func Accounts(opt *AccountOption) ([]*Account, error) {
 	var accs = make([]*Account, 0)
 	sess := basex.NewSession()
+	defer sess.Close()
 	if opt.Limit > 0 {
 		sess = sess.Limit(opt.Limit, opt.Offset)
 	}

@@ -164,11 +164,11 @@ func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 		return nil, err
 	}
 	var txs = make([]*Tx, 0)
-
 	sess := x.NewSession()
 	defer sess.Close()
+
 	if opt.Height > 0 {
-		sess = sess.Where("height = ?", opt.MinId)
+		sess = sess.Where("height = ?", opt.Height)
 	}
 
 	if opt.MinId > 0 {
@@ -177,21 +177,6 @@ func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 
 	if opt.MaxId > 0 {
 		sess = sess.Where("id < ?", opt.MaxId)
-	}
-
-	if opt.Address != "" {
-		var itxs = make([]*ITx, 0)
-		sess = sess.Distinct("hash").Where("json_tx like ?", "%"+opt.Address+"%")
-		sess.Find(&itxs)
-
-		if len(itxs) > 0 {
-			var hashS = ""
-			for _, iTx := range itxs {
-				hashS += ", '" + iTx.Hash + "'"
-			}
-			hashS = hashS[2 : len(hashS)-1]
-			sess = sess.Where("hash like ?", "("+hashS+")")
-		}
 	}
 
 	if opt.TxType != "" {

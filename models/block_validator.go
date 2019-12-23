@@ -65,7 +65,7 @@ func BlockValidators(chainID string, opt *BlockValidatorOption) ([]*BlockValidat
 	var bvs = make([]*BlockValidator, 0)
 
 	sess := x.NewSession()
-	//defer sess.Close()
+	defer sess.Close()
 	if opt != nil {
 		if opt.Height != 0 {
 			sess = sess.Where("height = ?", opt.Height)

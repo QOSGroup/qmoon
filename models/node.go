@@ -74,7 +74,7 @@ func CreateNode(name, baseURL, nodeType, nodeVersion, secretKey, chainID string)
 
 func Nodes() ([]*Node, error) {
 	var nodes = make([]*Node, 0)
-	return nodes, basex.Asc("sort").Find(&nodes)
+	return nodes, basex.Where("node_type = 'QOS'").Asc("sort").Find(&nodes)
 }
 
 func RetrieveNodeByName(name string) (*Node, error) {
