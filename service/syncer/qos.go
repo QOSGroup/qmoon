@@ -91,6 +91,7 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 	//	height = latestheight + 1
 	//}
 
+	pre := 0
 	for {
 		select {
 		case <-ctx.Done():
@@ -101,12 +102,13 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 				time.Sleep(time.Millisecond * 1000)
 				continue
 			}
-
 			if err := s.block(b); err != nil {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			s.Validator(height, b.Header.Time)
+			if len(b.Precommits) != pre || height % 100 == 0 {
+				s.Validator(height, b.Header.Time)
+			}
 			height += 1
 			// 为什么要同步proposal？
 			// s.Proposals()
