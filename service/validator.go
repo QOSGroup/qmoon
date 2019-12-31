@@ -170,6 +170,24 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 	return nil
 }
 
+func (n Node) CloseValidator(address string, inactiveHeight int64, inactiveTime time.Time) error {
+	mv, err := models.ValidatorByAddress(n.ChainID, address)
+	if err == nil {
+		if mv.Status != 2 {
+			mv.Status = 2
+			mv.InactiveCode = int(types.Inactive)
+			mv.InactiveTime = inactiveTime
+			mv.InactiveHeight = inactiveHeight
+
+			if err := mv.UpdateStatus(n.ChainID); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (n Node) CreateValidator(vl types.Validator) error {
 	mv, err := models.ValidatorByAddress(n.ChainID, vl.Address)
 	if err != nil {

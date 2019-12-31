@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/QOSGroup/qmoon/models/errors"
-	"strconv"
 )
 
 type ConsensusState struct {

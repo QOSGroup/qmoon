@@ -31,3 +31,12 @@ func (n Node) Missings(validator string) ([]*types.ResultMissing, error) {
 
 	return result, err
 }
+
+func (n Node) MissingCntByHeight(height int64) (int64, error) {
+	mts, err := models.MissingsByHeight(n.ChainID, height)
+
+	if err != nil {
+		return 0, err
+	}
+	return int64(len(mts)), nil
+}

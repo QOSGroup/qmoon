@@ -92,23 +92,50 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 	//}
 
 	pre := 0
+	preValHash := ""
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
 		default:
+			fmt.Println(strconv.FormatInt(height, 10), "0", time.Now().Format("1999-9-9 09:09:09"))
 			b, err := s.tmcli.RetrieveBlock(&height)
 			if err != nil {
-				time.Sleep(time.Millisecond * 1000)
+				time.Sleep(time.Millisecond * 500)
 				continue
 			}
+			fmt.Println(strconv.FormatInt(height, 10), "1.0", time.Now().Format("1999-9-9 09:09:09"))
 			if err := s.block(b); err != nil {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			if len(b.Precommits) != pre || height % 100 == 0 {
-				s.Validator(height, b.Header.Time)
+			fmt.Println(strconv.FormatInt(height, 10), "1.1", time.Now().Format("1999-9-9 09:09:09"))
+			validators_changed := false
+			validatorsInDB := make(map[string]*types.Validator)
+			if len(b.Precommits) != pre || b.Header.ValidatorsHash != preValHash || height % 72 == 0 {
+				validators_changed = true
+				fmt.Println(strconv.FormatInt(height, 10), "2.0", time.Now().Format("1999-9-9 09:09:09"))
+				validatorsInDB, err = s.Validators(height, b.Header.Time)
+				if err != nil {
+					continue
+				}
+				pre = len(b.Precommits)
+				preValHash = b.Header.ValidatorsHash
+
+				fmt.Println(strconv.FormatInt(height, 10), "2.1", time.Now().Format("1999-9-9 09:09:09"))
 			}
+			go func() {
+				fmt.Println(strconv.FormatInt(height, 10), "3.0", time.Now().Format("1999-9-9 09:09:09"))
+				err = s.node.SaveBlockValidatorWithValidators(b.Precommits, validatorsInDB, validators_changed)
+				fmt.Println(strconv.FormatInt(height, 10), "3.1", time.Now().Format("1999-9-9 09:09:09"))
+			} ()
+			//if len(b.Precommits) != pre || b.Header.ValidatorsHash != preValHash {
+			//	fmt.Println("2", time.Now().Format("2006-01-02 15:04:05"))
+			//	s.Validator(height, b.Header.Time)
+			//	fmt.Println("3", time.Now().Format("2006-01-02 15:04:05"))
+			//	pre = len(b.Precommits)
+			//	preValHash = b.Header.ValidatorsHash
+			//}
 			height += 1
 			// 为什么要同步proposal？
 			// s.Proposals()
@@ -125,12 +152,18 @@ func (s QOS) block(b *types.Block) error {
 		return err
 	}
 
+	fmt.Println(strconv.FormatInt(b.Header.Height, 10), "tx0", time.Now().Format("1999-9-9 09:09:09"))
 	err = s.tx(b)
 	if err != nil {
 		fmt.Println("parse tx err:", err)
 	}
+	fmt.Println(strconv.FormatInt(b.Header.Height, 10), "tx1", time.Now().Format("1999-9-9 09:09:09"))
 
-	err = s.node.SaveBlockValidator(b.Precommits)
+	//fmt.Println("6", time.Now().Format("2006-01-02 15:04:05"))
+	//go func() {
+	//	err = s.node.SaveBlockValidator(b.Precommits)
+	//}()
+	//fmt.Println("7", time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		fmt.Println("parse BlockValidator err:", err)
 	}
@@ -325,8 +358,12 @@ func (s QOS) stakingValidators() map[string]QOSStakingValidator {
 }
 
 func (s QOS) Validator(height int64, t time.Time) error {
+	return nil
+}
+
+func (s QOS) Validators(height int64, t time.Time) (map[string]*types.Validator, error) {
 	var vals []types.Validator
-	valsMap := make(map[string]types.Validator)
+	valsMap := make(map[string]*types.Validator)
 	//var vals_display []stake_types.ValidatorDisplayInfo
 	//var err error
 	//if !s.node.NodeVersion.GreaterThan(qos0_0_4) {
@@ -334,7 +371,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	//} else {
 	vals_display, err := qos.NewQosCli("").QueryValidators(s.node.BaseURL)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// fmt.Println(len(vals), " validators")
 	// svs := s.stakingValidators()
@@ -342,7 +379,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 		val, err := s.node.ConvertDisplayValidators(dist)
 		if err != nil {
 			log.Printf("QOS [Sync] ValidatorLoop  Validator err:%v", err)
-			return err
+			return nil, err
 		}
 		//if sv, ok := svs[lib.PubkeyToBech32Address(s.node.Bech32PrefixConsPub(), val.PubKeyType, val.PubKeyValue)]; ok {
 		//	val.Name = sv.Description.Moniker
@@ -353,7 +390,7 @@ func (s QOS) Validator(height int64, t time.Time) error {
 		//}
 		// fmt.Println("before Create ", val.Address, val.BondedTokens, val.SelfBond)
 		s.node.CreateValidator(val)
-		valsMap[val.Address] = val
+		valsMap[val.Address] = &val
 		//valMap[val.Address] = val
 		vals = append(vals, val)
 	}
@@ -362,14 +399,14 @@ func (s QOS) Validator(height int64, t time.Time) error {
 	if err == nil {
 		for _, v := range mvs {
 			if _, ok := valsMap[v.Address]; !ok {
-				v.Del(s.node.ChainID)
+				s.node.CloseValidator(v.Address, height, t)
 			}
 		}
 	}
 
 	//metric.ValidatorVotingPower(s.node.ChainID, t, vals)
 
-	return nil
+	return valsMap, nil
 }
 
 //qos proposals

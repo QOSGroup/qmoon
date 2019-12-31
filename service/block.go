@@ -189,11 +189,11 @@ func (n Node) Blocks(minHeight, maxHeight, offset, limit int64) ([]*types.Result
 			return nil, err
 		}
 		blc.Proposer = ConvertToValidator(proposer, maxHeight)
-		vote, err := n.RetrieveVotesByHeight(mbs[0].Height)
+		vote, err := n.RetrieveVotesByHeight(v.Height)
 		blc.Votes = vote
 
 		blc.Inflation = "995474"
-		inf, err := models.InflationByHeight(n.ChainID, mbs[0].Height)
+		inf, err := models.InflationByHeight(n.ChainID, v.Height)
 		if err == nil {
 			blc.Inflation = strconv.FormatInt(inf.Tokens, 10)
 		}
@@ -271,11 +271,11 @@ func (n Node) RetrieveVotesByHeight(height int64) (string, error) {
 	if err != nil {
 		return "Not available", err
 	}
-	vals, err := n.ValidatorCntByHeight(height)
-	if vals == 0 || err != nil {
+	missing, err := n.MissingCntByHeight(height)
+	if err != nil {
 		return "Not available", err
 	}
 
-	return strconv.FormatInt(vals, 10) + "/" + strconv.FormatInt(cs.PrecommitsNum, 10), nil
+	return strconv.FormatInt(cs.PrecommitsNum - missing, 10) + "/" + strconv.FormatInt(cs.PrecommitsNum, 10), nil
 }
 

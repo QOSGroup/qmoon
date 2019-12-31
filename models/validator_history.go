@@ -40,7 +40,6 @@ func (vh *ValidatorHistoryRecord) Insert(chainID string) error {
 	}
 	sess := x.NewSession()
 	defer sess.Close()
-
 	vh1 := ValidatorHistoryRecord{Address:vh.Address}
 	totalCnt, err := sess.Count(vh1)
 	statusCnt, err := sess.SumInt(vh1, "status")
@@ -50,6 +49,22 @@ func (vh *ValidatorHistoryRecord) Insert(chainID string) error {
 	}
 
 	_, err = x.Insert(vh)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InsertHistoryAsLast(chainID string, height int64) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+	sess := x.NewSession()
+	defer sess.Close()
+
+	_, err = x.Exec(" insert into validator_history_record (height, address, voting_power, total_power, status, uptime_percent) (select "+strconv.FormatInt(height, 10)+", address, voting_power, total_power, status, uptime_percent from validator_history_record where height = " + strconv.FormatInt(height - 1, 10) + ");")
 	if err != nil {
 		return err
 	}
@@ -86,6 +101,7 @@ func PurgeOldValidatorHistory(chainID string, condition string) error {
 
 	sess := x.NewSession()
 	defer sess.Close()
+
 	// var bvs = make([]*ValidatorHistoryRecord, 0)
 	n, err := sess.Exec("delete from validator_history_record " + condition)
 	fmt.Println("Purged old validators' history: ", n)
@@ -131,7 +147,6 @@ func QueryValidatorVotingPower(chainID string, address string, intervals int64, 
 	}
 	sess := x.NewSession()
 	defer sess.Close()
-
 	var bvs = make([]*ValidatorVotingPowerResult, 0)
 	var result = make([]types.Matrix, 0)
 	if intervals > 0 {
