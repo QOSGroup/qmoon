@@ -207,8 +207,8 @@ func newNode(name string) (err error) {
 	if err != nil {
 		return err
 	}
-	x.SetConnMaxLifetime(5000000)
 	x.SetMaxIdleConns(10)
+	x.SetMaxOpenConns(20)
 
 	if err = x.Sync2(nodeTables...); err != nil {
 		return fmt.Errorf("sync database struct error: %v\n", err)

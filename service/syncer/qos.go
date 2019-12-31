@@ -98,23 +98,23 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		default:
-			fmt.Println(strconv.FormatInt(height, 10), "0", time.Now().Format("1999-9-9 09:09:09"))
+			fmt.Println(strconv.FormatInt(height, 10), "0", time.Now().Format("1999-09-09 09:09:09"))
 			b, err := s.tmcli.RetrieveBlock(&height)
 			if err != nil {
 				time.Sleep(time.Millisecond * 500)
 				continue
 			}
-			fmt.Println(strconv.FormatInt(height, 10), "1.0", time.Now().Format("1999-9-9 09:09:09"))
+			fmt.Println(strconv.FormatInt(height, 10), "1.0", time.Now().Format("1999-09-09 09:09:09"))
 			if err := s.block(b); err != nil {
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
-			fmt.Println(strconv.FormatInt(height, 10), "1.1", time.Now().Format("1999-9-9 09:09:09"))
+			fmt.Println(strconv.FormatInt(height, 10), "1.1", time.Now().Format("1999-09-09 09:09:09"))
 			validators_changed := false
 			validatorsInDB := make(map[string]*types.Validator)
 			if len(b.Precommits) != pre || b.Header.ValidatorsHash != preValHash || height % 72 == 0 {
 				validators_changed = true
-				fmt.Println(strconv.FormatInt(height, 10), "2.0", time.Now().Format("1999-9-9 09:09:09"))
+				fmt.Println(strconv.FormatInt(height, 10), "2.0", time.Now().Format("1999-09-09 09:09:09"))
 				validatorsInDB, err = s.Validators(height, b.Header.Time)
 				if err != nil {
 					continue
@@ -122,12 +122,12 @@ func (s QOS) BlockLoop(ctx context.Context) error {
 				pre = len(b.Precommits)
 				preValHash = b.Header.ValidatorsHash
 
-				fmt.Println(strconv.FormatInt(height, 10), "2.1", time.Now().Format("1999-9-9 09:09:09"))
+				fmt.Println(strconv.FormatInt(height, 10), "2.1", time.Now().Format("1999-09-09 09:09:09"))
 			}
 			go func() {
-				fmt.Println(strconv.FormatInt(height, 10), "3.0", time.Now().Format("1999-9-9 09:09:09"))
+				fmt.Println(strconv.FormatInt(height, 10), "3.0", time.Now().Format("1999-09-09 09:09:09"))
 				err = s.node.SaveBlockValidatorWithValidators(b.Precommits, validatorsInDB, validators_changed)
-				fmt.Println(strconv.FormatInt(height, 10), "3.1", time.Now().Format("1999-9-9 09:09:09"))
+				fmt.Println(strconv.FormatInt(height, 10), "3.1", time.Now().Format("1999-09-09 09:09:09"))
 			} ()
 			//if len(b.Precommits) != pre || b.Header.ValidatorsHash != preValHash {
 			//	fmt.Println("2", time.Now().Format("2006-01-02 15:04:05"))
@@ -152,12 +152,12 @@ func (s QOS) block(b *types.Block) error {
 		return err
 	}
 
-	fmt.Println(strconv.FormatInt(b.Header.Height, 10), "tx0", time.Now().Format("1999-9-9 09:09:09"))
+	fmt.Println(strconv.FormatInt(b.Header.Height, 10), "tx0", time.Now().Format("1999-09-09 09:09:09"))
 	err = s.tx(b)
 	if err != nil {
 		fmt.Println("parse tx err:", err)
 	}
-	fmt.Println(strconv.FormatInt(b.Header.Height, 10), "tx1", time.Now().Format("1999-9-9 09:09:09"))
+	fmt.Println(strconv.FormatInt(b.Header.Height, 10), "tx1", time.Now().Format("1999-09-09 09:09:09"))
 
 	//fmt.Println("6", time.Now().Format("2006-01-02 15:04:05"))
 	//go func() {
