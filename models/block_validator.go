@@ -65,24 +65,30 @@ func BlockValidators(chainID string, opt *BlockValidatorOption) ([]*BlockValidat
 	var bvs = make([]*BlockValidator, 0)
 
 	sess := x.NewSession()
-	//defer sess.Close()
+	defer sess.Close()
 	if opt != nil {
 		if opt.Height != 0 {
 			sess = sess.Where("height = ?", opt.Height)
 		}
 
-		if opt.MinHeight != 0 && opt.MaxHeight != 0 {
-			sess = sess.Where("height >= ?", opt.MinHeight).Where("height <= ?", opt.MaxHeight)
+		if opt.MinHeight != 0  {
+			sess = sess.Where("id > ?", opt.MinHeight)
+		}
+
+		if opt.MaxHeight != 0 {
+			sess = sess.Where("id < ?", opt.MaxHeight)
 		}
 
 		if opt.ValidatorAddress != "" {
-			sess = sess.Where("json_tx = ?", opt.ValidatorAddress)
+			sess = sess.Where("validator_address = ?", opt.ValidatorAddress)
 		}
 
 		if opt.Limit > 0 {
-			sess = sess.Limit(opt.Limit, opt.Offset)
+			sess = sess.Limit(opt.Limit)
+		} else {
+			sess = sess.Limit(20)
 		}
 	}
 
-	return bvs, sess.OrderBy("height desc").Find(&bvs)
+	return bvs, sess.OrderBy("id desc").Find(&bvs)
 }

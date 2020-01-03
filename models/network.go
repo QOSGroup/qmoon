@@ -94,6 +94,7 @@ func Networks(chainID string, opt *NetworkOption) ([]*Network, error) {
 	var ns = make([]*Network, 0)
 
 	sess := x.NewSession()
+	defer sess.Close()
 	if opt != nil {
 		if opt.Status != 0 {
 			sess = sess.Where("status = ?", opt.Status)

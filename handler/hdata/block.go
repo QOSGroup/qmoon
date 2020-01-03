@@ -70,7 +70,7 @@ func blockGin() gin.HandlerFunc {
 		offset, _ := strconv.ParseInt(c.Query("offset"), 10, 64)
 		limit, _ := strconv.ParseInt(c.Query("limit"), 10, 64)
 
-		ts, _ := node.Txs(b.Height, b.Height, offset, limit)
+		ts, _ := node.Txs(b.Height, 0, 0, offset, limit)
 		vs, _ := node.BlockValidatorsByHeight(b.Height)
 		mv, _ := models.RetrieveMissingValidators(node.ChainID, d)
 		ev, _ := models.RetrieveEvidenceByHeight(node.ChainID, d)

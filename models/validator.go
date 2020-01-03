@@ -95,6 +95,28 @@ func (val *Validator) UpdateStatus(chainID string) error {
 	return val.Update(chainID, "status", "inactive_code", "inactive_time_unix", "inactive_height")
 }
 
+func UpdateBondtime(chainID string) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+	_, err = x.Exec(" update validator set first_block_time_unix=b.time_unix from validator v, block b where (v.bond_height=b.height and v.bond_height != 0) or (v.bond_height=0 and b.height=1);")
+	return err
+}
+
+func (val *Validator) Del(chainID string) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+	_, err = x.Delete(val)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ValidatorByAddress(chainID, address string) (*Validator, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {

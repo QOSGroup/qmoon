@@ -16,7 +16,7 @@ type Tx struct {
 	Height      int64  `xorm:"index(txs_height_idx) BIGINT"`
 	TxType      string `xorm:"TEXT"`
 	Index       int64  `xorm:"BIGINT"`
-	Hash        string `xorm:"TEXT"` // index(hash_idx)
+	Hash        string `xorm:"index(hash_idx) TEXT"`
 	Maxgas      int64 `xorm:"BIGINT"`
 	GasWanted   int64
 	Fee         string `xorm:"TEXT"`
@@ -106,7 +106,7 @@ func (t *Tx) InsertOrUpdate(chainID string) error {
 		return err
 	}
 
-	_, err = TxByHash(chainID, t.Hash)
+	_, err = TxByHash(chainID, t.Hash, 0, 0, 0, 0)
 	if err != nil {
 		_, err = x.Insert(t)
 		if err != nil {
@@ -151,8 +151,9 @@ func (t *Tx) InsertOrUpdate(chainID string) error {
 
 type TxOption struct {
 	TxType        string
-	MinHeight     int64
-	MaxHeight     int64
+	Height		int64
+	MinId     int64
+	MaxId     int64
 	Address       string
 	Offset, Limit int
 }
@@ -163,26 +164,19 @@ func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 		return nil, err
 	}
 	var txs = make([]*Tx, 0)
-
 	sess := x.NewSession()
-	if opt.MinHeight != 0 && opt.MaxHeight != 0 {
-		sess = sess.Where("height >= ?", opt.MinHeight).Where("height <= ?", opt.MaxHeight)
+	defer sess.Close()
+
+	if opt.Height > 0 {
+		sess = sess.Where("height = ?", opt.Height)
 	}
 
-	//TODO query i_tx_address instead
-	if opt.Address != "" {
-		var itxs = make([]*ITx, 0)
-		sess = sess.Distinct("hash").Where("json_tx like ?", "%"+opt.Address+"%")
-		sess.Find(&itxs)
+	if opt.MinId > 0 {
+		sess = sess.Where("id > ?", opt.MinId)
+	}
 
-		if len(itxs) > 0 {
-			var hashS = ""
-			for _, iTx := range itxs {
-				hashS += ", '" + iTx.Hash + "'"
-			}
-			hashS = hashS[2 : len(hashS)-1]
-			sess = sess.Where("hash like ?", "("+hashS+")")
-		}
+	if opt.MaxId > 0 {
+		sess = sess.Where("id < ?", opt.MaxId)
 	}
 
 	if opt.TxType != "" {
@@ -191,12 +185,14 @@ func Txs(chainID string, opt *TxOption) ([]*Tx, error) {
 
 	if opt.Limit > 0 {
 		sess = sess.Limit(opt.Limit, opt.Offset)
+	} else {
+		sess = sess.Limit(20, 0)
 	}
 
-	return txs, sess.OrderBy("height desc").Find(&txs)
+	return txs, sess.OrderBy("id desc").Find(&txs)
 }
 
-func TxByHeightIndex(chainID string, height, index int64) (*Tx, error) {
+func TxByHeightIndex(chainID string, height, index int64, minId, maxId, limit, offset int64) (*Tx, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return nil, err
@@ -212,12 +208,12 @@ func TxByHeightIndex(chainID string, height, index int64) (*Tx, error) {
 		return nil, errors.NotExist{Obj: "Tx"}
 	}
 
-	tx.ITxs, err = ITxByHash(chainID, tx.Hash)
+	tx.ITxs, err = ITxByHash(chainID, tx.Hash, minId, maxId, limit, offset)
 
 	return tx, nil
 }
 
-func TxByHash(chainID string, hash string) (*Tx, error) {
+func TxByHash(chainID string, hash string, minId, maxId, limit, offset int64) (*Tx, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return nil, err
@@ -233,24 +229,33 @@ func TxByHash(chainID string, hash string) (*Tx, error) {
 		return nil, errors.NotExist{Obj: "Tx"}
 	}
 
-	tx.ITxs, err = ITxByHash(chainID, hash)
+	tx.ITxs, err = ITxByHash(chainID, hash, minId, maxId, limit, offset)
 
 	return tx, nil
 }
 
-func ITxByHash(chainID string, hash string) ([]*ITx, error) {
+func ITxByHash(chainID string, hash string, minId, maxId, limit, offset int64) ([]*ITx, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return nil, err
 	}
 	itxs := make([]*ITx, 0)
-	err = x.Where("hash = ?", hash).Find(&itxs)
+	sess := x.NewSession()
+	defer sess.Close()
 
-	if err != nil {
-		return nil, errors.NotExist{Obj: "ITx"}
+	if minId > 0 {
+		sess = sess.Where("id > ?", minId)
+	}
+	if maxId > 0 {
+		sess = sess.Where("id < ?", maxId)
+	}
+	sess = sess.Where("hash = ?", hash)
+
+	if limit >0 {
+		sess = sess.Limit(int(limit), int(offset))
 	}
 
-	return itxs, nil
+	return itxs, sess.OrderBy("id desc").Find(&itxs)
 }
 
 func ITxByAddress(chainID string, address string) ([]*ITx, error) {
@@ -281,13 +286,17 @@ func ITxByAddress(chainID string, address string) ([]*ITx, error) {
 	return result, nil
 }
 
-func TxByAddress(chainID string, address string, minHeight int64, maxHeight int64, offset int, limit int) ([]*Tx, error) {
+func TxByAddress(chainID string, address string, minId int64, maxId int64, offset int, limit int) ([]*Tx, error) {
 	x, err := GetNodeEngine(chainID)
 	if err != nil {
 		return nil, err
 	}
 	itxadds := make([]*ITxAddress, 0)
 	result := make([]*Tx,0)
+
+	sess := x.NewSession()
+	defer sess.Close()
+
 	err = x.Where("address like ?", address).Limit(1000).Find(&itxadds)
 	if err != nil {
 		//return nil, errors.NotExist{Obj: "Address " + address}
@@ -300,16 +309,23 @@ func TxByAddress(chainID string, address string, minHeight int64, maxHeight int6
 			hashString += ", '" + itxadd.TxHash + "'"
 		}
 		hashString = hashString[2 :]
-		if maxHeight > minHeight && minHeight > 0 {
-			err = x.Where(" hash in ( "+hashString+" ) and height between ? and ?", minHeight, maxHeight).Limit(limit, offset).Desc("height").Find(&result)
+		sess = sess.Where(" hash in ( "+hashString+" )")
+		if maxId > 0 {
+			sess = sess.Where("id < ?", maxId)
+		}
+		if minId > 0 {
+			sess = sess.Where("id > ?", minId)
+		}
+		if limit > 0 {
+			sess = sess.Limit(limit, offset)
 		} else {
-			err = x.Where(" hash in ( "+hashString+" )").Limit(limit, offset).Desc("height").Find(&result)
+			sess = sess.Limit(20, 0)
 		}
+		err = sess.Desc("id").Find(&result)
 		if err != nil {
-			//return nil, errors.NotExist{Obj: "ITx " + hashString}
-			return nil, err
+			return nil, errors.NotExist{Obj: "ITx " + hashString}
+			//return nil, err
 		}
-		//return result, nil
 	}
 	return result, nil
 }
@@ -325,44 +341,72 @@ func TxByAddressAndType(chainID string, address string, minHeight int64, maxHeig
 	txResult := make([]*Tx,0)
 
 	result := make([]*types.ValidatorOperations, 0)
-
 	err = x.Where("address like ?", address).Limit(1000).Find(&itxadds)
 	if err != nil {
 		// return nil, errors.NotExist{Obj: "Address " + address}
 		return nil, err
 	}
 
+	sess := x.NewSession()
+	defer sess.Close()
+
 	if len(itxadds) > 0 {
 		hashString := ""
 		for _, itxadd := range itxadds {
 			hashString += ", '" + itxadd.TxHash + "'"
 		}
-		hashString = hashString[2 :]
 
-		typeString := ""
+
+		hashString = hashString[2 :]
+		sess = sess.Where("hash in ( "+hashString+" )")
+
+
+		if maxHeight > 0 {
+			sess = sess.Where("id <= ?", maxHeight)
+		}
+		if minHeight > 0 {
+			sess = sess.Where("id >= ?", minHeight)
+		}
+		if limit <= 0 {
+			limit = 0
+			offset = 0
+		}
+		if limit > 0 {
+			sess = sess.Limit(limit, offset)
+		} else {
+			sess = sess.Limit(20, 0)
+		}
+
 		if len(txTypes) != 0 {
+			typeString := ""
 			for _, t := range txTypes {
 				typeString += ", '" + t + "'"
 			}
 			typeString = typeString[2 :]
-			typeString = " and tx_type in (" + typeString +") "
+			typeString = "tx_type in (" + typeString +")"
+			err = sess.Where(typeString).Limit(limit, offset).Desc("id").Find(&itxResult)
+		} else {
+			err = sess.Limit(limit, offset).Desc("id").Find(&itxResult)
 		}
 
-		if maxHeight > minHeight && minHeight > 0 {
-			err = x.Where(" hash in ( "+hashString+" )"+ typeString + " and height between ? and ?", minHeight, maxHeight).Limit(limit, offset).Desc("id").Find(&itxResult)
-		} else {
-			err = x.Where(" hash in ( "+hashString+" )"+ typeString).Limit(limit, offset).Desc("id").Find(&itxResult)
-		}
-		if err != nil {
-			//return nil, errors.NotExist{Obj: "ITx " + hashString}
-			return nil, err
-		}
+		err = sess.Limit(limit, offset).Desc("id").Find(&txResult)
 
-		if maxHeight > minHeight && minHeight > 0 {
-			err = x.Where(" hash in ( "+hashString+" ) and height between ? and ?", minHeight, maxHeight).Limit(limit, offset).Desc("height").Find(&txResult)
-		} else {
-			err = x.Where(" hash in ( "+hashString+" )").Limit(limit, offset).Desc("height").Find(&txResult)
-		}
+
+		//if maxHeight > minHeight && minHeight > 0 {
+		//	err = x.Where(" hash in ( "+hashString+" )"+ typeString + " and height between ? and ?", minHeight, maxHeight).Limit(limit, offset).Desc("id").Find(&itxResult)
+		//} else {
+		//	err = x.Where(" hash in ( "+hashString+" )"+ typeString).Limit(limit, offset).Desc("id").Find(&itxResult)
+		//}
+		//if err != nil {
+		//	//return nil, errors.NotExist{Obj: "ITx " + hashString}
+		//	return nil, err
+		//}
+		//
+		//if maxHeight > minHeight && minHeight > 0 {
+		//	err = x.Where(" hash in ( "+hashString+" ) and height between ? and ?", minHeight, maxHeight).Limit(limit, offset).Desc("height").Find(&txResult)
+		//} else {
+		//	err = x.Where(" hash in ( "+hashString+" )").Limit(limit, offset).Desc("height").Find(&txResult)
+		//}
 		if err != nil {
 			//return nil, errors.NotExist{Obj: "ITx " + hashString}
 			return nil, err

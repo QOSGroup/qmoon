@@ -170,6 +170,24 @@ func (n Node) InactiveValidator(address string, status int, inactiveHeight int64
 	return nil
 }
 
+func (n Node) CloseValidator(address string, inactiveHeight int64, inactiveTime time.Time) error {
+	mv, err := models.ValidatorByAddress(n.ChainID, address)
+	if err == nil {
+		if mv.Status != 2 {
+			mv.Status = 2
+			mv.InactiveCode = int(types.Inactive)
+			mv.InactiveTime = inactiveTime
+			mv.InactiveHeight = inactiveHeight
+
+			if err := mv.UpdateStatus(n.ChainID); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (n Node) CreateValidator(vl types.Validator) error {
 	mv, err := models.ValidatorByAddress(n.ChainID, vl.Address)
 	if err != nil {
@@ -199,35 +217,29 @@ func (n Node) CreateValidator(vl types.Validator) error {
 		if err := mv.Insert(n.ChainID); err != nil {
 			return err
 		}
+		if err := models.UpdateBondtime(n.ChainID); err != nil {
+			return err
+		}
 	} else {
 		if mv.StakeAddress != vl.StakeAddress {
 			return types.NewValidatorAddressUnmatched(mv.StakeAddress, vl.Address)
 		}
 		cols := make([]string, 0)
-		if vl.PubKeyType != "" {
-			mv.PubKeyType = vl.PubKeyType
-			cols = append(cols, "pub_key_type")
-		}
+		mv.PubKeyType = vl.PubKeyType
+		cols = append(cols, "pub_key_type")
+
 		if vl.PubKeyValue != "" {
 			mv.PubKeyValue = vl.PubKeyValue
 			cols = append(cols, "pub_key_value")
 		}
-		if vl.VotingPower > 0 {
-			mv.VotingPower = vl.VotingPower
-			cols = append(cols, "voting_power")
-		}
-		if vl.Accum >0 {
-			mv.Accum = vl.Accum
-			cols = append(cols, "accum")
-		}
-		if vl.Status > 0 {
-			mv.Status = int(vl.Status)
-			cols = append(cols, "status")
-		}
-		if vl.InactiveCode > 0 {
-			mv.InactiveCode = int(vl.InactiveCode)
-			cols = append(cols, "inactive_code")
-		}
+		mv.VotingPower = vl.VotingPower
+		cols = append(cols, "voting_power")
+		mv.Accum = vl.Accum
+		cols = append(cols, "accum")
+		mv.Status = int(vl.Status)
+		cols = append(cols, "status")
+		mv.InactiveCode = int(vl.InactiveCode)
+		cols = append(cols, "inactive_code")
 		if !vl.InactiveTime.IsZero() {
 			mv.InactiveTime = vl.InactiveTime
 			cols = append(cols, "inactive_time")
@@ -240,42 +252,25 @@ func (n Node) CreateValidator(vl types.Validator) error {
 			mv.BondHeight = vl.BondHeight
 			cols = append(cols, "bond_height")
 		}
-		if vl.Name > "" {
-			mv.Name = vl.Name
-			cols = append(cols, "name")
-		}
-		if vl.Logo > "" {
-			mv.Logo = vl.Logo
-			cols = append(cols, "logo")
-		}
-		if vl.Details > "" {
-			mv.Details = vl.Details
-			cols = append(cols, "details")
-		}
-		if vl.Identity > "" {
-			mv.Identity = vl.Identity
-			cols = append(cols, "identity")
-		}
-		if vl.Website > "" {
-			mv.Website = vl.Website
-			cols = append(cols, "website")
-		}
-		if vl.Owner != "" {
-			mv.Owner = vl.Owner
-			cols = append(cols, "owner")
-		}
-		if vl.Commission != "" {
-			mv.Commission = vl.Commission
-			cols = append(cols, "commission")
-		}
-		if vl.BondedTokens > 0 {
-			mv.BondedTokens = vl.BondedTokens
-			cols = append(cols, "bonded_tokens")
-		}
-		if vl.SelfBond >0 {
-			mv.SelfBond = vl.SelfBond
-			cols = append(cols, "self_bond")
-		}
+		mv.Name = vl.Name
+		cols = append(cols, "name")
+		mv.Logo = vl.Logo
+		cols = append(cols, "logo")
+		mv.Details = vl.Details
+		cols = append(cols, "details")
+		mv.Identity = vl.Identity
+		cols = append(cols, "identity")
+		mv.Website = vl.Website
+		cols = append(cols, "website")
+		mv.Owner = vl.Owner
+		cols = append(cols, "owner")
+		mv.Commission = vl.Commission
+		cols = append(cols, "commission")
+		mv.BondedTokens = vl.BondedTokens
+		cols = append(cols, "bonded_tokens")
+		mv.SelfBond = vl.SelfBond
+		cols = append(cols, "self_bond")
+
 		if err := mv.Update(n.ChainID, cols...); err != nil {
 			return err
 		}
@@ -310,8 +305,8 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 
 	hexAddress := lib.Bech32AddressToHex(val.ConsPubKey)
 	percent := "0.0"
-	vh, err := models.ValidatorHistoryByAddress(n.ChainID, hexAddress, 1)
-	if err == nil && vh != nil{
+	vh, err := models.ValidatorHistoryByAddress(n.ChainID, hexAddress, 0, 0, 1)
+	if err == nil && vh != nil && len(vh) > 0 {
 		percent = strconv.FormatFloat(float64(vh[0].VotingPower)/float64(vh[0].TotalPower)*100, 'f', -2, 64)
 	}
 	uptime := float64(0)
@@ -324,6 +319,7 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 
 	vall := types.Validator{
 		Name:    val.Description.Moniker,
+		Details: val.Description.Details,
 		Logo:    val.Description.Logo,
 		Website: val.Description.Website,
 		Owner:   val.Owner,

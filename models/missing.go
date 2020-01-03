@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/QOSGroup/qmoon/types"
+	"strconv"
 	"time"
 
 	"github.com/go-xorm/xorm"
@@ -39,8 +40,23 @@ func (n *Missing) Insert(chainID string) error {
 	if err != nil {
 		return err
 	}
-
 	_, err = x.Insert(n)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// repeat last height
+func InsertMissingAsLast(chainID string, height int64) error {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return err
+	}
+	sess := x.NewSession()
+	defer sess.Close()
+	_, err = x.Exec("insert into missing (height, validator_address, created_at_unix) (select "+ strconv.FormatInt(height, 10) + ", validator_address, " + strconv.FormatInt(time.Now().Unix(), 10) + " from missing where height=" + strconv.FormatInt(height-1, 10) + ");")
 	if err != nil {
 		return err
 	}
@@ -53,9 +69,17 @@ func RetrieveMissingValidators(chainID string, height int64) ([]*types.Validator
 	if err != nil {
 		return nil, err
 	}
-	//
 	var missingValidators = make([]*types.Validator, 0)
 	return missingValidators, x.SQL("select v.\"id\", v.\"name\", v.\"details\", v.\"identity\", v.\"logo\", v.\"website\", v.\"owner\", v.\"address\", v.\"pub_key_type\", v.\"pub_key_value\", v.\"commission\", v.\"voting_power\", v.\"accum\", v.\"first_block_height\", v.\"first_block_time_unix\", v.\"status\", v.\"inactive_code\", v.\"inactive_time_unix\", v.\"inactive_height\", v.\"bond_height\", v.\"precommit_num\", v.\"bonded_tokens\", v.\"self_bond\", v.\"stake_address\" from validator v, missing m where m.height = ? and m.validator_address = v.address;", height).Limit(10, 0).Find(&missingValidators)
+}
+
+func MissingsByHeight(chainID string, height int64) ([]*Missing, error) {
+	x, err := GetNodeEngine(chainID)
+	if err != nil {
+		return nil, err
+	}
+	var missingValidators = make([]*Missing, 0)
+	return missingValidators, x.SQL("select \"id\", \"validator_address\" from missing where height = ?;", height).Find(&missingValidators)
 }
 
 func RetrieveMissings(chainID, validator string) ([]*Missing, error) {
@@ -63,7 +87,6 @@ func RetrieveMissings(chainID, validator string) ([]*Missing, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	var missings = make([]*Missing, 0)
 	return missings, x.Where("validator_address = ?", validator).OrderBy("created_at_unix desc").Limit(10, 0).Find(&missings)
 }

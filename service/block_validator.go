@@ -43,10 +43,20 @@ func (n Node) BlockValidatorsByHeight(height int64) ([]*types.BlockValidator, er
 	return res, err
 }
 
-// ListBlockValidatorByAddress 查询
-func (n Node) BlockValidatorByAddress(address string, minHeight, maxHeight int64) ([]*types.BlockValidator, error) {
+func (n Node) ValidatorCntByHeight(height int64) (int64, error) {
 	mbvs, err := models.BlockValidators(n.ChainID, &models.BlockValidatorOption{
-		MinHeight: maxHeight, MaxHeight: maxHeight, ValidatorAddress: address,
+		Height: height,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return int64(len(mbvs)), err
+}
+
+// ListBlockValidatorByAddress 查询
+func (n Node) BlockValidatorByAddress(address string, minHeight, maxHeight int64, offset int, limit int) ([]*types.BlockValidator, error) {
+	mbvs, err := models.BlockValidators(n.ChainID, &models.BlockValidatorOption{
+		MinHeight: maxHeight, MaxHeight: maxHeight, ValidatorAddress: address, Offset: offset, Limit: limit,
 	})
 	if err != nil {
 		return nil, err
@@ -147,7 +157,81 @@ func (n Node) saveBlockValidator(v *types.BlockValidator) error {
 	return nil
 }
 
-func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
+func (n Node) SaveBlockValidatorWithValidators(vars []*types.BlockValidator, validatorsInDB map[string]*types.Validator, refresh bool) error {
+	if len(vars) <= 0 {
+		return nil
+	}
+	vm := make(map[string]*types.BlockValidator)
+
+	for _, v := range vars {
+		vm[v.ValidatorAddress] = v
+	}
+
+	height := vars[0].Height
+
+	if refresh {
+		allVals, _ := n.Validators(0)
+		t := vars[0].Timestamp
+		total, err := models.TotalVotingPower(n.ChainID)
+		if err != nil || total == 0 {
+			return err
+		}
+		for _, v := range allVals {
+			validatorsInDB[v.Address] = &v
+			if _, ok := vm[v.Address]; !ok {
+				missing := &models.Missing{
+					Height:           height,
+					ValidatorAddress: v.Address,
+					CreatedAt:        t,
+				}
+				missing.Insert(n.ChainID)
+
+				vh := &models.ValidatorHistoryRecord{
+					Height:      height,
+					Address:     v.Address,
+					VotingPower: v.VotingPower,
+					TotalPower:  total,
+					Status:      1,
+				}
+				err = vh.Insert(n.ChainID)
+				if err != nil {
+					fmt.Println("error insert block validator:", vh)
+				}
+			} else {
+
+				vh := &models.ValidatorHistoryRecord{
+					Height:      height,
+					Address:     v.Address,
+					VotingPower: v.VotingPower,
+					TotalPower:  total,
+					Status:      0,
+				}
+				err = vh.Insert(n.ChainID)
+				if err != nil {
+					fmt.Println("error insert block validator:", vh)
+				}
+			}
+		}
+	} else {
+		models.InsertMissingAsLast(n.ChainID, height)
+		models.InsertHistoryAsLast(n.ChainID, height)
+	}
+
+	for _, v := range vars {
+		if refresh {
+			if _, ok := validatorsInDB[v.ValidatorAddress]; ok {
+				v.VotingPower = validatorsInDB[v.ValidatorAddress].VotingPower
+			}
+		}
+		if err := n.saveBlockValidator(v); err != nil {
+			log.Printf("saveBlockValidator err:%v", err.Error())
+		}
+	}
+
+	return nil
+}
+
+func (n Node) SaveBlockValidator(vars []*types.BlockValidator, ) error {
 	if len(vars) <= 0 {
 		return nil
 	}
@@ -177,11 +261,11 @@ func (n Node) SaveBlockValidator(vars []*types.BlockValidator) error {
 			missing.Insert(n.ChainID)
 
 			vh := &models.ValidatorHistoryRecord{
-					Height: height,
-					Address: v.Address,
-					VotingPower: v.VotingPower,
-					TotalPower: total,
-					Status: 1,
+				Height: height,
+				Address: v.Address,
+				VotingPower: v.VotingPower,
+				TotalPower: total,
+				Status: 1,
 			}
 			err = vh.Insert(n.ChainID)
 			if err!= nil {

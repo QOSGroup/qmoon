@@ -28,11 +28,13 @@ func syncAllNodeBlock() {
 	//ctx, cancel := context.WithTimeout(context.Background(), time.Minute*1)
 	ctx := context.Background()
 	for _, v := range needSync {
-		wg.Add(1)
-		go func(node *service.Node) {
-			defer wg.Done()
-			syncer.NewSyncer(node).BlockLoop(ctx)
-		}(v)
+		if v.NodeType == "QOS" {
+			wg.Add(1)
+			go func(node *service.Node) {
+				defer wg.Done()
+				syncer.NewSyncer(node).BlockLoop(ctx)
+			}(v)
+		}
 	}
 
 	wg.Wait()
