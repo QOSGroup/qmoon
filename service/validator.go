@@ -72,6 +72,7 @@ func (n Node) Validators(height int64) (types.Validators, error) {
 		}
 		vv := ConvertToValidator(v, height)
 		uptimePercent, _ := models.QueryValidatorUptime(n.ChainID, v.Address, 0,1)
+		vv.Uptime = "0"
 		if uptimePercent != nil && len(uptimePercent)>0 {
 			vv.UptimeFloat, _= strconv.ParseFloat(uptimePercent[0].Y, 64)
 			vv.Uptime = uptimePercent[0].Y
@@ -342,6 +343,9 @@ func (n Node) ConvertDisplayValidators(val stake_types.ValidatorDisplayInfo) (ty
 		Percent:	percent,
 		UptimeFloat: uptime,
 		Uptime: uptimepercent,
+	}
+	if vall.Status != 0 && vall.Uptime == "" {
+		vall.Uptime = "0.0"
 	}
 	return vall, nil
 }

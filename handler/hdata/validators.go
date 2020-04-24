@@ -5,10 +5,8 @@ package hdata
 import (
 	"github.com/QOSGroup/qmoon/cache"
 	"github.com/QOSGroup/qmoon/lib/qos"
-	"github.com/QOSGroup/qmoon/models"
 	"github.com/QOSGroup/qmoon/service"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/QOSGroup/qmoon/handler/middleware"
@@ -58,7 +56,7 @@ func validatorsGin() gin.HandlerFunc {
 		if !ok {
 			err = updateValidatorsFromAgent(c)
 			if err != nil {
-				c.JSON(http.StatusOK, types.RPCServerError("", err))
+				c.JSON(http.StatusNotFound, types.RPCServerError("", err))
 				return
 			}
 			d, ok := cache.Get(service.LatestHeightKey)
@@ -90,18 +88,18 @@ func validatorsGin() gin.HandlerFunc {
 			vs = vss.(types.Validators)
 		}
 
-		for i := 0; i < len(vs); i++ {
-			vs[i].ConsPubKey = lib.PubkeyToBech32Address(node.Bech32PrefixConsPub(), vs[i].PubKeyType, vs[i].PubKeyValue)
-			validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, vs[i].Address, 0, 0,1)
-			if err == nil && validatorHistory != nil {
-				vs[i].Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
-			}
-			uptimePercent, _ := models.QueryValidatorUptime(node.ChainID, vs[i].Address, 720,1)
-			if uptimePercent != nil && len(uptimePercent)>0 {
-				vs[i].UptimeFloat, _= strconv.ParseFloat(uptimePercent[0].Y, 64)
-				vs[i].Uptime = uptimePercent[0].Y
-			}
-		}
+		//for i := 0; i < len(vs); i++ {
+		//	vs[i].ConsPubKey = lib.PubkeyToBech32Address(node.Bech32PrefixConsPub(), vs[i].PubKeyType, vs[i].PubKeyValue)
+		//	validatorHistory, err := models.ValidatorHistoryByAddress(node.ChainID, vs[i].Address, 0, 0,1)
+		//	if err == nil && validatorHistory != nil {
+		//		vs[i].Percent = strconv.FormatFloat(float64(validatorHistory[0].VotingPower)/float64(validatorHistory[0].TotalPower)*100, 'f', -2, 64)
+		//	}
+		//	uptimePercent, _ := models.QueryValidatorUptime(node.ChainID, vs[i].Address, 720,1)
+		//	if uptimePercent != nil && len(uptimePercent)>0 {
+		//		vs[i].UptimeFloat, _= strconv.ParseFloat(uptimePercent[0].Y, 64)
+		//		vs[i].Uptime = uptimePercent[0].Y
+		//	}
+		//}
 
 
 		c.JSON(http.StatusOK, types.NewRPCSuccessResponse(lib.Cdc, "", vs))

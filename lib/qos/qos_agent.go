@@ -2,6 +2,8 @@ package qos
 
 import (
 	"encoding/json"
+	"time"
+
 	// "github.com/cosmos/cosmos-sdk/x/gov"
 	//"github.com/QOSGroup/qmoon/lib/qos/gov/types"
 	mint_types "github.com/QOSGroup/qmoon/lib/qos/mint/types"
@@ -29,7 +31,10 @@ func NewQosCli(remote string) QosCli {
 }
 
 func (cc QosCli) QueryTx(nodeUrl, tx string) (result types.TxResponseResult, err error) {
-	resp, err := http.Get(cc.remote + "/tx?node_url=" + nodeUrl + "&hash=" + tx)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/tx?node_url=" + nodeUrl + "&hash=" + tx)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -45,7 +50,10 @@ func (cc QosCli) QueryTx(nodeUrl, tx string) (result types.TxResponseResult, err
 }
 
 func (cc QosCli) QueryProposals(nodeUrl string) (result []types.ResultProposal, err error) {
-	resp, err := http.Get(cc.remote + "/gov/proposals?node_url=" + nodeUrl)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/gov/proposals?node_url=" + nodeUrl)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -61,7 +69,10 @@ func (cc QosCli) QueryProposals(nodeUrl string) (result []types.ResultProposal, 
 }
 
 func (cc QosCli) QueryProposal(nodeUrl string, pId int64) (proposal types.ResultProposal, err error) {
-	resp, err := http.Get(cc.remote + "/gov/proposal?node_url=" + nodeUrl + "&pId=" + strconv.FormatInt(pId, 10))
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/gov/proposal?node_url=" + nodeUrl + "&pId=" + strconv.FormatInt(pId, 10))
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -76,7 +87,10 @@ func (cc QosCli) QueryProposal(nodeUrl string, pId int64) (proposal types.Result
 }
 
 func (cc QosCli) QueryVotes(nodeUrl string, pId int64) ([]gov_types.Vote, error) {
-	resp, err := http.Get(cc.remote + "/gov/votes?node_url=" + nodeUrl + "&pId=" + strconv.FormatInt(pId, 10))
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/gov/votes?node_url=" + nodeUrl + "&pId=" + strconv.FormatInt(pId, 10))
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return nil, err
@@ -108,7 +122,10 @@ func (cc QosCli) QueryDeposits(nodeUrl string, pId int64) ([]gov_types.Deposit, 
 }
 
 func (cc QosCli) QueryTally(nodeUrl string, pId int64) (result gov_types.TallyResult, err error) {
-	resp, err := http.Get(cc.remote + "/gov/tally?node_url=" + nodeUrl + "&pId=" + strconv.FormatInt(pId, 10))
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/gov/tally?node_url=" + nodeUrl + "&pId=" + strconv.FormatInt(pId, 10))
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -123,7 +140,10 @@ func (cc QosCli) QueryTally(nodeUrl string, pId int64) (result gov_types.TallyRe
 }
 
 func (cc QosCli) QueryCommunityFeePool(nodeUrl string) (result string, err error) {
-	resp, err := http.Get(cc.remote + "/distribution/community/fee/pool?node_url=" + nodeUrl)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/distribution/community/fee/pool?node_url=" + nodeUrl)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -138,7 +158,10 @@ func (cc QosCli) QueryCommunityFeePool(nodeUrl string) (result string, err error
 }
 
 func (cc QosCli) QueryInflationPhrases(nodeUrl string) (result []mint_types.InflationPhrase, err error) {
-	resp, err := http.Get(cc.remote + "/mint/inflation/phrases?node_url=" + nodeUrl)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/mint/inflation/phrases?node_url=" + nodeUrl)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -153,7 +176,10 @@ func (cc QosCli) QueryInflationPhrases(nodeUrl string) (result []mint_types.Infl
 }
 
 func (cc QosCli) QueryTotal(nodeUrl string) (result string, err error) {
-	resp, err := http.Get(cc.remote + "/mint/total?node_url=" + nodeUrl)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/mint/total?node_url=" + nodeUrl)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -168,7 +194,10 @@ func (cc QosCli) QueryTotal(nodeUrl string) (result string, err error) {
 }
 
 func (cc QosCli) QueryApplied(nodeUrl string) (result string, err error) {
-	resp, err := http.Get(cc.remote + "/mint/applied?node_url=" + nodeUrl)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/mint/applied?node_url=" + nodeUrl)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -183,7 +212,10 @@ func (cc QosCli) QueryApplied(nodeUrl string) (result string, err error) {
 }
 
 func (cc QosCli) QueryValidators(nodeUrl string) (result []stake_types.ValidatorDisplayInfo, err error) {
-	resp, err := http.Get(cc.remote + "/stake/validators?node_url=" + nodeUrl)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/stake/validators?node_url=" + nodeUrl)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -198,7 +230,10 @@ func (cc QosCli) QueryValidators(nodeUrl string) (result []stake_types.Validator
 }
 
 func (cc QosCli) QueryTotalValidatorBondTokens(nodeUrl string) (result string, err error) {
-	resp, err := http.Get(cc.remote + "/stake/validators/total/bond/tokens?node_url=" + nodeUrl)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/stake/validators/total/bond/tokens?node_url=" + nodeUrl)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -213,7 +248,10 @@ func (cc QosCli) QueryTotalValidatorBondTokens(nodeUrl string) (result string, e
 }
 
 func (cc QosCli) QueryDelegationsWithValidator(nodeUrl, validator string) (result []stake_types.DelegationQueryResult, err error) {
-	resp, err := http.Get(cc.remote + "/stake/validator/delegations?node_url=" + nodeUrl + "&validator=" + validator)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/stake/validator/delegations?node_url=" + nodeUrl + "&validator=" + validator)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -228,7 +266,10 @@ func (cc QosCli) QueryDelegationsWithValidator(nodeUrl, validator string) (resul
 }
 
 func (cc QosCli) QueryDelegationsWithDelegator(nodeUrl, delegator string) (result []stake_types.DelegationQueryResult, err error) {
-	resp, err := http.Get(cc.remote + "/stake/delegator/delegations?node_url=" + nodeUrl + "&delegator=" + delegator)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/stake/delegator/delegations?node_url=" + nodeUrl + "&delegator=" + delegator)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -243,7 +284,10 @@ func (cc QosCli) QueryDelegationsWithDelegator(nodeUrl, delegator string) (resul
 }
 
 func (cc QosCli) QueryBlockByHeight(nodeUrl string, height int64) (result *ctypes.ResultBlock, err error) {
-	resp, err := http.Get(cc.remote + "/block?node_url=" + nodeUrl + "&height=" + strconv.FormatInt(height, 10))
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(cc.remote + "/block?node_url=" + nodeUrl + "&height=" + strconv.FormatInt(height, 10))
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
@@ -258,7 +302,10 @@ func (cc QosCli) QueryBlockByHeight(nodeUrl string, height int64) (result *ctype
 }
 
 func (cc QosCli) QueryStatus(nodeUrl string) (result *ctypes.SyncInfo, err error) {
-	status, err := http.Get(cc.remote + "/status?node_url=" + nodeUrl)
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	status, err := httpClient.Get(cc.remote + "/status?node_url=" + nodeUrl)
 	if err != nil {
 		err = errors.New("Can't connect to node")
 		return
