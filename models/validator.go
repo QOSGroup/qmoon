@@ -167,15 +167,8 @@ func TotalVotingPower(chainID string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	var vals = make([]*Validator, 0)
-	err = x.Find(&vals)
-	if err != nil {
-		return 0, err
-	}
-	total := int64(0)
-	for _, val := range vals {
-		total += val.VotingPower
-	}
+	var v = new(Validator)
+	total, err := x.Where("status = 0").SumInt(v, "voting_power")
 	return total, nil
 }
 

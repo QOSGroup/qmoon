@@ -40,12 +40,15 @@ func (vh *ValidatorHistoryRecord) Insert(chainID string) error {
 	}
 	sess := x.NewSession()
 	defer sess.Close()
-	vh1 := ValidatorHistoryRecord{Address:vh.Address}
-	totalCnt, err := sess.Count(vh1)
-	statusCnt, err := sess.SumInt(vh1, "status")
+	var vh1 = make([]*validatorUptimeCurrent,0)
+	if vh.Height > 10000 {
+		err = sess.SQL("select sum(1-status) as \"status_cnt\", count(1) as \"total_cnt\" from validator_history_record where height >= " + strconv.FormatInt(vh.Height-10000, 10) + " and address= '" + vh.Address + "';").Find(&vh1)
+	} else {
+		err = sess.SQL("select sum(1-status) as \"status_cnt\", count(1) as \"total_cnt\" from validator_history_record where height >= 0 and address= '" + vh.Address + "';").Find(&vh1)
+	}
 	//err = sess.SQL("select sum(1-status) as \"status_cnt\", count(1) as \"total_cnt\" from validator_history_record where address= ? ", vh.Address).Find(&uptimeCurrent)
-	if err == nil && totalCnt > 0{
-		vh.UptimePercent = strconv.FormatFloat(float64((totalCnt-statusCnt)*100)/float64(totalCnt), 'f', -10, 64)
+	if err == nil && vh1[0].TotalCnt > 0{
+		vh.UptimePercent = strconv.FormatFloat(float64((vh1[0].StatusCnt)*100)/float64(vh1[0].TotalCnt), 'f', -10, 64)
 	}
 
 	_, err = x.Insert(vh)
@@ -64,7 +67,7 @@ func InsertHistoryAsLast(chainID string, height int64) error {
 	sess := x.NewSession()
 	defer sess.Close()
 
-	_, err = x.Exec(" insert into validator_history_record (height, address, voting_power, total_power, status, uptime_percent) (select "+strconv.FormatInt(height, 10)+", address, voting_power, total_power, status, uptime_percent from validator_history_record where height = " + strconv.FormatInt(height - 1, 10) + ");")
+	_, err = x.Exec("insert into validator_history_record (height, address, voting_power, total_power, status, uptime_percent) (select "+strconv.FormatInt(height, 10)+", address, voting_power, total_power, status, uptime_percent from validator_history_record where height = " + strconv.FormatInt(height - 1, 10) + ");")
 	if err != nil {
 		return err
 	}

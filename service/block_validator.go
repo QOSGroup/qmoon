@@ -170,15 +170,13 @@ func (n Node) SaveBlockValidatorWithValidators(vars []*types.BlockValidator, val
 	height := vars[0].Height
 
 	if refresh {
-		allVals, _ := n.Validators(0)
 		t := vars[0].Timestamp
 		total, err := models.TotalVotingPower(n.ChainID)
 		if err != nil || total == 0 {
 			return err
 		}
-		for _, v := range allVals {
-			validatorsInDB[v.Address] = &v
-			if _, ok := vm[v.Address]; !ok {
+		for v_add, v := range validatorsInDB {
+			if _, ok := vm[v_add]; !ok {
 				missing := &models.Missing{
 					Height:           height,
 					ValidatorAddress: v.Address,
@@ -192,6 +190,7 @@ func (n Node) SaveBlockValidatorWithValidators(vars []*types.BlockValidator, val
 					VotingPower: v.VotingPower,
 					TotalPower:  total,
 					Status:      1,
+					UptimePercent: "100",
 				}
 				err = vh.Insert(n.ChainID)
 				if err != nil {
@@ -205,6 +204,7 @@ func (n Node) SaveBlockValidatorWithValidators(vars []*types.BlockValidator, val
 					VotingPower: v.VotingPower,
 					TotalPower:  total,
 					Status:      0,
+					UptimePercent: "100",
 				}
 				err = vh.Insert(n.ChainID)
 				if err != nil {
