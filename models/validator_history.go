@@ -190,7 +190,8 @@ func QueryValidatorUptime(chainID string, address string, intervals int64, limit
 			return QueryValidatorUptime(chainID, address, 0, limit)
 		}
 	} else {
-		err = sess.SQL("select b.time_unix, vh.uptime_percent from block b, validator_history_record vh where vh.address= ? and b.height=vh.height order by b.id desc limit "+strconv.FormatInt(int64(limit), 10), address).Find(&bvs)
+		// err = sess.SQL("select b.time_unix, vh.uptime_percent from block b, validator_history_record vh where vh.address= ? and b.height=vh.height order by b.id desc limit "+strconv.FormatInt(int64(limit), 10), address).Find(&bvs)
+		err = sess.SQL("select vh.uptime_percent, b.time_unix from block b, (select height, address, uptime_percent from validator_history_record vh where address= ? order by height desc limit " + strconv.FormatInt(int64(limit), 10) + ") vh where b.height=vh.height;", address).Find(&bvs)
 	}
 	if err != nil {
 		return nil, err
