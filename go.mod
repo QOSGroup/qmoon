@@ -7,8 +7,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.37.0
 	github.com/didip/tollbooth v4.0.0+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.0
-	github.com/gin-contrib/sse v0.0.0-20190125020943-a7658810eb74 // indirect
-	github.com/gin-gonic/gin v1.3.0
+	github.com/gin-gonic/gin v1.7.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-xorm/core v0.6.2
@@ -25,14 +24,12 @@ require (
 	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.3.2
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.4.0
 	github.com/tendermint/go-amino v0.15.1
 	github.com/tendermint/tendermint v0.32.2
 	github.com/tidwall/gjson v1.1.5
 	github.com/tidwall/match v1.0.1 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 )
 
