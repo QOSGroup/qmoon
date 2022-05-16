@@ -28,8 +28,7 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/tendermint/go-amino v0.15.1
 	github.com/tendermint/tendermint v0.32.2
-	github.com/tidwall/gjson v1.1.5
-	github.com/tidwall/match v1.0.1 // indirect
+	github.com/tidwall/gjson v1.9.3
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
